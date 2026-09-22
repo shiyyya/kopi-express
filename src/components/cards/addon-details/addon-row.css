@@ -1,0 +1,64 @@
+.AddonRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text);
+    font-family: var(--sans);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+.AddonRow:hover {
+    border-color: var(--text-muted);
+    background: var(--input-bg);
+}
+.AddonRowInfo {
+    min-width: 0;
+}
+.AddonRowName {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+}
+.AddonRowRight {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 16px;
+}
+.AddonRowPrice {
+    color: var(--text-3);
+    font-size: 14px;
+    font-weight: 600;
+}
+.AddonRowAvailability {
+    min-width: 65px;
+    text-align: right;
+    font-size: 11px;
+    font-weight: 600;
+}
+.AddonRowAvailability.available {
+    color: var(--success);
+}
+.AddonRowAvailability.sold-out {
+    color: var(--danger);
+}
+.AddonRow.sold-out {
+    opacity: 0.65;
+}
+@media (max-width: 600px) {
+    .AddonRow {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .AddonRowRight {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

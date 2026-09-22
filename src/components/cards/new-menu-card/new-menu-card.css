@@ -4,7 +4,8 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: 220px;
+    height: 100%;
+    min-height: 0;
     padding: 16px;
     border: 1px dashed var(--btn-primary);
     border-radius: 12px;
@@ -13,7 +14,11 @@
     font-family: var(--sans);
     text-align: center;
     cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease;
+    box-sizing: border-box;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.NewMenuCard:active {
+    transform: scale(0.98);
 }
 .NewMenuCard:hover {
     background: rgba(74, 103, 65, 0.08);
@@ -32,6 +37,7 @@
     font-size: 28px;
     font-weight: 400;
     line-height: 1;
+    flex-shrink: 0;
 }
 .NewMenuCardTitle {
     color: var(--text-3);

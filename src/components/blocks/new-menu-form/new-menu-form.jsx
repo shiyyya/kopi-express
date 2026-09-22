@@ -1,20 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./new-menu-form.css";
-const categories = [
-    "Coffee",
-    "Non-Coffee",
-    "Pastries",
-    "Pasta",
-];
-function NewMenuForm({ onCancel, onSave }) {
+
+const categories = ["Coffee","Non-Coffee","Pastries","Pasta"];
+const units = ["pcs","g","ml"];
+
+function NewMenuForm({ product, onCancel, onSave }) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
     const [category, setCategory] = useState("");
     const [image, setImage] = useState(null);
     const [temperature, setTemperature] = useState([]);
-    const isDrink =
-        category === "Coffee" || category === "Non-Coffee";
+    const [ingredients, setIngredients] = useState([]);
+    const isEdit = Boolean(product);
+    const isDrink = category === "Coffee" || category === "Non-Coffee";
+
+    useEffect(() => {
+        if (!product) {
+            setName("");
+            setDescription("");
+            setPrice("");
+            setCategory("");
+            setImage(null);
+            setTemperature([]);
+            setIngredients([]);
+            return;
+        }
+        setName(product.name || "");
+        setDescription(product.description || "");
+        setPrice(product.price ?? "");
+        setCategory(product.category || "");
+        setImage(product.image || null);
+        setTemperature(product.temperature || []);
+        setIngredients(product.ingredients || []);
+    }, [product]);
+
     const handleCategoryChange = (event) => {
         const value = event.target.value;
         setCategory(value);
@@ -22,6 +42,7 @@ function NewMenuForm({ onCancel, onSave }) {
             setTemperature([]);
         }
     };
+
     const handleTemperature = (value) => {
         setTemperature((current) =>
             current.includes(value)
@@ -29,34 +50,87 @@ function NewMenuForm({ onCancel, onSave }) {
                 : [...current, value]
         );
     };
+
     const handleImageChange = (event) => {
         const file = event.target.files?.[0];
         if (!file) return;
         setImage(file);
     };
+
+    const handleAddIngredient = () => {
+        setIngredients((current) => [
+            ...current,
+            {
+                inventoryId: "",
+                quantity: "",
+                unit: "pcs",
+            },
+        ]);
+    };
+
+    const handleIngredientChange = (index, field, value) => {
+        setIngredients((current) =>
+            current.map((ingredient, ingredientIndex) =>
+                ingredientIndex === index
+                    ? { ...ingredient, [field]: value }
+                    : ingredient
+            )
+        );
+    };
+
+    const handleRemoveIngredient = (index) => {
+        setIngredients((current) =>
+            current.filter((_, ingredientIndex) => ingredientIndex !== index)
+        );
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
+
         if (!name.trim() || !price || !category) {
             return;
         }
-        const newProduct = {
-            id: `product-${Date.now()}`,
+
+        const validIngredients = ingredients.filter(
+            (ingredient) =>
+                ingredient.inventoryId &&
+                ingredient.quantity !== "" &&
+                Number(ingredient.quantity) > 0 &&
+                ingredient.unit
+        );
+
+        const productData = {
+            ...(product || {
+                id: `product-${Date.now()}`,
+                badge: null,
+                available: true,
+            }),
             name: name.trim(),
             category,
             price: Number(price),
             description: description.trim(),
             image,
-            badge: null,
             temperature: isDrink ? temperature : [],
+            ingredients: validIngredients.map((ingredient) => ({
+                inventoryId: ingredient.inventoryId,
+                quantity: Number(ingredient.quantity),
+                unit: ingredient.unit,
+            })),
         };
-        onSave?.(newProduct);
+
+        onSave?.(productData);
     };
+
     return (
         <form className="NewMenuForm" onSubmit={handleSubmit}>
             <div className="NewMenuFormHeader">
                 <div>
-                    <h2>New Menu</h2>
-                    <p>Create a new menu item.</p>
+                    <h2>{isEdit ? "Edit Menu" : "New Menu"}</h2>
+                    <p>
+                        {isEdit
+                            ? "Update this menu item."
+                            : "Create a new menu item."}
+                    </p>
                 </div>
                 <button
                     type="button"
@@ -75,7 +149,11 @@ function NewMenuForm({ onCancel, onSave }) {
                         htmlFor="menu-image"
                     >
                         {image ? (
-                            <span>{image.name}</span>
+                            <span>
+                                {typeof image === "string"
+                                    ? image.split("/").pop()
+                                    : image.name}
+                            </span>
                         ) : (
                             <>
                                 <strong>+ Upload Image</strong>
@@ -101,15 +179,11 @@ function NewMenuForm({ onCancel, onSave }) {
                     />
                 </div>
                 <div className="NewMenuField">
-                    <label htmlFor="menu-description">
-                        Description
-                    </label>
+                    <label htmlFor="menu-description">Description</label>
                     <textarea
                         id="menu-description"
                         value={description}
-                        onChange={(event) =>
-                            setDescription(event.target.value)
-                        }
+                        onChange={(event) => setDescription(event.target.value)}
                         placeholder="Enter product description"
                     />
                 </div>
@@ -132,17 +206,13 @@ function NewMenuForm({ onCancel, onSave }) {
                         </div>
                     </div>
                     <div className="NewMenuField">
-                        <label htmlFor="menu-category">
-                            Category
-                        </label>
+                        <label htmlFor="menu-category">Category</label>
                         <select
                             id="menu-category"
                             value={category}
                             onChange={handleCategoryChange}
                         >
-                            <option value="">
-                                Select category
-                            </option>
+                            <option value="">Select category</option>
                             {categories.map((item) => (
                                 <option key={item} value={item}>
                                     {item}
@@ -162,9 +232,7 @@ function NewMenuForm({ onCancel, onSave }) {
                                         ? "selected"
                                         : ""
                                 }
-                                onClick={() =>
-                                    handleTemperature("hot")
-                                }
+                                onClick={() => handleTemperature("hot")}
                             >
                                 Hot
                             </button>
@@ -175,15 +243,126 @@ function NewMenuForm({ onCancel, onSave }) {
                                         ? "selected"
                                         : ""
                                 }
-                                onClick={() =>
-                                    handleTemperature("iced")
-                                }
+                                onClick={() => handleTemperature("iced")}
                             >
                                 Iced
                             </button>
                         </div>
                     </div>
                 )}
+                <div className="NewMenuIngredients">
+                    <div className="NewMenuIngredientsHeader">
+                        <div>
+                            <label>Ingredients</label>
+                            <span>
+                                Add the ingredients and amount needed for each of this product.
+                            </span>
+                        </div>
+                        <button
+                            type="button"
+                            className="NewMenuAddIngredientButton"
+                            onClick={handleAddIngredient}
+                        >
+                            + Add Ingredient
+                        </button>
+                    </div>
+                    {ingredients.length === 0 ? (
+                        <div className="NewMenuIngredientsEmpty">
+                            <span>No ingredients added yet.</span>
+                        </div>
+                    ) : (
+                        <div className="NewMenuIngredientList">
+                            {ingredients.map((ingredient, index) => (
+                                <div
+                                    className="NewMenuIngredient"
+                                    key={index}
+                                >
+                                    <div className="NewMenuIngredientName">
+                                        <label
+                                            htmlFor={`ingredient-name-${index}`}
+                                        >
+                                            Inventory ID
+                                        </label>
+                                        <input
+                                            id={`ingredient-name-${index}`}
+                                            type="text"
+                                            value={
+                                                ingredient.inventoryId || ""
+                                            }
+                                            onChange={(event) =>
+                                                handleIngredientChange(
+                                                    index,
+                                                    "inventoryId",
+                                                    event.target.value
+                                                )
+                                            }
+                                            placeholder="e.g. inventory-001"
+                                        />
+                                    </div>
+                                    <div className="NewMenuIngredientQuantity">
+                                        <label
+                                            htmlFor={`ingredient-quantity-${index}`}
+                                        >
+                                            Quantity
+                                        </label>
+                                        <input
+                                            id={`ingredient-quantity-${index}`}
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={ingredient.quantity}
+                                            onChange={(event) =>
+                                                handleIngredientChange(
+                                                    index,
+                                                    "quantity",
+                                                    event.target.value
+                                                )
+                                            }
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                    <div className="NewMenuIngredientUnit">
+                                        <label
+                                            htmlFor={`ingredient-unit-${index}`}
+                                        >
+                                            Unit
+                                        </label>
+                                        <select
+                                            id={`ingredient-unit-${index}`}
+                                            value={ingredient.unit}
+                                            onChange={(event) =>
+                                                handleIngredientChange(
+                                                    index,
+                                                    "unit",
+                                                    event.target.value
+                                                )
+                                            }
+                                        >
+                                            {units.map((unit) => (
+                                                <option
+                                                    key={unit}
+                                                    value={unit}
+                                                >
+                                                    {unit}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="NewMenuRemoveIngredient"
+                                        onClick={() =>
+                                            handleRemoveIngredient(index)
+                                        }
+                                        aria-label="Remove ingredient"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
             <div className="NewMenuFormActions">
                 <button
@@ -197,10 +376,11 @@ function NewMenuForm({ onCancel, onSave }) {
                     type="submit"
                     className="NewMenuSaveButton"
                 >
-                    Save Menu
-                </button>
+                    {isEdit ? "Save Changes" : "Save Menu"}
+                 </button>
             </div>
         </form>
     );
 }
+
 export default NewMenuForm;

@@ -4,44 +4,51 @@
     background: var(--bg);
     color: var(--text);
     text-align: left;
+    overflow: hidden;
 }
-
 .sales-report-content {
     width: 100%;
-    min-height: 100vh;
+    height: calc(100vh - 60px);
     padding: 12px;
-    background: #E8D9C3;
+    background: var(--input-bg);
     box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
-
 .content-frame {
     width: 100%;
     min-height: calc(100vh - 24px);
     display: flex;
     flex-direction: column;
-    background: #FDF8F0;
-    border-radius: 7px;
+    background: var(--card-bg);
+    border-radius: 9px;
     box-shadow: var(--shadow);
-    overflow: hidden;
+    overflow: visible;
 }
-
-
-/* CONTROLS */
-
 .sales-report-controls {
+    position: sticky;
+    top: 0;
+    z-index: 50;
     width: 100%;
     min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 10px;
-    background: #FDF8F0;
+    background: var(--card-bg);
+    border-radius: 9px 9px 0 0;
     box-sizing: border-box;
 }
-
-
-/* SEARCH */
-
+.sales-report-controls::before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    left: 0;
+    right: 0;
+    height: 12px;
+    background: var(--input-bg);
+    z-index: -1;
+}
 .sales-report-search {
     width: 310px;
     height: 30px;
@@ -49,18 +56,16 @@
     align-items: center;
     gap: 7px;
     padding: 0 10px;
-    border: 1px solid #D8CFC3;
+    border: 1px solid var(--border);
     border-radius: 8px;
-    background: #FDF8F0;
+    background: var(--card-bg);
     box-sizing: border-box;
 }
-
 .search-icon {
     width: 13px;
     height: 13px;
     flex-shrink: 0;
 }
-
 .sales-report-search input {
     width: 100%;
     height: 100%;
@@ -69,27 +74,20 @@
     outline: none;
     background: transparent;
     color: var(--text-3);
-    font-family: "Nunito Sans", sans-serif;
+    font-family: var(--sans);
     font-size: 11px;
 }
-
 .sales-report-search input::placeholder {
     color: var(--text-2);
 }
-
-
-/* ACTIONS */
-
 .sales-report-actions {
     display: flex;
     align-items: center;
     gap: 28px;
 }
-
 .sales-report-action {
     position: relative;
 }
-
 .sales-report-action > button {
     display: flex;
     align-items: center;
@@ -98,59 +96,47 @@
     border: none;
     background: transparent;
     color: var(--text-3);
-    font-family: "Nunito Sans", sans-serif;
+    font-family: var(--sans);
     font-size: 11px;
     font-weight: 600;
     cursor: pointer;
 }
-
 .sales-report-action > button span {
     display: flex;
     align-items: center;
     justify-content: center;
 }
-
 .sales-report-action > button span svg {
     width: 8px;
     height: 8px;
 }
-
-
-/* DROPDOWN */
-
 .sales-report-dropdown {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    z-index: 10;
+    z-index: 100;
     min-width: 150px;
     padding: 5px;
     border: 1px solid var(--border);
-    border-radius: 7px;
+    border-radius: 8px;
     background: var(--card-bg);
     box-shadow: var(--shadow);
 }
-
 .sales-report-dropdown button {
     width: 100%;
     padding: 8px 10px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     background: transparent;
     color: var(--text-3);
-    font-family: "Nunito Sans", sans-serif;
+    font-family: var(--sans);
     font-size: 11px;
     text-align: left;
     cursor: pointer;
 }
-
 .sales-report-dropdown button:hover {
     background: var(--input-bg);
 }
-
-
-/* EXPORT */
-
 .sales-report-export {
     height: 34px;
     display: flex;
@@ -159,105 +145,102 @@
     padding: 0 30px;
     border: none;
     border-radius: 8px;
-    background: #4A6741;
-    color: #FFFFFF;
-    font-family: "Nunito Sans", sans-serif;
+    background: var(--btn-primary);
+    color: var(--btn-label);
+    font-family: var(--sans);
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
 }
-
-
-/* TABLE */
-
 .sales-report-table {
+    position: relative;
     width: 100%;
-    overflow-x: auto;
-    border-radius: 7px;
+    overflow: visible;
+    border-radius: 0 0 9px 9px;
     box-shadow: var(--shadow);
 }
-
 .sales-report-table table {
     width: 100%;
     min-width: 1000px;
     border-collapse: collapse;
     table-layout: fixed;
-    background: #FDF8F0;
+    background: var(--card-bg);
 }
-
 .sales-report-table thead {
-    background: #2C1A0E;
+    position: sticky;
+    top: 60px;
+    z-index: 40;
+    background: var(--header-bg);
 }
-
 .sales-report-table th {
     height: 50px;
     padding: 0 6px;
-    color: #FDF8F0;
-    font-family: "Nunito Sans", sans-serif;
+    color: var(--text-h);
+    font-family: var(--sans);
     font-size: 10px;
     font-weight: 700;
     text-align: center;
     vertical-align: middle;
     white-space: normal;
+    background: var(--header-bg);
 }
-
 .sales-report-table td {
     height: 39px;
     padding: 0 6px;
-    border-bottom: 1px solid #C9C0B6;
-    background: #FDF8F0;
+    border-bottom: 1px solid var(--border);
+    background: var(--card-bg);
     color: var(--text-3);
-    font-family: "Nunito Sans", sans-serif;
+    font-family: var(--sans);
     font-size: 10px;
     text-align: center;
     vertical-align: middle;
 }
-
 .sales-report-table tbody tr:last-child td {
     border-bottom: none;
 }
-
 .sales-report-table tbody tr:hover td {
-    background: #F8EFE4;
+    background: var(--social-bg);
 }
-
-
-/* RESPONSIVE */
-
+.sales-report-content::-webkit-scrollbar {
+    width: 5px;
+}
+.sales-report-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+.sales-report-content::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+.sales-report-content::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
 @media (max-width: 1000px) {
     .sales-report-content {
         overflow-x: auto;
     }
-
     .sales-report-controls {
         min-width: 1000px;
     }
-
     .sales-report-table {
         min-width: 1000px;
     }
 }
-
 @media (max-width: 800px) {
     .sales-report-content {
         padding: 8px;
         overflow-x: auto;
     }
-
     .sales-report-controls {
         min-width: 1000px;
     }
-
     .sales-report-table {
         min-width: 1000px;
     }
 }
-
 @media (max-width: 600px) {
     .sales-report-search {
         width: 240px;
     }
-
     .sales-report-actions {
         gap: 15px;
     }

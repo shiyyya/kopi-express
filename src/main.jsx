@@ -22,7 +22,9 @@ import { OrdersProvider } from "./owner-staff/orders-context/orders-context.jsx"
 import SalesReport from "./owner-staff/owner-pages/owner-sales-report/owner-sales-report.jsx";
 import OwnerInventory from "./owner-staff/owner-pages/owner-inventory/owner-inventory.jsx";
 import OwnerMenu from "./owner-staff/owner-pages/owner-menu/owner-menu.jsx";
+import StaffOwnerLogin from "./owner-staff/staff-owner-login/staff-owner-login.jsx";
 import OrderHistoryDetails from "/src/customer/pages/order-history-details/order-history-details.jsx";
+
 createRoot(document.getElementById("root")).render(
     <StrictMode>
         <OrdersProvider>
@@ -38,6 +40,7 @@ createRoot(document.getElementById("root")).render(
                         <Route path="delivery-eligibility" element={<DeliveryEligibility />} />
                         <Route path="login" element={<Login />} />
                         <Route path="signup" element={<Signup />} />
+                        <Route path="portal" element={<StaffOwnerLogin />} />
                         <Route path="qr-payment" element={<QRPayment />} />
                         <Route path="payment-confirmed" element={<PaymentConfirmed />} />
                         <Route path="customization" element={<Customization />} />

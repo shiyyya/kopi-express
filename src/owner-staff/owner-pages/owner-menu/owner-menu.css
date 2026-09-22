@@ -1,26 +1,333 @@
-    .OwnerMenuPage {
-        min-height: 100svh;
-        width: 100%;
-        background: var(--bg);
-        color: var(--text);
-        font-family: var(--sans);
-    }
+.OwnerMenuPage {
+    width: 100%;
+    height: 100svh;
+    min-height: 100svh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow: hidden;
+}
+.OwnerMenu {
+    display: grid;
+    grid-template-columns: minmax(0, 2.5fr) minmax(360px, 1fr);
+    gap: 16px;
+    width: 100%;
+    height: calc(100svh - 70px);
+    min-height: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    align-items: stretch;
+    overflow: hidden;
+}
+.owner-menu-card {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+}
+.OwnerMenu .menu-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    padding-right: 4px;
+    box-sizing: border-box;
+}
+.OwnerMenu .menu-header {
+    flex: 0 0 auto;
+    min-height: 0;
+}
+.OwnerMenu .menu-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 16px;
+}
+.OwnerMenu .menu-navigation .menu-categories {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
+}
+.OwnerMenu .menu-type-toggle {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 4px;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--input-bg);
+}
+.OwnerMenu .menu-type-toggle button {
+    min-width: 78px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.OwnerMenu .menu-type-toggle button.active {
+    background: var(--btn-primary);
+    color: var(--btn-label);
+}
+.OwnerMenu .menu-type-toggle button:hover {
+    color: var(--text);
+}
+.OwnerMenu .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    align-content: start;
+    gap: 16px;
+    width: 100%;
+    min-height: 0;
+    flex: 1 1 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px 4px 20px 0;
+    box-sizing: border-box;
+}
+.addon-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 0;
+    flex: 1 1 0;
+    overflow: hidden;
+}
+.addon-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 16px;
+}
+.addon-header > div:first-child {
+    flex: 1;
+    min-width: 0;
+}
+.addon-header h3 {
+    margin: 0 0 4px;
+    color: var(--text-3);
+    font-family: var(--heading);
+    font-size: 18px;
+}
+.addon-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+.addon-header .menu-type-toggle {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+.addon-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    gap: 8px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px 4px 20px 0;
+    box-sizing: border-box;
+}
+.OwnerMenu .no-products,
+.no-addons {
+    flex-shrink: 0;
+    margin: 20px 0;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+}
+.Owner_Menu_Cards {
+    align-self: start;
+    min-width: 0;
+    width: 100%;
+    height: min(100%, 620px);
+    min-height: 0;
+    overflow: hidden;
+}
+.OwnerMenuEmptyCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--card-bg);
+    color: var(--text);
+    font-family: var(--sans);
+    text-align: center;
+    box-sizing: border-box;
+}
+.OwnerMenuEmptyIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 14px;
+    border: 1px dashed var(--border);
+    border-radius: 50%;
+    color: var(--text-muted);
+    font-size: 24px;
+    font-weight: 400;
+}
+.OwnerMenuEmptyCard h2 {
+    margin: 0;
+    color: var(--text-3);
+    font-family: var(--heading);
+    font-size: 20px;
+    font-weight: 700;
+}
+.OwnerMenuEmptyCard p {
+    max-width: 300px;
+    margin: 8px 0 18px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 145%;
+}
+.OwnerMenuEmptyCard button {
+    min-width: 110px;
+    padding: 9px 14px;
+    border: 1px solid var(--btn-primary);
+    border-radius: 7px;
+    background: var(--btn-primary);
+    color: var(--btn-label);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.OwnerMenuEmptyCard button:hover {
+    opacity: 0.85;
+}
+.OwnerMenu .product-grid::-webkit-scrollbar,
+.addon-list::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+.OwnerMenu .product-grid::-webkit-scrollbar-track,
+.addon-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+.OwnerMenu .product-grid::-webkit-scrollbar-thumb,
+.addon-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+.OwnerMenu .product-grid::-webkit-scrollbar-thumb:hover,
+.addon-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+@media (max-width: 1100px) {
     .OwnerMenu {
-        display: grid;
-        grid-template-columns: 3fr 1fr;
-        gap: 16px;
-        width: 100%;
-        padding: 20px;
-        box-sizing: border-box;
-        align-items: start;
-    }
-    .owner-menu-card {
-        min-width: 0;
+        grid-template-columns: minmax(0, 1.8fr) minmax(340px, 1fr);
     }
     .Owner_Menu_Cards {
-        position: sticky;
-        top: 20px;
-        align-self: start;
-        min-width: 0;
-        height: fit-content;
+        height: min(100%, 560px);
     }
+}
+@media (max-width: 900px) {
+    .OwnerMenuPage {
+        width: 100%;
+        height: 100svh;
+        min-height: 100svh;
+        overflow: hidden;
+    }
+    .OwnerMenu {
+        grid-template-columns: 1fr;
+        width: 100%;
+        height: calc(100svh - 70px);
+        min-height: 0;
+        overflow: hidden;
+    }
+    .owner-menu-card {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+    }
+    .OwnerMenu .menu-section {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+    }
+    .OwnerMenu .menu-navigation {
+        align-items: stretch;
+        flex-direction: column;
+    }
+    .OwnerMenu .menu-type-toggle {
+        width: fit-content;
+    }
+    .OwnerMenu .product-grid {
+        flex: 1 1 0;
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        overflow-y: auto;
+    }
+    .addon-section {
+        flex: 1 1 0;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+    }
+    .addon-list {
+        flex: 1 1 0;
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        overflow-y: auto;
+    }
+    .Owner_Menu_Cards {
+        width: 100%;
+        height: min(70svh, 700px);
+        min-height: 0;
+        max-height: 70svh;
+        overflow: hidden;
+    }
+    .OwnerMenuEmptyCard {
+        height: 100%;
+        min-height: 0;
+    }
+}
+@media (max-width: 600px) {
+    .OwnerMenu {
+        padding: 14px;
+    }
+    .Owner_Menu_Cards {
+        height: min(68svh, 620px);
+        max-height: 68svh;
+    }
+}
+@media (max-width: 480px) {
+    .OwnerMenu {
+        padding: 12px;
+    }
+    .OwnerMenu .product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+    .Owner_Menu_Cards {
+        height: min(66svh, 560px);
+        max-height: 66svh;
+    }
+}
