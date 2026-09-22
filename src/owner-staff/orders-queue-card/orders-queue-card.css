@@ -24,7 +24,8 @@
   transition: opacity 0.15s ease;
 }
 
-.ordersQueueCard[data-status="delivered"] .ordersQueueBody {
+.ordersQueueCard[data-status="delivered"] .ordersQueueBody,
+.ordersQueueCard[data-status="cancelled"] .ordersQueueBody {
   opacity: 0.5;
 }
 
@@ -284,6 +285,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 .orderItemNameRow, .ordersQueueItemName, .onlineOrderItemName {
   display: flex;
