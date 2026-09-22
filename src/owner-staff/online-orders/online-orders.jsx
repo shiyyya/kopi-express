@@ -1,6 +1,8 @@
 import React from "react";
 import "./online-orders.css";
 import DefaultAvatar from "/src/assets/icons/avatar.svg?react";
+import HotIcon from "/src/assets/icons/hot.svg?react";
+import IcedIcon from "/src/assets/icons/iced.svg?react";
 
 const STATUS_LABELS = {
   pending: "Pending",
@@ -68,14 +70,28 @@ function OnlineOrders({
         {items.length === 0 ? (
           <p className="onlineOrderEmpty">No items yet</p>
         ) : (
-          items.map((item) => (
-            <div className="onlineOrderItem" key={item.id}>
-              <span className="onlineOrderItemName">{item.name}</span>
-              <span className="onlineOrderItemPrice">
-                {formatCurrency(item.price * (item.quantity ?? 1), currencySymbol)}
-              </span>
-            </div>
-          ))
+          items.map((item) => {
+            const isDrink = item.category === "drink";
+            return (
+              <div className="onlineOrderItem" key={item.id}>
+                <div className="onlineOrderItemMain">
+                  <span className="onlineOrderItemName">
+                    {isDrink && (
+                      item.temperature === "hot" ? (
+                        <HotIcon className="orderItemTempIcon orderItemTempHot" aria-label="Hot" />
+                      ) : (
+                        <IcedIcon className="orderItemTempIcon orderItemTempCold" aria-label="Cold" />
+                      )
+                    )}
+                    {item.name}
+                  </span>
+                  <span className="onlineOrderItemPrice">
+                    {formatCurrency(item.price * (item.quantity ?? 1), currencySymbol)}
+                  </span>
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
 

@@ -115,6 +115,13 @@
   gap: 10px;
   height: 180px;
   overflow-y: auto;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.onlineOrderItems::-webkit-scrollbar {
+  display: none;
 }
 
 .onlineOrderEmpty {
@@ -215,4 +222,25 @@
 .onlineOrderAcceptButton:focus-visible {
   outline: 2px solid var(--accent-border);
   outline-offset: 2px;
+}
+
+.orderItemMain, .ordersQueueItemMain, .onlineOrderItemMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.orderItemNameRow, .ordersQueueItemName, .onlineOrderItemName {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.orderItemTempIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.orderItemSubline {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
 }
