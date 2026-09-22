@@ -9,7 +9,7 @@
 .Inventory {
     width: 100%;
     padding: 12px;
-    background: #E8D9C3;
+    background: var(--input-bg);
 }
 
 .InventoryControls {
@@ -32,7 +32,7 @@
     padding: 0 10px;
     border: 1px solid #D8CFC3;
     border-radius: 8px;
-    background: #FDF8F0;
+    background: var(--card-bg);
 }
 
 .InventorySearch span {
@@ -205,7 +205,7 @@
     border: 1px solid #D8CFC3;
     border-radius: 6px;
     outline: none;
-    background: #FDF8F0;
+    background: var(--card-bg);
     color: var(--text);
     font-family: var(--sans);
     font-size: 11px;
@@ -237,26 +237,27 @@
     font-size: 9px;
     font-weight: 600;
     cursor: pointer;
+    border: none;
 }
 
 .AddButton {
-    border: 1px solid #6F8F78;
-    background: #E3EBDD;
-    color: #3F654B;
+    border: none;
+    background: var(--btn-primary);
+    color: var(--btn-label);
 }
 
 .AddButton:hover {
-    background: #D5E1D1;
+    filter: brightness(0.9);
 }
 
 .RemoveButton {
-    border: 1px solid #A97872;
-    background: #F0DEDA;
-    color: #874A45;
+    border: none;
+    background: var(--error);
+    color: var(--btn-label);
 }
 
 .RemoveButton:hover {
-    background: #E7CFCA;
+    filter: brightness(0.9);
 }
 
 @media (max-width: 1000px) {

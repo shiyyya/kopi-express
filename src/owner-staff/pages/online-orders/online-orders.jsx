@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './online-orders.css';
 import Header from '/src/components/largeheader-wback/largeheader-wback.jsx';
-import OrderRequestCard from '/src/owner-staff/online-orders/online-orders.jsx';
+import OrderRequestCard from '/src/owner-staff/online-orders-card/online-orders-card.jsx';
 import OrderDetailsPanel from '/src/owner-staff/order-details-panel/order-details-panel.jsx';
 import { useOrders } from '/src/owner-staff/orders-context/orders-context.jsx';
 

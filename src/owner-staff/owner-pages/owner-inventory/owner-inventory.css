@@ -6,6 +6,7 @@
     text-align: left;
     overflow: hidden;
 }
+
 .Inventory {
     width: 100%;
     height: calc(100vh - 60px);
@@ -15,6 +16,7 @@
     overflow-y: auto;
     overflow-x: hidden;
 }
+
 .InventoryControls {
     position: sticky;
     top: 0;
@@ -29,6 +31,7 @@
     border-radius: 9px 9px 0 0;
     box-sizing: border-box;
 }
+
 .InventoryControls::before {
     content: "";
     position: absolute;
@@ -39,6 +42,7 @@
     background: var(--input-bg);
     z-index: -1;
 }
+
 .InventorySearch {
     width: 310px;
     height: 30px;
@@ -50,11 +54,13 @@
     border-radius: 8px;
     background: var(--card-bg);
 }
+
 .InventorySearch span {
     font-size: 14px;
     line-height: 1;
     color: var(--text-2);
 }
+
 .InventorySearch input {
     width: 100%;
     height: 100%;
@@ -66,14 +72,17 @@
     font-family: var(--sans);
     font-size: 11px;
 }
+
 .InventorySearch input::placeholder {
     color: var(--text-2);
 }
+
 .InventoryActions {
     display: flex;
     align-items: center;
     gap: 28px;
 }
+
 .InventoryActions button {
     display: flex;
     align-items: center;
@@ -87,18 +96,22 @@
     font-weight: 600;
     cursor: pointer;
 }
+
 .InventoryActions button span {
     display: flex;
     align-items: center;
     justify-content: center;
 }
+
 .InventoryActions button span svg {
     width: 8px;
     height: 8px;
 }
+
 .InventoryAction {
     position: relative;
 }
+
 .InventoryDropdown {
     position: absolute;
     top: calc(100% + 8px);
@@ -111,6 +124,7 @@
     background: var(--card-bg);
     box-shadow: var(--shadow);
 }
+
 .InventoryDropdown button {
     width: 100%;
     padding: 8px 10px;
@@ -123,15 +137,18 @@
     text-align: left;
     cursor: pointer;
 }
+
 .InventoryDropdown button:hover {
     background: var(--input-bg);
 }
+
 .InventoryTable {
     width: 100%;
     overflow: visible;
     border-radius: 0 0 9px 9px;
     box-shadow: var(--shadow);
 }
+
 .InventoryHeader {
     position: sticky;
     top: 60px;
@@ -151,10 +168,12 @@
     border-radius: 0;
     box-sizing: border-box;
 }
+
 .InventoryItems {
     width: 100%;
     overflow: visible;
 }
+
 .ItemInventory {
     width: 100%;
     min-height: 55px;
@@ -170,19 +189,23 @@
     text-align: center;
     box-sizing: border-box;
 }
+
 .ItemInventory:last-child {
     border-bottom: none;
     border-radius: 0 0 9px 9px;
 }
+
 .ItemInventory > span {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .ItemInventory:hover {
     background: var(--social-bg);
 }
+
 .InventoryQuantity {
     width: 100%;
     min-width: 0;
@@ -190,12 +213,14 @@
     align-items: center;
     justify-content: center;
 }
+
 .NormalQuantity {
     display: inline-block;
     overflow: visible;
     text-overflow: unset;
     white-space: nowrap;
 }
+
 .AdjustQuantity {
     width: 100%;
     display: flex;
@@ -203,6 +228,7 @@
     justify-content: center;
     gap: 6px;
 }
+
 .QuantityInput {
     width: 55px;
     height: 30px;
@@ -216,17 +242,21 @@
     font-size: 11px;
     text-align: center;
 }
+
 .QuantityInput:focus {
     border-color: var(--accent-border);
 }
+
 .QuantityInput::-webkit-inner-spin-button,
 .QuantityInput::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+
 .QuantityInput {
     appearance: textfield;
 }
+
 .QuantityButton {
     height: 30px;
     display: flex;
@@ -238,25 +268,29 @@
     font-size: 9px;
     font-weight: 600;
     cursor: pointer;
+    border: none;
 }
+
 .AddButton {
-    border: 1px solid var(--success);
-    background: var(--success-bg);
-    color: var(--success);
+    border: none;
+    background: var(--btn-primary);
+    color: var(--btn-label);
 }
+
 .AddButton:hover {
-    background: var(--success-bg);
-    filter: brightness(0.96);
+    filter: brightness(0.9);
 }
+
 .RemoveButton {
-    border: 1px solid var(--error);
-    background: var(--error-bg);
-    color: var(--error);
+    border: none;
+    background: var(--error);
+    color: var(--btn-label);
 }
+
 .RemoveButton:hover {
-    background: var(--error-bg);
-    filter: brightness(0.96);
+    filter: brightness(0.9);
 }
+
 .InventoryAddButton {
     display: flex;
     align-items: center;
@@ -271,9 +305,11 @@
     font-weight: 600;
     cursor: pointer;
 }
+
 .InventoryAddButton:hover {
     filter: brightness(0.96);
 }
+
 .InventoryModalOverlay {
     position: fixed;
     inset: 0;
@@ -283,6 +319,7 @@
     justify-content: center;
     background: var(--accent-bg);
 }
+
 .InventoryModal {
     width: 100%;
     max-width: 360px;
@@ -294,6 +331,7 @@
     background: var(--card-bg);
     box-shadow: var(--shadow);
 }
+
 .InventoryModal h2 {
     margin: 0 0 4px;
     color: var(--accent);
@@ -301,6 +339,7 @@
     font-size: 16px;
     font-weight: 700;
 }
+
 .InventoryModal label {
     display: flex;
     flex-direction: column;
@@ -310,6 +349,7 @@
     font-size: 11px;
     font-weight: 600;
 }
+
 .InventoryModal input {
     height: 34px;
     padding: 0 10px;
@@ -321,15 +361,18 @@
     font-family: var(--sans);
     font-size: 11px;
 }
+
 .InventoryModal input:focus {
     border-color: var(--accent-border);
 }
+
 .InventoryModalActions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
     margin-top: 6px;
 }
+
 .InventoryModalCancel,
 .InventoryModalConfirm {
     height: 34px;
@@ -341,61 +384,77 @@
     cursor: pointer;
     border: none;
 }
+
 .InventoryModalCancel {
     background: var(--bg);
     color: var(--text-3);
 }
+
 .InventoryModalCancel:hover {
     filter: brightness(0.96);
 }
+
 .InventoryModalConfirm {
     background: var(--btn-primary);
     color: var(--btn-label);
 }
+
 .InventoryModalConfirm:hover {
     filter: brightness(0.96);
 }
+
 .Inventory::-webkit-scrollbar {
     width: 5px;
     height: 5px;
 }
+
 .Inventory::-webkit-scrollbar-track {
     background: transparent;
 }
+
 .Inventory::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 10px;
 }
+
 .Inventory::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
 }
+
 @media (max-width: 1000px) {
     .Inventory {
         overflow-x: auto;
     }
+
     .InventoryControls {
         min-width: 1000px;
     }
+
     .InventoryTable {
         min-width: 1000px;
     }
 }
+
 @media (max-width: 800px) {
     .Inventory {
         padding: 8px;
         overflow-x: auto;
     }
+
     .InventoryControls {
         min-width: 1000px;
     }
+
     .InventoryTable {
         min-width: 1000px;
     }
 }
+
 @media (max-width: 600px) {
     .InventorySearch {
         width: 240px;
     }
+
     .InventoryActions {
         gap: 15px;
     }

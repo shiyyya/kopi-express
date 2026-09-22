@@ -13,10 +13,27 @@
   flex-direction: column;
 }
 
+.orderBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  transition: opacity 0.15s ease;
+}
+
+.orderPanel[data-status="cancelled"] .orderBody,
+.orderPanel[data-status="delivered"] .orderBody {
+  opacity: 0.5;
+}
+
 .orderScrollArea {
   overflow-y: auto;
   flex: 1;
   min-height: 0;
+}
+
+.orderScrollArea::-webkit-scrollbar {
+  display: none;
 }
 
 .orderTop {
@@ -37,6 +54,15 @@
   height: 40px;
   border-radius: 50%;
   background: var(--btn-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.orderAvatarIcon {
+  width: 100%;
+  height: 100%;
 }
 
 .orderName {
@@ -111,6 +137,13 @@
   font-weight: 600;
 }
 
+.orderNotesList {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .orderTotals {
   display: flex;
   flex-direction: column;
@@ -159,7 +192,6 @@
   color: var(--btn-label);
 }
 
-/* Queue action buttons */
 .queueDetailsStartButton,
 .queueDetailsReadyButton,
 .queueDetailsDoneButton {
@@ -184,6 +216,31 @@
 
 .queueDetailsDoneButton {
   background: var(--accent);
+}
+
+.orderItemMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.orderItemNameRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.orderItemTempIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.orderItemSubline {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
 }
 
 @media (max-width: 900px) {

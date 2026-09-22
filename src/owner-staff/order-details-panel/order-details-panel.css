@@ -13,10 +13,26 @@
   flex-direction: column;
 }
 
+.orderBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  transition: opacity 0.15s ease;
+}
+
+.orderPanel[data-status="declined"] .orderBody {
+  opacity: 0.5;
+}
+
 .orderScrollArea {
   overflow-y: auto;
   flex: 1;
   min-height: 0;
+}
+
+.orderScrollArea::-webkit-scrollbar {
+  display: none;
 }
 
 .orderTop {
@@ -37,6 +53,15 @@
   height: 40px;
   border-radius: 50%;
   background: var(--btn-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.orderAvatarIcon {
+  width: 100%;
+  height: 100%;
 }
 
 .orderName {
@@ -50,7 +75,7 @@
   font-size: 13px;
 }
 
-.orderStatus {
+.cleanStatus {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -65,9 +90,9 @@
   background: currentColor;
 }
 
-.orderpending { color: var(--notif); }
-.orderaccepted { color: var(--success); }
-.orderdeclined { color: var(--error); }
+.cleanpending  { color: var(--notif); }
+.cleanaccepted { color: var(--success); }
+.cleandeclined { color: var(--error); }
 
 .orderDivider {
   height: 1px;
@@ -107,6 +132,13 @@
 
 .orderItemPrice {
   font-weight: 600;
+}
+
+.orderNotesList {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .orderTotals {
@@ -155,6 +187,31 @@
 .orderAcceptBtn {
   background: var(--btn-primary);
   color: var(--btn-label);
+}
+
+.orderItemMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.orderItemNameRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.orderItemTempIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.orderItemSubline {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
 }
 
 @media (max-width: 900px) {

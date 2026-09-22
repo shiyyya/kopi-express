@@ -1,6 +1,8 @@
 import React from "react";
-import "./orders-queue.css";
+import "./orders-queue-card.css";
 import DefaultAvatar from "/src/assets/icons/avatar.svg?react";
+import HotIcon from "/src/assets/icons/hot.svg?react";
+import IcedIcon from "/src/assets/icons/iced.svg?react";
 
 const STATUS_LABELS = {
   pending: "Pending",
@@ -34,7 +36,7 @@ const STATUS_ACTIONS = {
 };
 
 function formatCurrency(amount, currencySymbol) {
-  return `${currencySymbol}${amount.toFixed(2)}`;
+  return `${currencySymbol}${Number(amount ?? 0).toFixed(2)}`;
 }
 
 function OrdersQueue(props) {
@@ -101,14 +103,29 @@ function OrdersQueue(props) {
           {items.length === 0 ? (
             <p className="ordersQueueEmpty">No items yet</p>
           ) : (
-            items.map((item) => (
-              <div className="ordersQueueItem" key={item.id}>
-                <span className="ordersQueueItemName">{item.name}</span>
-                <span className="ordersQueueItemPrice">
-                  {formatCurrency(item.price * (item.quantity ?? 1), currencySymbol)}
-                </span>
-              </div>
-            ))
+            items.map((item) => {
+              const isDrink = item.category === "drink";
+              return (
+                <div className="ordersQueueItem" key={item.id}>
+                  <div className="ordersQueueItemMain">
+                    <span className="ordersQueueItemName">
+                      {isDrink && (
+                        item.temperature === "hot" ? (
+                          <HotIcon className="orderItemTempIcon orderItemTempHot" aria-label="Hot" />
+                        ) : (
+                          <IcedIcon className="orderItemTempIcon orderItemTempCold" aria-label="Cold" />
+                        )
+                      )}
+                      {item.name}
+                      {item.quantity ? ` x${item.quantity}` : ""}
+                    </span>
+                    <span className="ordersQueueItemPrice">
+                      {formatCurrency(item.price * (item.quantity ?? 1), currencySymbol)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
           )}
         </div>
 

@@ -24,7 +24,8 @@
   transition: opacity 0.15s ease;
 }
 
-.ordersQueueCard[data-status="delivered"] .ordersQueueBody {
+.ordersQueueCard[data-status="delivered"] .ordersQueueBody,
+.ordersQueueCard[data-status="cancelled"] .ordersQueueBody {
   opacity: 0.5;
 }
 
@@ -147,6 +148,13 @@
   gap: 10px;
   height: 180px;
   overflow-y: auto;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ordersQueueItems::-webkit-scrollbar {
+  display: none;
 }
 
 .ordersQueueEmpty {
@@ -230,7 +238,6 @@
   background: color-mix(in srgb, var(--input-bg) 85%, var(--accent) 15%);
 }
 
-/* "In-progress" blue — now themeable via --btn-process in index.css */
 .ordersQueueStartButton {
   background: var(--btn-process);
   color: var(--btn-label);
@@ -272,4 +279,26 @@
 .ordersQueueDoneButton:focus-visible {
   outline: 2px solid var(--accent-border);
   outline-offset: 2px;
+}
+
+.orderItemMain, .ordersQueueItemMain, .onlineOrderItemMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.orderItemNameRow, .ordersQueueItemName, .onlineOrderItemName {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.orderItemTempIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.orderItemSubline {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
 }
