@@ -1,4 +1,7 @@
 import "./orders-queue-details.css";
+import DefaultAvatar from "/src/assets/icons/avatar.svg?react";
+import HotIcon from "/src/assets/icons/hot.svg?react";
+import IcedIcon from "/src/assets/icons/iced.svg?react";
 
 const STATUS_LABELS = {
   pending: "Pending",
@@ -49,11 +52,25 @@ function OrdersQueueDetailsPanel({
     normalizedStatus === "preparing" ||
     normalizedStatus === "ready";
 
+  const notesEntries = order.items
+    .map((item) => {
+      const isDrink = item.category === "drink";
+      const text = isDrink
+        ? item.addOns?.length
+          ? item.addOns.map((a) => a.name).join(", ")
+          : null
+        : item.notes || null;
+      return text ? { id: item.id, name: item.name, isDrink, text } : null;
+    })
+    .filter(Boolean);
+
   return (
     <aside className="orderPanel">
       <div className="orderTop">
         <div className="orderCustomer">
-          <div className="orderAvatar" aria-hidden="true" />
+          <div className="orderAvatar" aria-hidden="true">
+            <DefaultAvatar className="orderAvatarIcon" aria-hidden="true" />
+          </div>
           <div>
             <p className="orderName">{order.customer}</p>
             <p className="orderType">
@@ -76,18 +93,16 @@ function OrdersQueueDetailsPanel({
             <div className="orderSection">
               <p className="orderLabel">Delivery address</p>
               <p className="orderValue">{order.address}</p>
-              {order.eta && <p className="orderSub">Estimated: {order.eta}</p>}
             </div>
             <div className="orderDivider" />
           </>
         ) : (
-          (order.storeBranch || order.storeAddress || order.pickupTime) && (
+          (order.storeBranch || order.storeAddress) && (
             <>
               <div className="orderSection">
                 <p className="orderLabel">Pickup information</p>
                 {order.storeBranch && <p className="orderValue">{order.storeBranch}</p>}
                 {order.storeAddress && <p className="orderSub">{order.storeAddress}</p>}
-                {order.pickupTime && <p className="orderSub">Pickup time: {order.pickupTime}</p>}
               </div>
               <div className="orderDivider" />
             </>
@@ -110,17 +125,36 @@ function OrdersQueueDetailsPanel({
 
         <div className="orderSection">
           <p className="orderLabel">Order summary</p>
-          {order.items.map((item) => (
-            <div className="orderItem" key={item.id}>
-              <span>
-                {item.name}
-                {item.quantity ? ` x${item.quantity}` : ""}
-              </span>
-              <span className="orderItemPrice">
-                {peso(item.price * (item.quantity ?? 1))}
-              </span>
+          {order.items.map((item) => {
+            const isDrink = item.category === "drink";
+            return (
+              <div className="orderItem" key={item.id}>
+                <div className="orderItemMain">
+                  <span className="orderItemNameRow">
+                    {isDrink && (
+                      item.temperature === "hot" ? (
+                        <HotIcon className="orderItemTempIcon orderItemTempHot" aria-label="Hot" />
+                      ) : (
+                        <IcedIcon className="orderItemTempIcon orderItemTempCold" aria-label="Cold" />
+                      )
+                    )}
+                    <span>{item.name}{item.quantity ? ` x${item.quantity}` : ""}</span>
+                  </span>
+                  <span className="orderItemPrice">{peso(item.price * (item.quantity ?? 1))}</span>
+                </div>
+              </div>
+            );
+          })}
+
+          {notesEntries.length > 0 && (
+            <div className="orderNotesList">
+              {notesEntries.map((entry) => (
+                <p className="orderItemSubline" key={entry.id}>
+                  {entry.name} — {entry.isDrink ? "Add-ons" : "Note"}: {entry.text}
+                </p>
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
         <div className="orderDivider" />

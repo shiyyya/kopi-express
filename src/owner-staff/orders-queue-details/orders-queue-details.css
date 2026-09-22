@@ -17,6 +17,11 @@
   overflow-y: auto;
   flex: 1;
   min-height: 0;
+
+}
+
+.orderScrollArea::-webkit-scrollbar {
+  display: none;
 }
 
 .orderTop {
@@ -111,6 +116,13 @@
   font-weight: 600;
 }
 
+.orderNotesList {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .orderTotals {
   display: flex;
   flex-direction: column;
@@ -159,7 +171,6 @@
   color: var(--btn-label);
 }
 
-/* Queue action buttons */
 .queueDetailsStartButton,
 .queueDetailsReadyButton,
 .queueDetailsDoneButton {
@@ -190,4 +201,36 @@
   .orderPanel {
     width: 100%;
   }
+}
+
+.orderAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.orderAvatarIcon {
+  width: 100%;
+  height: 100%;
+}
+
+.orderItemMain, .ordersQueueItemMain, .onlineOrderItemMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.orderItemNameRow, .ordersQueueItemName, .onlineOrderItemName {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.orderItemTempIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.orderItemSubline {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
 }
