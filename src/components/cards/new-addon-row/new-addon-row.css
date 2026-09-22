@@ -1,0 +1,30 @@
+.NewAddonRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 58px;
+    padding: 12px 16px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-3);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.NewAddonRow:hover {
+    background: var(--btn-bg);
+    border-color: var(--btn-primary);
+}
+.NewAddonRowIcon {
+    margin-right: 5px;
+    font-size: 16px;
+    font-weight: 700;
+}
+.NewAddonRowText {
+    line-height: 1;
+}

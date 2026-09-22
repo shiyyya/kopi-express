@@ -1,4 +1,4 @@
-.AddOnCard {
+.ProductDetailsCard {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -14,7 +14,7 @@
     box-sizing: border-box;
     overflow: hidden;
 }
-.AddOnCardHeader {
+.ProductDetailsCardHeader {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -23,7 +23,7 @@
     margin-bottom: 10px;
     text-align: left;
 }
-.AddOnCardHeader h2 {
+.ProductDetailsCardHeader h2 {
     margin: 0;
     color: var(--text-3);
     font-family: var(--heading);
@@ -31,13 +31,57 @@
     font-weight: 700;
     text-align: left;
 }
-.AddOnCardHeader p {
+.ProductDetailsCardHeader p {
     margin-top: 3px;
     color: var(--text-muted);
     font-size: 12px;
     text-align: left;
 }
-.AddOnCardInfo {
+.ProductDetailsCardClose {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--card-bg);
+    color: var(--text-3);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.ProductDetailsCardClose:hover {
+    background: var(--btn-bg);
+    border-color: var(--btn-primary);
+}
+.ProductDetailsCardImage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 100%;
+    height: 180px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--input-bg);
+}
+.ProductDetailsCardImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.ProductDetailsCardImage span {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+.ProductDetailsCardInfo {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -48,16 +92,16 @@
     padding-right: 6px;
     text-align: left;
 }
-.AddOnCardInfo > div {
+.ProductDetailsCardInfo > div {
     flex-shrink: 0;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--border);
 }
-.AddOnCardInfo > div:last-child {
+.ProductDetailsCardInfo > div:last-child {
     padding-bottom: 0;
     border-bottom: none;
 }
-.AddOnCardLabel {
+.ProductDetailsCardLabel {
     display: block;
     margin-bottom: 3px;
     color: var(--text-muted);
@@ -67,7 +111,7 @@
     text-align: left;
     text-transform: uppercase;
 }
-.AddOnCardInfo h3 {
+.ProductDetailsCardInfo h3 {
     margin: 0;
     color: var(--text-3);
     font-family: var(--heading);
@@ -75,12 +119,31 @@
     font-weight: 700;
     text-align: left;
 }
-.AddOnCardInfo strong {
+.ProductDetailsCardInfo p {
+    margin: 0;
+    color: var(--text);
+    font-size: 12px;
+    line-height: 140%;
+    text-align: left;
+}
+.ProductDetailsCardRow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+.ProductDetailsCardRow > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.ProductDetailsCardRow strong,
+.ProductDetailsCardRow > div > span:last-child {
     color: var(--text-3);
     font-size: 13px;
     text-align: left;
 }
-.AddOnCardAvailability {
+.ProductDetailsCardAvailability {
     display: inline-flex;
     align-items: center;
     width: fit-content;
@@ -90,20 +153,26 @@
     font-weight: 700;
     text-align: left;
 }
-.AddOnCardAvailability.available {
+.ProductDetailsCardAvailability.available {
     background: var(--success-bg);
     color: var(--success);
 }
-.AddOnCardAvailability.sold-out {
+.ProductDetailsCardAvailability.sold-out {
     background: var(--error-bg);
     color: var(--error);
 }
-.AddOnCardIngredients {
+.ProductDetailsCardTemperature {
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: left;
+}
+.ProductDetailsCardIngredients {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
-.AddOnCardIngredient {
+.ProductDetailsCardIngredient {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -113,16 +182,16 @@
     border-radius: 7px;
     background: var(--bg);
 }
-.AddOnCardIngredient span {
+.ProductDetailsCardIngredient span {
     color: var(--text);
     font-size: 11px;
 }
-.AddOnCardIngredient strong {
+.ProductDetailsCardIngredient strong {
     color: var(--text-3);
     font-size: 11px;
     white-space: nowrap;
 }
-.AddOnCardActions {
+.ProductDetailsCardActions {
     display: flex;
     flex-shrink: 0;
     gap: 8px;
@@ -131,7 +200,7 @@
     border-top: 1px solid var(--border);
     background: var(--card-bg);
 }
-.AddOnCardActions button {
+.ProductDetailsCardActions button {
     flex: 1;
     min-height: 38px;
     padding: 7px 12px;
@@ -143,54 +212,57 @@
     cursor: pointer;
     transition: opacity 0.2s ease, background 0.2s ease;
 }
-.AddOnCardActions button:hover {
+.ProductDetailsCardActions button:hover {
     opacity: 0.85;
 }
-.AddOnCardEdit {
+.ProductDetailsCardEdit {
     background: var(--btn-bg);
     color: var(--btn-secondary);
 }
-.AddOnCardDelete {
+.ProductDetailsCardDelete {
     background: var(--error);
     color: var(--btn-label);
 }
-.AddOnCardInfo::-webkit-scrollbar {
+.ProductDetailsCardInfo::-webkit-scrollbar {
     width: 5px;
 }
-.AddOnCardInfo::-webkit-scrollbar-track {
+.ProductDetailsCardInfo::-webkit-scrollbar-track {
     background: transparent;
 }
-.AddOnCardInfo::-webkit-scrollbar-thumb {
+.ProductDetailsCardInfo::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 10px;
 }
-.AddOnCardInfo::-webkit-scrollbar-thumb:hover {
+.ProductDetailsCardInfo::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
 }
 @media (max-width: 900px) {
-    .AddOnCard {
+    .ProductDetailsCard {
         height: auto;
         min-height: 0;
         max-height: none;
         overflow: visible;
     }
-    .AddOnCardInfo {
+    .ProductDetailsCardInfo {
         flex: none;
         overflow: visible;
         padding-right: 0;
     }
 }
 @media (max-width: 480px) {
-    .AddOnCard {
+    .ProductDetailsCard {
         padding: 14px;
     }
-    .AddOnCardHeader h2 {
+    .ProductDetailsCardImage {
+        height: 160px;
+    }
+    .ProductDetailsCardHeader h2 {
         font-size: 16px;
     }
-    .AddOnCardInfo h3 {
+    .ProductDetailsCardInfo h3 {
         font-size: 18px;
     }
-    .AddOnCardActions button {
+    .ProductDetailsCardActions button {
         min-height: 36px;
     }
 }

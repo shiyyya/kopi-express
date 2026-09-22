@@ -1,4 +1,4 @@
-.NewMenuForm {
+.AddonForm {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -15,7 +15,7 @@
     box-sizing: border-box;
     overflow: hidden;
 }
-.NewMenuFormHeader {
+.AddonFormHeader {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -23,34 +23,40 @@
     gap: 16px;
     margin-bottom: 18px;
 }
-.NewMenuFormHeader h2 {
+.AddonFormHeader h2 {
     margin: 0;
     color: var(--accent);
     font-family: var(--heading);
     font-size: 20px;
     font-weight: 600;
 }
-.NewMenuFormHeader p {
+.AddonFormHeader p {
     margin: 3px 0 0;
     color: var(--text);
     font-size: 12px;
 }
-.NewMenuFormClose {
+.AddonFormClose {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
     padding: 0;
-    border: none;
-    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--card-bg);
     color: var(--accent);
     font-size: 22px;
     line-height: 1;
     cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
 }
-.NewMenuFormContent {
+.AddonFormClose:hover {
+    background: var(--btn-bg);
+    border-color: var(--btn-primary);
+}
+.AddonFormContent {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -60,24 +66,23 @@
     overflow-x: hidden;
     padding-right: 6px;
 }
-.NewMenuFormRow {
+.AddonFormRow {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
-.NewMenuField {
+.AddonField {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
-.NewMenuField > label {
+.AddonField > label {
     color: var(--accent);
     font-size: 12px;
     font-weight: 600;
 }
-.NewMenuField input,
-.NewMenuField textarea,
-.NewMenuField select {
+.AddonField input,
+.AddonField select {
     width: 100%;
     padding: 9px 10px;
     border: 1px solid var(--border);
@@ -89,46 +94,12 @@
     outline: none;
     box-sizing: border-box;
 }
-.NewMenuField input:focus,
-.NewMenuField textarea:focus,
-.NewMenuField select:focus {
+.AddonField input:focus,
+.AddonField select:focus {
     border-color: var(--accent-border);
     box-shadow: 0 0 0 2px var(--accent-bg);
 }
-.NewMenuField textarea {
-    min-height: 80px;
-    resize: vertical;
-}
-.NewMenuField input[type="file"] {
-    display: none;
-}
-.NewMenuImageUpload {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100px;
-    padding: 16px;
-    border: 1px dashed var(--border);
-    border-radius: 8px;
-    background: var(--bg);
-    color: var(--text);
-    text-align: center;
-    cursor: pointer;
-}
-.NewMenuImageUpload:hover {
-    border-color: var(--accent-border);
-    background: var(--accent-bg);
-}
-.NewMenuImageUpload strong {
-    color: var(--accent);
-    font-size: 12px;
-}
-.NewMenuImageUpload span {
-    margin-top: 3px;
-    font-size: 11px;
-}
-.NewMenuPriceInput {
+.AddonPriceInput {
     display: flex;
     align-items: center;
     border: 1px solid var(--border);
@@ -136,73 +107,51 @@
     background: var(--bg);
     overflow: hidden;
 }
-.NewMenuPriceInput:focus-within {
+.AddonPriceInput:focus-within {
     border-color: var(--accent-border);
     box-shadow: 0 0 0 2px var(--accent-bg);
 }
-.NewMenuPriceInput > span {
+.AddonPriceInput > span {
     padding-left: 10px;
     color: var(--accent);
     font-size: 12px;
 }
-.NewMenuPriceInput input {
+.AddonPriceInput input {
     border: none;
     border-radius: 0;
     background: transparent;
 }
-.NewMenuPriceInput input:focus {
+.AddonPriceInput input:focus {
     border: none;
     box-shadow: none;
 }
-.NewMenuTemperature {
-    display: flex;
-    gap: 8px;
-}
-.NewMenuTemperature button {
-    flex: 1;
-    min-height: 36px;
-    padding: 7px 12px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 12px;
-    cursor: pointer;
-}
-.NewMenuTemperature button.selected {
-    border-color: var(--btn-primary);
-    background: var(--btn-primary);
-    color: var(--btn-label);
-    font-weight: 600;
-}
-.NewMenuIngredients {
+.AddonIngredients {
     display: flex;
     flex-direction: column;
     gap: 10px;
     padding-top: 4px;
 }
-.NewMenuIngredientsHeader {
+.AddonIngredientsHeader {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
     gap: 12px;
 }
-.NewMenuIngredientsHeader > div {
+.AddonIngredientsHeader > div {
     display: flex;
     flex-direction: column;
     gap: 3px;
 }
-.NewMenuIngredientsHeader label {
+.AddonIngredientsHeader label {
     color: var(--accent);
     font-size: 12px;
     font-weight: 600;
 }
-.NewMenuIngredientsHeader span {
+.AddonIngredientsHeader span {
     color: var(--text);
     font-size: 11px;
 }
-.NewMenuAddIngredientButton {
+.AddonAddIngredientButton {
     flex-shrink: 0;
     padding: 7px 10px;
     border: 1px solid var(--btn-primary);
@@ -214,10 +163,10 @@
     font-weight: 600;
     cursor: pointer;
 }
-.NewMenuAddIngredientButton:hover {
+.AddonAddIngredientButton:hover {
     background: var(--accent-bg);
 }
-.NewMenuIngredientsEmpty {
+.AddonIngredientsEmpty {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -229,12 +178,12 @@
     color: var(--text-muted);
     font-size: 11px;
 }
-.NewMenuIngredientList {
+.AddonIngredientList {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
-.NewMenuIngredient {
+.AddonIngredient {
     display: grid;
     grid-template-columns: minmax(0, 1.6fr) minmax(70px, 0.8fr) minmax(70px, 0.8fr) 30px;
     align-items: end;
@@ -244,21 +193,21 @@
     border-radius: 8px;
     background: var(--bg);
 }
-.NewMenuIngredientName,
-.NewMenuIngredientQuantity,
-.NewMenuIngredientUnit {
+.AddonIngredientName,
+.AddonIngredientQuantity,
+.AddonIngredientUnit {
     display: flex;
     flex-direction: column;
     gap: 5px;
     min-width: 0;
 }
-.NewMenuIngredient label {
+.AddonIngredient label {
     color: var(--accent);
     font-size: 10px;
     font-weight: 600;
 }
-.NewMenuIngredient input,
-.NewMenuIngredient select {
+.AddonIngredient input,
+.AddonIngredient select {
     width: 100%;
     min-width: 0;
     padding: 8px;
@@ -271,12 +220,12 @@
     outline: none;
     box-sizing: border-box;
 }
-.NewMenuIngredient input:focus,
-.NewMenuIngredient select:focus {
+.AddonIngredient input:focus,
+.AddonIngredient select:focus {
     border-color: var(--accent-border);
     box-shadow: 0 0 0 2px var(--accent-bg);
 }
-.NewMenuRemoveIngredient {
+.AddonRemoveIngredient {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -291,11 +240,81 @@
     line-height: 1;
     cursor: pointer;
 }
-.NewMenuRemoveIngredient:hover {
+.AddonRemoveIngredient:hover {
     border-color: var(--error);
     background: var(--error-bg);
 }
-.NewMenuFormActions {
+.AddonAvailability {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+}
+.AddonAvailabilityInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.AddonAvailabilityInfo strong {
+    color: var(--accent);
+    font-size: 12px;
+}
+.AddonAvailabilityInfo span {
+    color: var(--text);
+    font-size: 11px;
+}
+.AddonAvailabilityToggle {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.AddonAvailabilityToggle input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+.AddonAvailabilityToggle label {
+    position: relative;
+    display: block;
+    width: 38px;
+    height: 20px;
+    border-radius: 20px;
+    background: var(--border);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.AddonAvailabilityToggle label::after {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    content: "";
+    transition: transform 0.2s ease;
+}
+.AddonAvailabilityToggle input:checked + label {
+    background: var(--btn-primary);
+}
+.AddonAvailabilityToggle input:checked + label::after {
+    transform: translateX(18px);
+}
+.AddonFormError {
+    padding: 9px 10px;
+    border: 1px solid var(--error);
+    border-radius: 7px;
+    background: var(--error-bg);
+    color: var(--error);
+    font-size: 11px;
+}
+.AddonFormActions {
     display: flex;
     justify-content: flex-end;
     flex-shrink: 0;
@@ -305,8 +324,8 @@
     border-top: 1px solid var(--border);
     background: var(--card-bg);
 }
-.NewMenuCancelButton,
-.NewMenuSaveButton {
+.AddonCancelButton,
+.AddonSaveButton {
     min-width: 90px;
     padding: 8px 14px;
     border-radius: 7px;
@@ -315,109 +334,112 @@
     font-weight: 600;
     cursor: pointer;
 }
-.NewMenuCancelButton {
+.AddonCancelButton {
     border: 1px solid var(--border);
     background: transparent;
     color: var(--accent);
 }
-.NewMenuSaveButton {
+.AddonSaveButton {
     border: 1px solid var(--btn-primary);
     background: var(--btn-primary);
     color: var(--btn-label);
 }
-.NewMenuFormContent::-webkit-scrollbar {
+.AddonCancelButton:hover,
+.AddonSaveButton:hover {
+    opacity: 0.85;
+}
+.AddonFormContent::-webkit-scrollbar {
     width: 5px;
 }
-.NewMenuFormContent::-webkit-scrollbar-track {
+.AddonFormContent::-webkit-scrollbar-track {
     background: transparent;
 }
-.NewMenuFormContent::-webkit-scrollbar-thumb {
+.AddonFormContent::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 10px;
 }
-.NewMenuFormContent::-webkit-scrollbar-thumb:hover {
+.AddonFormContent::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
 }
 @media (max-width: 900px) {
-    .NewMenuForm {
+    .AddonForm {
         height: auto;
         max-width: 100%;
         overflow: visible;
     }
-    .NewMenuFormContent {
+    .AddonFormContent {
         flex: none;
         overflow: visible;
         padding-right: 0;
     }
 }
 @media (max-width: 700px) {
-    .NewMenuForm {
-        max-width: 100%;
+    .AddonForm {
         padding: 18px;
     }
-    .NewMenuFormRow {
+    .AddonFormRow {
         grid-template-columns: 1fr;
     }
-    .NewMenuIngredient {
+    .AddonIngredient {
         grid-template-columns: 1fr 1fr;
     }
-    .NewMenuIngredientName {
+    .AddonIngredientName {
         grid-column: 1 / -1;
     }
-    .NewMenuRemoveIngredient {
+    .AddonRemoveIngredient {
         width: 100%;
     }
 }
 @media (max-width: 480px) {
-    .NewMenuForm {
+    .AddonForm {
         padding: 16px;
         border-radius: 12px;
     }
-    .NewMenuFormHeader {
+    .AddonFormHeader {
         gap: 10px;
         margin-bottom: 16px;
     }
-    .NewMenuFormHeader h2 {
+    .AddonFormHeader h2 {
         font-size: 18px;
     }
-    .NewMenuFormContent {
+    .AddonFormContent {
         gap: 12px;
     }
-    .NewMenuIngredientsHeader {
+    .AddonIngredientsHeader {
         align-items: flex-start;
         flex-direction: column;
     }
-    .NewMenuAddIngredientButton {
+    .AddonAddIngredientButton {
         width: 100%;
     }
-    .NewMenuIngredient {
+    .AddonIngredient {
         grid-template-columns: 1fr;
     }
-    .NewMenuIngredientName {
+    .AddonIngredientName {
         grid-column: auto;
     }
-    .NewMenuRemoveIngredient {
+    .AddonRemoveIngredient {
         width: 100%;
     }
-    .NewMenuFormActions {
+    .AddonFormActions {
         margin-top: 16px;
         padding-top: 12px;
     }
-    .NewMenuCancelButton,
-    .NewMenuSaveButton {
+    .AddonCancelButton,
+    .AddonSaveButton {
         flex: 1;
         min-width: 0;
     }
 }
 @media (max-width: 360px) {
-    .NewMenuForm {
+    .AddonForm {
         padding: 14px;
     }
-    .NewMenuFormActions {
+    .AddonFormActions {
         flex-direction: column;
     }
-    .NewMenuCancelButton,
-    .NewMenuSaveButton {
+    .AddonCancelButton,
+    .AddonSaveButton {
         width: 100%;
     }
 }

@@ -1,0 +1,273 @@
+.staff-owner-login-page {
+    min-height: 100svh;
+    width: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow: hidden;
+}
+.staff-owner-login-landing {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(460px, 0.65fr);
+    gap: 80px;
+    width: 100%;
+    min-height: 100svh;
+    padding: 36px 8vw 56px;
+    align-items: center;
+}
+.staff-owner-login-intro {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-width: 0;
+    min-height: 70vh;
+    padding-top: 10px;
+}
+.staff-owner-login-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 54px;
+}
+.staff-owner-login-brand svg {
+    width: 46px;
+    height: 46px;
+}
+.staff-owner-login-brand span {
+    color: var(--accent);
+    font-family: var(--heading);
+    font-size: 28px;
+    font-weight: 700;
+}
+.staff-owner-login-welcome {
+    max-width: 900px;
+    text-align: left;
+}
+.staff-owner-login-eyebrow {
+    margin: 0 0 20px;
+    color: var(--text-4);
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+.staff-owner-login-welcome h1 {
+    max-width: 850px;
+    margin: 0 0 28px;
+    color: var(--text-3);
+    font-family: var(--heading);
+    font-size: clamp(52px, 6vw, 88px);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -2.5px;
+}
+.staff-owner-login-welcome > p:last-child {
+    max-width: 700px;
+    color: var(--text);
+    font-size: 20px;
+    line-height: 1.7;
+}
+.staff-owner-login-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+.staff-owner-login-card {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    padding: 44px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    text-align: left;
+}
+.staff-owner-login-card h2 {
+    margin: 0 0 8px;
+    color: var(--text-3);
+    font-family: var(--heading);
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 118%;
+}
+.staff-owner-login-description {
+    margin: 0 0 28px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+}
+.staff-owner-login-input {
+    display: block;
+    width: 100%;
+    height: 54px;
+    margin: 0 0 16px;
+    padding: 10px 16px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--text-3);
+    font-family: var(--sans);
+    font-size: 16px;
+    outline: none;
+    box-sizing: border-box;
+}
+.staff-owner-login-input::placeholder {
+    color: var(--text);
+}
+.staff-owner-login-input:focus {
+    border-color: var(--accent-border);
+    box-shadow: 0 0 0 3px var(--accent-bg);
+}
+.staff-owner-login-password-wrapper {
+    position: relative;
+}
+.staff-owner-login-password-wrapper .staff-owner-login-input {
+    padding-right: 48px;
+}
+.staff-owner-login-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.staff-owner-login-password-toggle svg {
+    width: 22px;
+    height: 22px;
+}
+.staff-owner-login-error {
+    margin: -4px 0 16px;
+    color: var(--error);
+    font-family: var(--sans);
+    font-size: 13px;
+    line-height: 1.4;
+}
+.staff-owner-login-button {
+    width: 100%;
+    height: 54px;
+    margin-top: 6px;
+    padding: 10px 18px;
+    background: var(--btn-secondary);
+    color: var(--btn-label);
+    border: none;
+    border-radius: 14px;
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.staff-owner-login-button:hover {
+    opacity: 0.9;
+}
+@media (max-width: 1200px) {
+    .staff-owner-login-landing {
+        grid-template-columns: minmax(0, 1.1fr) minmax(400px, 0.9fr);
+        gap: 50px;
+        padding: 32px 5vw 48px;
+    }
+    .staff-owner-login-intro {
+        padding-top: 0;
+    }
+    .staff-owner-login-brand {
+        margin-bottom: 44px;
+    }
+    .staff-owner-login-welcome h1 {
+        font-size: clamp(48px, 5.5vw, 70px);
+    }
+}
+@media (max-width: 900px) {
+    .staff-owner-login-landing {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        padding: 40px 6vw;
+        align-items: center;
+    }
+    .staff-owner-login-intro {
+        min-height: auto;
+        padding-top: 0;
+    }
+    .staff-owner-login-brand {
+        margin-bottom: 40px;
+    }
+    .staff-owner-login-welcome {
+        max-width: 800px;
+    }
+    .staff-owner-login-welcome h1 {
+        font-size: clamp(44px, 8vw, 68px);
+    }
+    .staff-owner-login-form {
+        justify-content: flex-start;
+    }
+    .staff-owner-login-card {
+        max-width: 100%;
+    }
+}
+@media (max-width: 480px) {
+    .staff-owner-login-page {
+        overflow: auto;
+    }
+    .staff-owner-login-landing {
+        gap: 32px;
+        padding: 28px 18px 40px;
+    }
+    .staff-owner-login-intro {
+        min-height: auto;
+    }
+    .staff-owner-login-brand {
+        gap: 8px;
+        margin-bottom: 36px;
+    }
+    .staff-owner-login-brand svg {
+        width: 34px;
+        height: 34px;
+    }
+    .staff-owner-login-brand span {
+        font-size: 20px;
+    }
+    .staff-owner-login-welcome {
+        text-align: left;
+    }
+    .staff-owner-login-eyebrow {
+        margin-bottom: 12px;
+        font-size: 10px;
+        letter-spacing: 1.4px;
+    }
+    .staff-owner-login-welcome h1 {
+        margin-bottom: 16px;
+        font-size: 40px;
+        letter-spacing: -1px;
+    }
+    .staff-owner-login-welcome > p:last-child {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    .staff-owner-login-card {
+        padding: 28px 22px;
+        border-radius: 18px;
+    }
+    .staff-owner-login-card h2 {
+        font-size: 24px;
+    }
+    .staff-owner-login-description {
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+    .staff-owner-login-input {
+        height: 48px;
+        font-size: 14px;
+    }
+    .staff-owner-login-button {
+        height: 48px;
+        font-size: 14px;
+    }
+}

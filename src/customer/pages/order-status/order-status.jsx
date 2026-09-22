@@ -9,23 +9,21 @@ import Time from "/src/assets/icons/time.svg?react";
 const deliveryStatuses = [
     "Order Received",
     "Preparing",
-    "Ready for Delivery",
-    "Out for Delivery",
-    "Delivered",
+    "Done Preparing",
+    "Completed",
 ];
 
 const pickupStatuses = [
     "Order Received",
     "Preparing",
-    "Ready for Pickup",
+    "Done Preparing",
+    "Completed",
 ];
 
 const statusMessages = {
     "Order Received": "We got your order!",
     "Preparing": "Our team is brewing and cooking.",
-    "Ready for Pickup": "Your order is ready for pickup!",
-    "Ready for Delivery": "Your order is ready for delivery!",
-    "Out for Delivery": "Your order is on the way!",
+    "Done Preparing": "Your order is ready for pickup/delivery!",
     "Delivered": "Enjoy your order!",
 };
 
