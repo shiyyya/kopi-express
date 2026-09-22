@@ -18,6 +18,16 @@
   border-color: var(--accent);
 }
 
+.onlineOrderBody {
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.15s ease;
+}
+
+.onlineOrderCard[data-status="declined"] .onlineOrderBody {
+  opacity: 0.5;
+}
+
 .onlineOrderHeader {
   display: flex;
   flex-direction: row;
@@ -64,13 +74,27 @@
   text-overflow: ellipsis;
 }
 
-.onlineOrderType {
+.onlineOrderMeta {
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.onlineOrderType {
   font-family: var(--sans);
   font-weight: 700;
   font-size: 13px;
   line-height: 18px;
   color: var(--btn-primary);
+}
+
+.onlineOrderNumber {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-3);
 }
 
 .onlineOrderStatus {
@@ -228,6 +252,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 .orderItemNameRow, .ordersQueueItemName, .onlineOrderItemName {
   display: flex;

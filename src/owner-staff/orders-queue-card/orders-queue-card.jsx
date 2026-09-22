@@ -1,5 +1,5 @@
 import React from "react";
-import "./orders-queue.css";
+import "./orders-queue-card.css";
 import DefaultAvatar from "/src/assets/icons/avatar.svg?react";
 import HotIcon from "/src/assets/icons/hot.svg?react";
 import IcedIcon from "/src/assets/icons/iced.svg?react";
@@ -36,7 +36,7 @@ const STATUS_ACTIONS = {
 };
 
 function formatCurrency(amount, currencySymbol) {
-  return `${currencySymbol}${amount.toFixed(2)}`;
+  return `${currencySymbol}${Number(amount ?? 0).toFixed(2)}`;
 }
 
 function OrdersQueue(props) {
@@ -117,6 +117,7 @@ function OrdersQueue(props) {
                         )
                       )}
                       {item.name}
+                      {item.quantity ? ` x${item.quantity}` : ""}
                     </span>
                     <span className="ordersQueueItemPrice">
                       {formatCurrency(item.price * (item.quantity ?? 1), currencySymbol)}
