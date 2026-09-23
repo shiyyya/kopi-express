@@ -1,50 +1,211 @@
-import { useState } from 'react';
-import './online-orders.css';
-import Header from '/src/components/largeheader-wback/largeheader-wback.jsx';
-import OrderRequestCard from '/src/owner-staff/online-orders-card/online-orders-card.jsx';
-import OrderDetailsPanel from '/src/owner-staff/order-details-panel/order-details-panel.jsx';
-import { useOrders } from '/src/owner-staff/orders-context/orders-context.jsx';
+const MOCK_DELAY_MS = 400;
 
-function OnlineOrders() {
-  const { onlineRequests, acceptOnlineOrder, declineOnlineOrder } = useOrders();
-  const [selectedId, setSelectedId] = useState(null);
-
-  const selectedOrder = onlineRequests.find((o) => o.id === selectedId) ?? null;
-
-  return (
-    <div className="onlineOrders">
-      <Header title="Kopi Express / Staff" />
-
-      <div className="ordersBody">
-        {onlineRequests.length === 0 ? (
-          <p className="emptyState">No orders yet.</p>
-        ) : (
-          <div className="ordersGrid">
-            {onlineRequests.map((order) => (
-              <OrderRequestCard
-                key={order.id}
-                customerName={order.customer}
-                fulfillmentType={order.type}
-                status={order.status}
-                items={order.items}
-                total={order.total}
-                selected={selectedOrder?.id === order.id}
-                onSelect={() => setSelectedId(order.id)}
-                onAccept={() => acceptOnlineOrder(order.id)}
-                onDecline={() => declineOnlineOrder(order.id)}
-              />
-            ))}
-          </div>
-        )}
-
-        <OrderDetailsPanel
-          order={selectedOrder}
-          onAccept={() => selectedOrder && acceptOnlineOrder(selectedOrder.id)}
-          onDecline={() => selectedOrder && declineOnlineOrder(selectedOrder.id)}
-        />
-      </div>
-    </div>
-  );
+function delay(value) {
+    return new Promise((resolve) => setTimeout(() => resolve(value), MOCK_DELAY_MS));
 }
 
-export default OnlineOrders;
+const MOCK_ONLINE_REQUESTS = [
+    {
+        id: "online-1",
+        orderNumber: "001",
+        customer: "Primo Morandarte",
+        type: "pickup",
+        status: "pending",
+        items: [
+            {
+                id: "i1",
+                name: "Cappuccino",
+                price: 100,
+                quantity: 1,
+                category: "drink",
+                temperature: "hot",
+                addOns: [{ name: "Extra Shot" }, { name: "Oat Milk" }],
+            },
+            {
+                id: "i2",
+                name: "Butter Croissant",
+                price: 300,
+                quantity: 1,
+                category: "food",
+                notes: "Warmed, no butter on the side",
+            },
+        ],
+        total: 400,
+        storeBranch: "Kopi Express – Pandi Main",
+        storeAddress: "Siling Bata, Pandi, Bulacan",
+        pickupTime: "3:30 PM",
+        paymentMethod: "Cash",
+        paymentSub: "Pay upon pickup",
+    },
+    {
+        id: "online-2",
+        orderNumber: "002",
+        customer: "Primo Morandarte",
+        type: "delivery",
+        status: "pending",
+        items: [
+            {
+                id: "i1",
+                name: "Cappuccino",
+                price: 100,
+                quantity: 1,
+                category: "drink",
+                temperature: "iced",
+                addOns: [{ name: "Vanilla Syrup" }],
+            },
+            {
+                id: "i2",
+                name: "Butter Croissant",
+                price: 300,
+                quantity: 1,
+                category: "food",
+            },
+        ],
+        total: 450,
+        address: "Siling Bata, Pandi, Bulacan",
+        eta: "20-35 minutes",
+        paymentMethod: "GCash QR",
+        referenceNumber: "1234567890123",
+        paymentSub: "Scan and pay via GCash",
+        subtotal: 400,
+        deliveryFee: 50,
+    },
+    {
+        id: "online-3",
+        orderNumber: "003",
+        customer: "Ana Reyes",
+        type: "delivery",
+        status: "pending",
+        items: [
+            {
+                id: "i3",
+                name: "Kopi Susu Gula Aren",
+                price: 120,
+                quantity: 1,
+                category: "drink",
+                temperature: "hot",
+                addOns: [],
+            },
+        ],
+        total: 170,
+        address: "Poblacion, Pandi, Bulacan",
+        eta: "15-25 minutes",
+        paymentMethod: "GCash QR",
+        referenceNumber: "9876543210987",
+        paymentSub: "Scan and pay via GCash",
+        subtotal: 120,
+        deliveryFee: 50,
+    },
+    {
+        id: "online-4",
+        orderNumber: "004",
+        customer: "Mark Villanueva",
+        type: "pickup",
+        status: "pending",
+        items: [
+            {
+                id: "i1",
+                name: "Cappuccino",
+                price: 100,
+                quantity: 1,
+                category: "drink",
+                temperature: "hot",
+                addOns: [{ name: "Extra Shot" }],
+            },
+            {
+                id: "i2",
+                name: "Butter Croissant",
+                price: 300,
+                quantity: 1,
+                category: "food",
+                notes: "Cut in half",
+            },
+            {
+                id: "i3",
+                name: "Kopi Susu Gula Aren",
+                price: 120,
+                quantity: 2,
+                category: "drink",
+                temperature: "iced",
+                addOns: [{ name: "Less Sugar" }, { name: "Extra Ice" }],
+            },
+            {
+                id: "i4",
+                name: "Iced Americano",
+                price: 90,
+                quantity: 1,
+                category: "drink",
+                temperature: "iced",
+                addOns: [],
+            },
+            {
+                id: "i5",
+                name: "Ham & Cheese Croissant",
+                price: 250,
+                quantity: 1,
+                category: "food",
+            },
+            {
+                id: "i6",
+                name: "Matcha Latte",
+                price: 150,
+                quantity: 1,
+                category: "drink",
+                temperature: "hot",
+                addOns: [{ name: "Oat Milk" }],
+            },
+            {
+                id: "i7",
+                name: "Blueberry Muffin",
+                price: 130,
+                quantity: 3,
+                category: "food",
+                notes: "One without nuts allergy note",
+            },
+        ],
+        total: 1520,
+        storeBranch: "Kopi Express – Pandi Main",
+        storeAddress: "Siling Bata, Pandi, Bulacan",
+        pickupTime: "4:00 PM",
+        paymentMethod: "Cash",
+        paymentSub: "Pay upon pickup",
+    },
+];
+
+const MOCK_WALKIN_REQUESTS = [
+    {
+        id: "walkin-1",
+        orderNumber: "005",
+        customer: "Juan Dela Cruz",
+        type: "pickup",
+        status: "pending",
+        items: [
+            {
+                id: "i1",
+                name: "Cappuccino",
+                price: 100,
+                quantity: 2,
+                category: "drink",
+                temperature: "hot",
+                addOns: [{ name: "Extra Shot" }],
+            },
+        ],
+        total: 200,
+    },
+];
+
+export function fetchOnlineOrderRequests() {
+    return delay(MOCK_ONLINE_REQUESTS);
+}
+
+export function fetchWalkInOrderRequests() {
+    return delay(MOCK_WALKIN_REQUESTS);
+}
+
+export function acceptOrderRequest(id) {
+    return delay({ id, status: "accepted" });
+}
+
+export function declineOrderRequest(id) {
+    return delay({ id, status: "declined" });
+}
