@@ -24,6 +24,7 @@ function OnlineOrders() {
               <OrderRequestCard
                 key={order.id}
                 customerName={order.customer}
+                orderNumber={order.orderNumber}
                 fulfillmentType={order.type}
                 status={order.status}
                 items={order.items}
