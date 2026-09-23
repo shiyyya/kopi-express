@@ -7,6 +7,7 @@ function delay(value) {
 const MOCK_ONLINE_REQUESTS = [
     {
         id: "online-1",
+        orderNumber: "001",
         customer: "Primo Morandarte",
         type: "pickup",
         status: "pending",
@@ -38,6 +39,7 @@ const MOCK_ONLINE_REQUESTS = [
     },
     {
         id: "online-2",
+        orderNumber: "002",
         customer: "Primo Morandarte",
         type: "delivery",
         status: "pending",
@@ -70,6 +72,7 @@ const MOCK_ONLINE_REQUESTS = [
     },
     {
         id: "online-3",
+        orderNumber: "003",
         customer: "Ana Reyes",
         type: "delivery",
         status: "pending",
@@ -95,6 +98,7 @@ const MOCK_ONLINE_REQUESTS = [
     },
     {
         id: "online-4",
+        orderNumber: "004",
         customer: "Mark Villanueva",
         type: "pickup",
         status: "pending",
@@ -171,6 +175,7 @@ const MOCK_ONLINE_REQUESTS = [
 const MOCK_WALKIN_REQUESTS = [
     {
         id: "walkin-1",
+        orderNumber: "005",
         customer: "Juan Dela Cruz",
         type: "pickup",
         status: "pending",
