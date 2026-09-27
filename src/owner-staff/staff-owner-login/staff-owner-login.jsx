@@ -6,7 +6,7 @@ import Button from "/src/components/elements/button/button.jsx";
 import Logo from "/src/assets/logo/logo.svg?react";
 import EyeIcon from "/src/assets/icons/eye.svg?react";
 import EyeOffIcon from "/src/assets/icons/eye-off.svg?react";
-import users from "/src/data/staff-owner.js";
+import { apiFetch } from "/src/api/client.js";
 
 function StaffOwnerLogin() {
     const [email, setEmail] = useState("");
@@ -15,23 +15,29 @@ function StaffOwnerLogin() {
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        const currentUser = users.find(
-            (user) => user.email === email && user.password === password
-        );
-
-        if (!currentUser) {
+    const handleLogin = async () => {
+        try {
+            const role = email === "anjyyyvalenzuela@gmail.com" ? "owner" : "staff";
+            const endpoint = role === "owner" ? "/auth/owner/login" : "/auth/staff/login";
+            const response = await apiFetch(endpoint, {
+                method: "POST",
+                body: JSON.stringify({
+                    email,
+                    password,
+                }),
+            });
+            const userData = response.data.user;
+            const token = response.data.token;
+            setError("");
+            localStorage.setItem("currentUser", JSON.stringify(userData));
+            localStorage.setItem("token", JSON.stringify(token));
+            if (userData.role === "staff") {
+                navigate("/online-orders");
+            } else if (userData.role === "owner") {
+                navigate("/owner/menu");
+            }
+        } catch (error) {
             setError("Invalid email or password. Please check your credentials.");
-            return;
-        }
-
-        setError("");
-        localStorage.setItem("currentUser", JSON.stringify(currentUser));
-
-        if (currentUser.role === "staff") {
-            navigate("/online-orders");
-        } else if (currentUser.role === "owner") {
-            navigate("/owner/menu");
         }
     };
 
