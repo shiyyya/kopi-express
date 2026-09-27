@@ -4,11 +4,14 @@ import Arrow from "../../../assets/icons/arrow-down.svg?react";
 import LargeHeader from "/src/components/largeheader-wback/largeheader-wback.jsx";
 import Item_Inventory from "/src/components/blocks/items-inventory/items.jsx";
 import inventoryData from "/src/data/inventory.js";
+import { createStock } from "/src/api/inventory.api.js";
+
 const OWNER_TABS = [
     { label: "Menu", path: "/owner/menu" },
     { label: "Sales Report", path: "/owner/sales-report" },
     { label: "Inventory", path: "/owner/inventory" },
 ];
+
 function OwnerInventory() {
     const [inventory, setInventory] = useState(inventoryData);
     const [search, setSearch] = useState("");
@@ -28,6 +31,7 @@ function OwnerInventory() {
         expirationDate: "",
         branches: [],
     });
+
     const filteredInventory = inventory
         .filter((item) => {
             const matchesSearch = item.name
@@ -70,16 +74,19 @@ function OwnerInventory() {
             }
             return 0;
         });
+
     const handleBranchChange = (selectedBranch) => {
         setBranch(selectedBranch);
         setShowBranch(false);
     };
+
     const handleAdjustmentChange = (id, value) => {
         setAdjustments((current) => ({
             ...current,
             [id]: value,
         }));
     };
+
     const handleIncrease = (id) => {
         const adjustment = Number(adjustments[id]) || 0;
         if (adjustment <= 0) return;
@@ -98,6 +105,7 @@ function OwnerInventory() {
             [id]: "",
         }));
     };
+
     const handleDecrease = (id) => {
         const adjustment = Number(adjustments[id]) || 0;
         if (adjustment <= 0) return;
@@ -119,38 +127,56 @@ function OwnerInventory() {
             [id]: "",
         }));
     };
+
     const handleNewItemChange = (field, value) => {
         setNewItem((current) => ({
             ...current,
             [field]: value,
         }));
     };
-    const handleAddItem = () => {
+
+    const handleAddItem = async () => {
         if (!newItem.name.trim() || !newItem.quantity || !newItem.unit.trim()) {
             return;
         }
-        setInventory((current) => [
-            ...current,
-            {
-                id: Date.now(),
+
+        try {
+            await createStock({
                 name: newItem.name.trim(),
                 quantity: Number(newItem.quantity),
                 unit: newItem.unit.trim(),
-                purchaseDate: newItem.purchaseDate,
-                expirationDate: newItem.expirationDate,
-                branches: newItem.branches,
-            },
-        ]);
-        setNewItem({
-            name: "",
-            quantity: "",
-            unit: "",
-            purchaseDate: "",
-            expirationDate: "",
-            branches: [],
-        });
-        setShowAddModal(false);
+                expirationDate: newItem.expirationDate
+
+            });
+
+            setInventory((current) => [
+                ...current,
+                {
+                    id: Date.now(),
+                    name: newItem.name.trim(),
+                    quantity: Number(newItem.quantity),
+                    unit: newItem.unit.trim(),
+                    purchaseDate: newItem.purchaseDate,
+                    expirationDate: newItem.expirationDate,
+                    branches: newItem.branches,
+                },
+            ]);
+
+            setNewItem({
+                name: "",
+                quantity: "",
+                unit: "",
+                purchaseDate: "",
+                expirationDate: "",
+                branches: [],
+            });
+            setShowAddModal(false);
+        } catch (error) {
+            console.error("Failed to add inventory item:", error);
+            alert(error.message || "Failed to add inventory item.");
+        }
     };
+
     return (
         <div className="InventoryPage">
             <LargeHeader title="Kopi Express / Owner" tabs={OWNER_TABS} />
@@ -380,7 +406,7 @@ function OwnerInventory() {
                             Unit
                             <input
                                 type="text"
-                                placeholder="e.g. kg, pcs, L"
+                                placeholder="e.g. g, pcs, ml"
                                 value={newItem.unit}
                                 onChange={(e) =>
                                     handleNewItemChange(
@@ -436,4 +462,5 @@ function OwnerInventory() {
         </div>
     );
 }
+
 export default OwnerInventory;
