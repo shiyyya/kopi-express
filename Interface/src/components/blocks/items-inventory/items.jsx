@@ -8,19 +8,13 @@ function Item_Inventory({
     return (
         <div className="ItemInventory">
             <span>{item.purchaseDate}</span>
-
             <span>{item.name}</span>
-
             <div className="InventoryQuantity">
                 <span className="NormalQuantity">
                     {item.quantity}
                 </span>
             </div>
-
             <span>{item.unit}</span>
-
-            <span>{item.expirationDate}</span>
-
             <div className="AdjustQuantity">
                 <input
                     className="QuantityInput"
@@ -32,7 +26,6 @@ function Item_Inventory({
                         onAdjustmentChange(e.target.value)
                     }
                 />
-
                 <button
                     type="button"
                     className="QuantityButton AddButton"
@@ -40,7 +33,6 @@ function Item_Inventory({
                 >
                     ADD
                 </button>
-
                 <button
                     type="button"
                     className="QuantityButton RemoveButton"
