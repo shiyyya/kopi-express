@@ -22,7 +22,7 @@ export function initStaff(sequelize: Sequelize): typeof Staff {
       createdAt: { type: DataTypes.DATE, allowNull: false, field: 'created_at' },
       updatedAt: {type: DataTypes.DATE, allowNull: false, field: 'updated_at'},
     },
-    { sequelize, tableName: 'staff', modelName: 'Staff', underscored: true },
+    { sequelize, tableName: 'staffs', modelName: 'Staff', underscored: true },
   );
   return Staff;
 }

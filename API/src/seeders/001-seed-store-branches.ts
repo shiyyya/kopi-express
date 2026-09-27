@@ -1,5 +1,4 @@
 import type { QueryInterface } from 'sequelize';
-import { generateID } from '../utils/idGenerator.js';
 
 export async function up({ context }: { context: QueryInterface }) {
   const now = new Date();
