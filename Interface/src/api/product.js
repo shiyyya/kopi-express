@@ -3,7 +3,7 @@ import { apiFetch, API_ORIGIN } from "./client";
 function withImageUrl(product) {
   return {
     ...product,
-    image_url: `${API_ORIGIN}${product.image_url}`,
+    image_url: `${API_ORIGIN}${product.imageUrl}`,
   };
 }
 
