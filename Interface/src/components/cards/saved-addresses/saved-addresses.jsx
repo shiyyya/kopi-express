@@ -23,14 +23,14 @@ export default function SavedAddresses({ addresses, onAdd, onRemove }) {
         <div className="settingsCard">
             <h3 className="cardTitle">Saved Addresses</h3>
 
-            {addresses.map((address, index) => (
-                <div className="addressRow" key={address + index}>
-                    <span className="addressText">{address}</span>
+            {addresses.map((item) => (
+                <div className="addressRow" key={item.id}>
+                    <span className="addressText">{item.address}</span>
                     <button
                         type="button"
                         className="removeAddressBtn"
-                        onClick={() => onRemove(index)}
-                        aria-label={`Remove ${address}`}
+                        onClick={() => onRemove(item.id)}
+                        aria-label={`Remove ${item.address}`}
                     >
                         ×
                     </button>

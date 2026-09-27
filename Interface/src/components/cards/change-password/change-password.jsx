@@ -5,7 +5,7 @@ import EyeOffIcon from '/src/assets/icons/eye-off.svg?react';
 import './change-password.css';
 
 const FIELDS = [
-  { key: 'current', label: 'Current Password', name: 'currentPassword', autoComplete: 'current-password' },
+  { key: 'current', label: 'Current Password', name: 'currentPassword', autoComplete: 'off' },
   { key: 'next', label: 'New Password', name: 'newPassword', autoComplete: 'new-password' },
   { key: 'confirm', label: 'Confirm New Password', name: 'confirmPassword', autoComplete: 'new-password' },
 ];

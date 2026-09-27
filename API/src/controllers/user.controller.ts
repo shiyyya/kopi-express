@@ -4,6 +4,12 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import type { addCustomerAddressInput, updateUserInput } from '../validators/user.validators.js';
 import { assertAuth } from '../utils/assertions.js';
 
+export const getCustomerProfile: RequestHandler = asyncHandler(async (request, response) => {
+  const user = assertAuth(request.user);
+  const data = await userService.getCustomerProfile(user.id);
+  response.json({ data });
+});
+
 export const updateCustomer: RequestHandler = asyncHandler(async (request, response) => {
   const user = assertAuth(request.user);
   const updated = await userService.updateCustomer(user, request.body as updateUserInput);

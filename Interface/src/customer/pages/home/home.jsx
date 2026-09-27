@@ -13,6 +13,7 @@ import Cart from "/src/components/cards/cart/cart.jsx";
 import Footer from "/src/components/blocks/footer/footer.jsx";
 import products from "/src/data/products";
 import StoreSelection from "/src/components/cards/store-selection/store-selection.jsx";
+
 export default function Home() {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,16 +31,19 @@ export default function Home() {
         return savedUser ? JSON.parse(savedUser) : null;
     });
     const [pendingProduct, setPendingProduct] = useState(null);
+
     useEffect(() => {
         const savedCart = JSON.parse(localStorage.getItem("cartItems") || "[]");
         setCartItems(savedCart);
     }, []);
+
     useEffect(() => {
         document.body.style.overflow = sidebarOpen ? "hidden" : "";
         return () => {
             document.body.style.overflow = "";
         };
     }, [sidebarOpen]);
+
     useEffect(() => {
         if (window.location.hash === "#menu") {
             setTimeout(() => {
@@ -50,10 +54,23 @@ export default function Home() {
             }, 0);
         }
     }, []);
+
+    useEffect(() => {
+        const handlePageShow = (event) => {
+            if (event.persisted) {
+                const savedUser = localStorage.getItem("currentUser");
+                setCurrentUser(savedUser ? JSON.parse(savedUser) : null);
+            }
+        };
+        window.addEventListener("pageshow", handlePageShow);
+        return () => window.removeEventListener("pageshow", handlePageShow);
+    }, []);
+
     const cartCount = cartItems.reduce(
         (total, item) => total + item.quantity,
         0
     );
+
     const handleFeaturedOrder = (product) => {
         if (!currentUser) {
             setPendingProduct(product);
@@ -66,21 +83,27 @@ export default function Home() {
             },
         });
     };
+
     const handleLogin = () => {
         setSidebarOpen(false);
         setLoginOpen(true);
     };
+
     const handleLogout = () => {
         localStorage.removeItem("currentUser");
+        localStorage.removeItem("token");
         setCurrentUser(null);
         setSidebarOpen(false);
     };
+
     const goToCart = () => {
         setCartOpen(true);
     };
+
     const goToProfile = () => {
         console.log("Go to profile");
     };
+
     const handleOrderType = (type) => {
         setOrderType(type);
         if (type === "delivery") {
@@ -91,10 +114,12 @@ export default function Home() {
         }
         console.log("Order type:", type);
     };
+
     const handleStoreSelect = (store) => {
         setSelectedStore(store);
         setStoreSelectionOpen(false);
     };
+
     const handleRemoveFromCart = (itemId) => {
         setCartItems((currentItems) => {
             const updatedItems = currentItems.filter(
@@ -104,6 +129,7 @@ export default function Home() {
             return updatedItems;
         });
     };
+
     return (
         <div className="homePage">
             <HomeHeader
@@ -179,7 +205,7 @@ export default function Home() {
                         setSignUpOpen(true);
                     }}
                     onLoginSuccess={(user) => {
-                        setCurrentUser(user);
+                        setCurrentUser(user.data.account);
                     }}
                 />
             )}
@@ -189,6 +215,9 @@ export default function Home() {
                     onLogin={() => {
                         setSignUpOpen(false);
                         setLoginOpen(true);
+                    }}
+                    onSignUpSuccess={(user) => {
+                        setCurrentUser(user.data.customer);
                     }}
                 />
             )}
