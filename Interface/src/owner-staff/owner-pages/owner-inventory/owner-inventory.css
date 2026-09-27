@@ -156,7 +156,7 @@
     width: 100%;
     min-height: 50px;
     display: grid;
-    grid-template-columns: 1.2fr 2fr 1.2fr 0.7fr 1.4fr 1.8fr;
+    grid-template-columns: 1.2fr 2fr 1.2fr 0.7fr 1.8fr;
     align-items: center;
     padding: 0 12px;
     background: var(--header-bg);
@@ -178,7 +178,7 @@
     width: 100%;
     min-height: 55px;
     display: grid;
-    grid-template-columns: 1.2fr 2fr 1.2fr 0.7fr 1.4fr 1.8fr;
+    grid-template-columns: 1.2fr 2fr 1.2fr 0.7fr 1.8fr;
     align-items: center;
     padding: 8px 12px;
     background: var(--card-bg);
@@ -350,7 +350,8 @@
     font-weight: 600;
 }
 
-.InventoryModal input {
+.InventoryModal input,
+.InventoryModal select {
     height: 34px;
     padding: 0 10px;
     border: 1px solid var(--border);
@@ -362,7 +363,12 @@
     font-size: 11px;
 }
 
-.InventoryModal input:focus {
+.InventoryModal select {
+    cursor: pointer;
+}
+
+.InventoryModal input:focus,
+.InventoryModal select:focus {
     border-color: var(--accent-border);
 }
 
