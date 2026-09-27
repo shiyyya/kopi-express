@@ -1,0 +1,35 @@
+@baseUrl = http://localhost:3000/api/v1
+@userId = 1
+@token = paste-a-token-from-signup-or-login-here
+
+### Update name and email
+PATCH {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Ada Byron",
+  "email": "ada.byron@example.com"
+}
+
+### Change password (current password is required)
+PATCH {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "password": "NewPassword456",
+  "currentPassword": "Password123"
+}
+
+### Deactivate account
+PATCH {{baseUrl}}/users/{{userId}}/deactivate
+Authorization: Bearer {{token}}
+
+### Unauthorized update example
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: application/json
+
+{
+  "name": "This request has no bearer token"
+}
