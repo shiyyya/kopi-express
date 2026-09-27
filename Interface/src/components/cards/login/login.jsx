@@ -15,13 +15,16 @@ function LoginCard({ onClose, onSignUp, onLoginSuccess }) {
     const [error, setError] = useState("");
 
     const handleLogin = async () => {
-        const user = await login({ email, password });
-        localStorage.setItem("currentUser", JSON.stringify(user.data));
-        localStorage.setItem("token", JSON.stringify(user.data.token));
-        console.log("Login successful:", user.data.customer.fullName);
-        onLoginSuccess?.(user);
-        onClose?.();
-        return;
+        try {
+            const user = await login({ email, password });
+            localStorage.setItem("currentUser", JSON.stringify(user.data.account));
+            localStorage.setItem("token", user.data.token);
+            console.log("Login successful:", user.data.account.fullName);
+            onLoginSuccess?.(user);
+            onClose?.();
+        } catch (err) {
+            setError(err.message || "Login failed. Please try again.");
+        }
     };
 
     return (

@@ -6,6 +6,7 @@ import { updateUserSchema } from '../validators/user.validators.js';
 import { requireRole } from '../middleware/authorization.js';
 
 export const userRouter = Router();
+userRouter.get('/me', authenticate, requireRole('customer'), controller.getCustomerProfile);
 userRouter.patch('/me', authenticate, validateBody(updateUserSchema), controller.updateCustomer);
 // userRouter.patch('/staffs/me', authenticate, validateBody(updateUserSchema), controller.updateStaff);
 // userRouter.patch('/owners/:id', authenticate, validateBody(updateUserSchema), controller.update);

@@ -22,6 +22,16 @@ async function updateUser(requestedUser: User, input: updateUserInput, role: Use
   return requestedUser.save();
 }
 
+export async function getCustomerProfile(userId: string) {
+  const user = await UserModel.findByPk(userId);
+  const customer = await CustomerModel.findOne({ where: { userId } });
+  if (!user || !customer) throw new ApiError(404, 'Customer not found', 'CUSTOMER_NOT_FOUND');
+
+  const addresses = await CustomerAddressModel.findAll({ where: { customerId: userId }, order: [['createdAt', 'ASC']] });
+
+  return { user: user.toSafeJSON(), customer, addresses };
+}
+
 export async function updateCustomer(requestedUser: User, input: updateUserInput): Promise<{user: User, customer: Customer}> {
   const user = await updateUser(requestedUser, input, 'customer');
   const requestedCustomer = await CustomerModel.findOne({ where: { userId: user.id } });
@@ -55,7 +65,7 @@ export async function suspendUser(user: User): Promise<User> {
 }
 
 export async function addCustomerAddress(id: string, input: addCustomerAddressInput) {
-  return await CustomerAddressModel.create({ 
+  return await CustomerAddressModel.create({
     customerId: id,
     address: input.newAddress,
   });

@@ -81,15 +81,31 @@ export default function Sidebar({
                     </Button>
                 )}
                 <nav className="sidebarNav">
-                    {menuItems.map((item) => (
-                        <LinkButton
-                            key={item.key}
-                            goto={item.goto}
-                            icon={item.icon}
-                            label={item.label}
-                            type="normal"
-                        />
-                    ))}
+                    {menuItems.map((item) =>
+                        !isLoggedIn && item.goto === '/login' ? (
+                            <button
+                                key={item.key}
+                                type="button"
+                                className="linkButton normal"
+                                style={{ textDecoration: 'none' }}
+                                onClick={() => {
+                                    onClose?.();
+                                    onLogin?.();
+                                }}
+                            >
+                                <item.icon className="icon" />
+                                <span className="label">{item.label}</span>
+                            </button>
+                        ) : (
+                            <LinkButton
+                                key={item.key}
+                                goto={item.goto}
+                                icon={item.icon}
+                                label={item.label}
+                                type="normal"
+                            />
+                        )
+                    )}
                 </nav>
                 <div className="sidebarFooter">
                     {isLoggedIn ? (
