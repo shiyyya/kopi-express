@@ -55,9 +55,9 @@ export const addCustomerAddressSchema = z.object({
   newAddress: address,
 }).strict();
 
-export type RegisterCustomerInput = z.infer<typeof registerCustomerSchema>;
-export type RegisterStaffInput = z.infer<typeof registerStaffSchema>;
-export type RegisterOwnerInput = z.infer<typeof registerOwnerSchema>;
-export type LoginInput = z.infer<typeof loginSchema>;
-export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type registerCustomerInput = z.infer<typeof registerCustomerSchema>;
+export type registerStaffInput = z.infer<typeof registerStaffSchema>;
+export type registerOwnerInput = z.infer<typeof registerOwnerSchema>;
+export type loginInput = z.infer<typeof loginSchema>;
+export type updateUserInput = z.infer<typeof updateUserSchema>;
 export type addCustomerAddressInput = z.infer<typeof addCustomerAddressSchema>;

@@ -4,7 +4,7 @@ import { env } from '../config/env.js';
 import type { User as UserInstance } from '../models/User.js';
 import { Customer, CustomerAddress, Staff, StoreBranch, User } from '../models/index.js';
 import { ApiError } from '../utils/ApiError.js';
-import type { LoginInput, RegisterCustomerInput, RegisterOwnerInput, RegisterStaffInput } from '../validators/user.validators.js';
+import type { loginInput, registerCustomerInput, registerOwnerInput, registerStaffInput } from '../validators/user.validators.js';
 import { UserRole } from '../constants/user.js';
 
 function createToken(user: UserInstance): string {
@@ -29,7 +29,7 @@ async function registerUser(email: string, password: string, role: UserRole): Pr
   return user;
 }
 
-export async function registerCustomer(input: RegisterCustomerInput) {
+export async function registerCustomer(input: registerCustomerInput) {
   const user = await registerUser(input.email, input.password, 'customer');
 
   const customer = await Customer.create({
@@ -48,7 +48,7 @@ export async function registerCustomer(input: RegisterCustomerInput) {
   return { user, customer, token: createToken(user) };
 }
 
-export async function registerStaff(input: RegisterStaffInput) {
+export async function registerStaff(input: registerStaffInput) {
   const storeBranch = await StoreBranch.findOne({ where: {address: input.storeBranchAddress} })
   if (!storeBranch) throw new ApiError(404, 'Invalid Store Branch Address', 'STORE_BRANCH_NOT_FOUND');
   const user = await registerUser(input.email, input.password, 'staff');
@@ -61,12 +61,12 @@ export async function registerStaff(input: RegisterStaffInput) {
   return { user, staff, token: createToken(user) };
 }
 
-export async function registerOwner(input: RegisterOwnerInput) {
+export async function registerOwner(input: registerOwnerInput) {
   const user = await registerUser(input.email, input.password, 'owner');
   return { user, token: createToken(user) };
 }
 
-export async function login(input: LoginInput, role: UserRole) {
+export async function login(input: loginInput, role: UserRole) {
   const user = await User.findOne({ where: { email: input.email, role: role } });
   const valid = user ? await bcrypt.compare(input.password, user.passwordHash) : false;
   if (!user || !valid) throw new ApiError(401, 'Invalid email or password', 'INVALID_CREDENTIALS');

@@ -1,7 +1,6 @@
 import { ApiError } from "../utils/ApiError.js";
-import { sequelize, CustomerAddress as CustomerAddressModel, Customer as CustomerModel, CartItem as CartItemModel, Product as ProductModel, CartItemAddOn as CartItemAddOnModel, AddOn as AddonModel, Order as OrderModel, OrderItem as OrderItemModel, OrderItemAddOn as OrderItemAddOnModel} from "../models/index.js";
+import { sequelize, CustomerAddress as CustomerAddressModel, Customer as CustomerModel, CartItem as CartItemModel, Product as ProductModel, CartItemAddOn as CartItemAddOnModel, AddOn as AddonModel, Order as OrderModel, OrderItem as OrderItemModel, OrderItemAddOn as OrderItemAddOnModel, StoreBranch as StoreBranchModel } from "../models/index.js";
 import { newOrderInput } from "../validators/order.validator.js";
-import { includes } from "zod/v4";
 import { OrderStatus } from "../constants/order.js";
 
 export async function getOrders(status: OrderStatus) {
@@ -13,8 +12,6 @@ export async function getOrders(status: OrderStatus) {
           { model: ProductModel, attributes: ['name'], },
           { model: OrderItemAddOnModel, include: [ { model: AddonModel, attributes: ['name'], }, 
   ]}]}]});
-
-  if (orders.length === 0) throw new ApiError( 404, 'No pending orders found', 'NO_PENDING_ORDERS_FOUND' );
 
   return orders.map((order) => {
     const data = order.toJSON() as any;
@@ -110,6 +107,10 @@ export async function getOrder(orderId: string) {
 
 export async function newOrder( userId: string, storeBranchId: string, input: newOrderInput ) {
   return sequelize.transaction(async (transaction) => {
+    const storeBranch = await StoreBranchModel.findByPk(storeBranchId, { transaction });
+    if (!storeBranch) throw new ApiError( 404, 'Store branch not found', 'STORE_BRANCH_NOT_FOUND' );
+    if (storeBranch.status !== 'open') throw new ApiError( 400, 'Store branch is not open', 'STORE_BRANCH_CLOSED' );
+
     const cart = await CartItemModel.findAll({ where: { customerId: userId }, transaction });
     if (cart.length === 0) throw new ApiError( 404, 'No cart items found', 'NO_CART_ITEMS_FOUND' );
 
@@ -208,6 +209,110 @@ export async function nextState(orderId: string) {
     default:
       throw new ApiError( 400, 'Order cannot advance from its current status', 'INVALID_ORDER_STATUS' );
   }
+
+  await order.save();
 }
 
-//LACKING GET CERTAIN ORDER FOR CART
+export async function getCustomerOrders(customerId: string) {
+  const orders = await OrderModel.findAll({
+    where: { customerId },
+    order: [['createdAt', 'DESC']],
+    include: [
+      { model: OrderItemModel, include: [
+          { model: ProductModel, attributes: ['name'], },
+          { model: OrderItemAddOnModel, include: [
+              { model: AddonModel, attributes: ['name'], },
+  ]}]}]});
+
+  return orders.map((order) => {
+    const data = order.toJSON() as any;
+    let total = Number(data.deliveryFee ?? 0);
+
+    const items = data.OrderItems.map((item: any) => {
+      total += Number(item.unitPrice) * item.quantity;
+
+      const addons = item.OrderItemAddOns.map((addon: any) => {
+        total += Number(addon.unitPrice);
+
+        return {
+          name: addon.AddOn.name,
+          unitPrice: Number(addon.unitPrice),
+        };
+      });
+
+      return {
+        name: item.Product.name,
+        quantity: item.quantity,
+        unitPrice: Number(item.unitPrice),
+        addons,
+      };
+    });
+
+    return {
+      id: data.id,
+      status: data.status,
+      fulfillmentType: data.fulfillmentType,
+      createdAt: data.createdAt,
+      items,
+      total,
+    };
+  });
+}
+
+export async function getCustomerOrder(customerId: string, orderId: string) {
+  const order = await OrderModel.findOne({
+    where: { id: orderId, customerId },
+    include: [
+      { model: CustomerModel, attributes: ['fullName'], },
+      { model: OrderItemModel, include: [
+          { model: ProductModel, attributes: ['name'], },
+          { model: OrderItemAddOnModel, include: [
+              { model: AddonModel, attributes: ['name'], },
+  ]}]}]});
+
+  if (!order) throw new ApiError( 404, 'Order not found', 'ORDER_NOT_FOUND' );
+
+  const data = order.toJSON() as any;
+
+  const address = await CustomerAddressModel.findByPk( data.customerAddressId, { attributes: ['address'], } );
+  if (!address) throw new ApiError( 404, 'Customer address not found', 'CUSTOMER_ADDRESS_NOT_FOUND' );
+
+  let subtotal = 0;
+
+  const items = data.OrderItems.map((item: any) => {
+    const addons = item.OrderItemAddOns.map((addon: any) => {
+      subtotal += Number(addon.unitPrice);
+
+      return {
+        name: addon.AddOn.name,
+        unitPrice: Number(addon.unitPrice),
+      };
+    });
+
+    subtotal += Number(item.unitPrice) * item.quantity;
+
+    return {
+      name: item.Product.name,
+      quantity: item.quantity,
+      unitPrice: Number(item.unitPrice),
+      addons,
+    };
+  });
+
+  const deliveryFee = Number(data.deliveryFee ?? 0);
+
+  return {
+    id: data.id,
+    customerName: data.Customer.fullName,
+    status: data.status,
+    fulfillmentType: data.fulfillmentType,
+    address: address.address,
+    paymentMethod: data.paymentMethod,
+    paymentReference: data.paymentReference,
+    notes: data.notes,
+    items,
+    subtotal,
+    deliveryFee,
+    total: subtotal + deliveryFee,
+  };
+}
