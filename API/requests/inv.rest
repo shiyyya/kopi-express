@@ -1,0 +1,71 @@
+@baseUrl = http://localhost:3000/api/v1
+
+### Get All Stock
+GET {{baseUrl}}/inventory
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMU0ySkhaQ0pGV1NDVEpXOU1COU1XSzlHMCIsImlhdCI6MTc4OTQ3NjcxMywiZXhwIjoxNzg5NDgwMzEzfQ.UAvdIWKOhanz6oatmb4XQYXvfn25Sv-E_c8aNzqNEWw
+
+### New Stock
+POST {{baseUrl}}/inventory
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMU0ySkhaQ0pGV1NDVEpXOU1COU1XSzlHMCIsImlhdCI6MTc4OTQ3NjcxMywiZXhwIjoxNzg5NDgwMzEzfQ.UAvdIWKOhanz6oatmb4XQYXvfn25Sv-E_c8aNzqNEWw
+Content-Type: application/json
+
+{
+  "name": "sugar",
+  "unit": "g"
+}
+
+### Delete Stock
+DELETE {{baseUrl}}/inventory/sugar
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMU0ySkhaQ0pGV1NDVEpXOU1COU1XSzlHMCIsImlhdCI6MTc4OTQ3NjcxMywiZXhwIjoxNzg5NDgwMzEzfQ.UAvdIWKOhanz6oatmb4XQYXvfn25Sv-E_c8aNzqNEWw
+
+### Increment Stock
+PATCH {{baseUrl}}/inventory/sugar/increment
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMU0ySkhaQ0pGV1NDVEpXOU1COU1XSzlHMCIsImlhdCI6MTc4OTQ3NjcxMywiZXhwIjoxNzg5NDgwMzEzfQ.UAvdIWKOhanz6oatmb4XQYXvfn25Sv-E_c8aNzqNEWw
+Content-Type: application/json
+
+{
+  "quantity": 10
+}
+
+### Decrement Stock
+PATCH {{baseUrl}}/inventory/sugar/decrement
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMU0ySkhaQ0pGV1NDVEpXOU1COU1XSzlHMCIsImlhdCI6MTc4OTQ3NjcxMywiZXhwIjoxNzg5NDgwMzEzfQ.UAvdIWKOhanz6oatmb4XQYXvfn25Sv-E_c8aNzqNEWw
+Content-Type: application/json
+
+{
+  "quantity": 10
+}
+
+### New Stock to Main Branch
+POST {{baseUrl}}/inventory/branches/01M2JHYGRCGV69MJDFKJFSFX0X
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMU0ySkhaQ0pGV1NDVEpXOU1COU1XSzlHMCIsImlhdCI6MTc4OTQ3NjcxMywiZXhwIjoxNzg5NDgwMzEzfQ.UAvdIWKOhanz6oatmb4XQYXvfn25Sv-E_c8aNzqNEWw
+Content-Type: application/json
+
+{
+  "name": "coffee",
+  "unit": "g",
+  "quantity": 20
+}
+
+### Delete Stock to Main Branch
+DELETE {{baseUrl}}/inventory/items/01M2JM4RQ4K40A96MDTQG3755Z
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMU0ySkhaQ0pGV1NDVEpXOU1COU1XSzlHMCIsImlhdCI6MTc4OTQ3NjcxMywiZXhwIjoxNzg5NDgwMzEzfQ.UAvdIWKOhanz6oatmb4XQYXvfn25Sv-E_c8aNzqNEWw
+
+
+### Increment Stock to Branch
+PATCH {{baseUrl}}/inventory/items/01M2JM4RQ4K40A96MDTQG3755Z/increment
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMU0ySkhaQ0pGV1NDVEpXOU1COU1XSzlHMCIsImlhdCI6MTc4OTQ3NjcxMywiZXhwIjoxNzg5NDgwMzEzfQ.UAvdIWKOhanz6oatmb4XQYXvfn25Sv-E_c8aNzqNEWw
+Content-Type: application/json
+
+{
+  "quantity": 10
+}
+
+### Decrement Stock to Branch
+PATCH {{baseUrl}}/inventory/items/01M2JM4RQ4K40A96MDTQG3755Z/decrement
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMU0ySkhaQ0pGV1NDVEpXOU1COU1XSzlHMCIsImlhdCI6MTc4OTQ3NjcxMywiZXhwIjoxNzg5NDgwMzEzfQ.UAvdIWKOhanz6oatmb4XQYXvfn25Sv-E_c8aNzqNEWw
+Content-Type: application/json
+
+{
+  "quantity": 10
+}

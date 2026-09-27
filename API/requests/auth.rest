@@ -1,0 +1,66 @@
+@baseUrl = http://localhost:3000/api/v1
+
+### Sign up
+# @name signup
+POST {{baseUrl}}/auth/customer/register
+Content-Type: application/json
+
+{
+  "fullName": "Valenzuela, Anjanette",
+  "email": "anjyyyvalenzuela@gmail.com",
+  "phoneNumber": "+639813283228",
+  "password": "valenzuela03",
+}
+
+### Register Staff
+POST {{baseUrl}}/auth/staff/register
+Content-Type: application/json
+
+{
+  "email": "anjyyyvalenzuela@gmail.com",
+  "storeBranchAddress": "Address 1",
+  "password": "valenzuela03",
+}
+
+### Owner Staff
+POST {{baseUrl}}/auth/owner/register
+Content-Type: application/json
+
+{
+  "email": "anjyyyvalenzuela@gmail.com",
+  "password": "valenzuela03",
+}
+
+### Log in
+# @name login
+POST {{baseUrl}}/auth/customer/login
+Content-Type: application/json
+
+{
+  "email": "anjyyyvalenzuela@gmail.com",
+  "password": "valenzuela03"
+}
+
+### Invalid login example
+POST {{baseUrl}}/auth/owner/login
+Content-Type: application/json
+
+{
+  "email": "anjyyyvalenzuela@gmail.com",
+  "password": "valenzuela03"
+}
+
+
+### Update User
+# @name update
+PATCH {{baseUrl}}/users/01M1ZWPMAAKAYQS64VP35N35XG
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMU0xWldQTUFBS0FZUVM2NFZQMzVOMzVYRyIsImlhdCI6MTc4ODkxMDYwOSwiZXhwIjoxNzg4OTE0MjA5fQ.RXJ33B4L0NyQw4lIYLSqe0hmkVzfDtgyrhkKrpJ6nKY
+
+{
+  "email": "tuazonkobebennedictdolorito@gmail.com",
+  "fullName": "Tuazon, Kobe Bennedict D.",
+  "phoneNumber": "+639123456789",
+  "currentPassword": "bikolangs5623",
+  "password": "bikolangs5623"
+}
