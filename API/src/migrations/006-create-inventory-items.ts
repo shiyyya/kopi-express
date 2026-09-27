@@ -11,7 +11,6 @@ export async function up({ context }: MigrationContext): Promise<void> {
     name: { type: DataTypes.STRING(100), allowNull: false },
     quantity: { type: DataTypes.DECIMAL(8, 2), allowNull: false, defaultValue: 0 },
     unit: { type: DataTypes.ENUM(...UNIT), allowNull: false },
-    expires_at: { type: DataTypes.DATE, allowNull: true },
     created_at: { type: DataTypes.DATE, allowNull: false },
     updated_at: {type: DataTypes.DATE, allowNull: false },
   });

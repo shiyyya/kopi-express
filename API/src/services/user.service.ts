@@ -4,11 +4,11 @@ import type { User } from '../models/User.js';
 import type { Customer } from '../models/Customer.js';
 import { StoreBranch as StoreBranchModel, Staff as StaffModel, Customer as CustomerModel, User as UserModel, CustomerAddress as CustomerAddressModel} from '../models/index.js';
 import { ApiError } from '../utils/ApiError.js';
-import type { addCustomerAddressInput, UpdateUserInput } from '../validators/user.validators.js';
+import type { addCustomerAddressInput, updateUserInput } from '../validators/user.validators.js';
 import { UserRole } from '../constants/user.js';
 import { Staff } from '../models/Staff.js';
 
-async function updateUser(requestedUser: User, input: UpdateUserInput, role: UserRole): Promise<User> {
+async function updateUser(requestedUser: User, input: updateUserInput, role: UserRole): Promise<User> {
   if (input.email && input.email !== requestedUser.email) {
     const existing = await UserModel.findOne({ where: { email: input.email, role } });
     if (existing) throw new ApiError(409, 'Email is already registered', 'EMAIL_EXISTS');
@@ -22,7 +22,7 @@ async function updateUser(requestedUser: User, input: UpdateUserInput, role: Use
   return requestedUser.save();
 }
 
-export async function updateCustomer(requestedUser: User, input: UpdateUserInput): Promise<{user: User, customer: Customer}> {
+export async function updateCustomer(requestedUser: User, input: updateUserInput): Promise<{user: User, customer: Customer}> {
   const user = await updateUser(requestedUser, input, 'customer');
   const requestedCustomer = await CustomerModel.findOne({ where: { userId: user.id } });
   if (!requestedCustomer) throw new ApiError(404, 'Customer doesn\'t exist, the User might not be a Customer', 'CUSTOMER_NOT_FOUND');
@@ -34,7 +34,7 @@ export async function updateCustomer(requestedUser: User, input: UpdateUserInput
   return { user, customer };
 }
 
-export async function updateStaff(requestedUser: User, input: UpdateUserInput): Promise<{user: User, staff: Staff}> {
+export async function updateStaff(requestedUser: User, input: updateUserInput): Promise<{user: User, staff: Staff}> {
   const user = await updateUser(requestedUser, input, 'staff');
   const requestedStaff = await StaffModel.findOne({ where: { userId: user.id } });
   if (!requestedStaff) throw new ApiError(404, 'Staff doesn\'t exist, the User might not be a Staff', 'STAFF_NOT_FOUND');
