@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:3000/api/v1';
+export const API_ORIGIN = 'http://localhost:3000';
+const API_URL = `${API_ORIGIN}/api/v1`;
 
 export async function apiFetch(path, options = {}) {
   const token = localStorage.getItem('token');
