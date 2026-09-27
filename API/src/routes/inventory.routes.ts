@@ -12,8 +12,11 @@ invRouter.delete('/:name', authenticate, requireRole('owner'), controller.remove
 invRouter.patch('/:name/increment', authenticate, requireRole('owner'), validateBody(incrementStockSchema), controller.incrementStockToAll);
 invRouter.patch('/:name/decrement', authenticate, requireRole('owner'), validateBody(decrementStockSchema), controller.decrementStockToAll);
 
-invRouter.get('/branches/:storeBranchId', authenticate, requireRole('owner', 'staff'), controller.getBranchStocks);
-invRouter.post('/branches/:storeBranchId', authenticate, requireRole('owner', 'staff'), validateBody(newStockSchema), controller.newStockToBranch);
+invRouter.get('/branches/:storeBranchId', authenticate, requireRole('owner'), controller.getBranchStocks);
+invRouter.post('/branches/:storeBranchId', authenticate, requireRole('owner'), validateBody(newStockSchema), controller.newStockToBranch);
 invRouter.delete('/items/:invItemId', authenticate, requireRole('owner', 'staff'), controller.removeStockToBranch);
 invRouter.patch('/items/:invItemId/increment', authenticate, requireRole('owner', 'staff'), validateBody(incrementStockSchema), controller.incrementStockToBranch);
 invRouter.patch('/items/:invItemId/decrement', authenticate, requireRole('owner', 'staff'), validateBody(decrementStockSchema), controller.decrementStockToBranch);
+
+invRouter.get('/branches/ownStoreBranch', authenticate, requireRole('staff'), controller.getBranchStocks);
+invRouter.post('/branches/ownStoreBranch', authenticate, requireRole('staff'), validateBody(newStockSchema), controller.newStockToBranch);
