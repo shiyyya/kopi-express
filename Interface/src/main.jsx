@@ -51,7 +51,7 @@ createRoot(document.getElementById("root")).render(
                         <Route path="portal" element={<StaffOwnerLogin />} />
 
                         {/* CUSTOMER PROTECTED ROUTES */}
-                        <Route path="store-locator" element={<ProtectedRoute><StoreLocator /></ProtectedRoute>} />
+                        <Route path="store-locator" element={<StoreLocator />} />
                         <Route path="order-status" element={<ProtectedRoute><OrderStatus /></ProtectedRoute>} />
                         <Route path="order-history" element={ <ProtectedRoute><OrderHistory /></ProtectedRoute>} />
                         <Route path="order-history/details" element={<ProtectedRoute> <OrderHistoryDetails /> </ProtectedRoute>} />
