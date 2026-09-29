@@ -17,7 +17,7 @@ export class CartItem extends Model<InferAttributes<CartItem>, InferCreationAttr
   declare customerId: string;
   declare productId: string;
   declare quantity: number;
-  declare productTemp: ProductTemperature;
+  declare productTemp: ProductTemperature | null;
   declare Product?: NonAttribute<Product>;
   declare CartItemAddOns?: NonAttribute<CartItemAddOn[]>;
 }
@@ -29,7 +29,7 @@ export function initCartItem(sequelize: Sequelize): typeof CartItem {
       customerId: { type: DataTypes.STRING(26), allowNull: false, references: { model: 'customers', key: 'user_id' }, field: 'customer_id' },
       productId: { type: DataTypes.STRING(26), allowNull: false, references: { model: 'products', key: 'id' }, field: 'product_id' },
       quantity: { type: DataTypes.INTEGER, allowNull: false },      
-      productTemp: { type: DataTypes.ENUM(...PRODUCT_TEMPERATURE), allowNull: false, field: 'product_temperature' },
+      productTemp: { type: DataTypes.ENUM(...PRODUCT_TEMPERATURE), allowNull: true, field: 'product_temperature' },
     },
     { sequelize, tableName: 'cart_items', modelName: 'CartItem', underscored: true },
   );
