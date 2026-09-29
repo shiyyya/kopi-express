@@ -16,10 +16,10 @@ export function initProductIngredient(sequelize: Sequelize): typeof ProductIngre
   ProductIngredient.init(
     {
       productId: { type: DataTypes.STRING(26), references: { model: 'products', key: 'id' }, primaryKey: true, field: 'product_id' },
-      ingredientId: { type: DataTypes.STRING(26), references: { model: 'inventory_items', key: 'id' }, primaryKey: true, field: 'ingredient_id' },
+      ingredientId: { type: DataTypes.STRING(26), references: { model: 'ingredients', key: 'id' }, primaryKey: true, field: 'ingredient_id' },
       quantityRequired: { type: DataTypes.DECIMAL(8, 2), allowNull: false, field: 'quantity_required' },
     },
-    { sequelize, tableName: 'product_ingredients', modelName: 'ProductIngredient', underscored: true },
+    { sequelize, tableName: 'product_ingredients', modelName: 'ProductIngredient', underscored: true, timestamps: false },
   );
   return ProductIngredient;
 }

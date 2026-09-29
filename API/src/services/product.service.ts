@@ -1,5 +1,5 @@
 import { ApiError } from "../utils/ApiError.js";
-import { InventoryItem as InventoryItemModel, ProductIngredient as ProductIngredientModel, Product as ProductModel, sequelize } from "../models/index.js";
+import { Ingredient as IngredientModel, ProductIngredient as ProductIngredientModel, Product as ProductModel, sequelize } from "../models/index.js";
 import { addProductIngredientInput, newProductInput, updateProductInput } from "../validators/product.validator.js";
 import { Category } from "../constants/product.js";
 
@@ -17,7 +17,7 @@ export async function getProduct(id: string) {
 
 export async function newProduct(input: newProductInput, imageUrl: string) { return sequelize.transaction(async (transaction) => {
   const ingredientIds = input.ingredients.map(ingredient => ingredient.id);
-  const ingredients = await InventoryItemModel.findAll({ where: { id: ingredientIds }, transaction });
+  const ingredients = await IngredientModel.findAll({ where: { id: ingredientIds }, transaction });
   if (ingredients.length !== ingredientIds.length) throw new ApiError(400, 'One or more ingredients not found', 'INGREDIENT_NOT_FOUND');
   
   const product = await ProductModel.create({
@@ -73,7 +73,7 @@ export async function getProductIngredients(id: string) {
 export async function addProductIngredient(id: string, input: addProductIngredientInput) {
   const product = await ProductModel.findByPk(id);
   if (!product) throw new ApiError(404, 'Product not found', 'PRODUCT_NOT_FOUND');
-  const ingredient = await InventoryItemModel.findByPk(input.ingredientId);
+  const ingredient = await IngredientModel.findByPk(input.ingredientId);
   if (!ingredient) throw new ApiError(404, 'Ingredient not found', 'INGREDIENT_NOT_FOUND');
 
 
