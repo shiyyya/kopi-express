@@ -18,6 +18,7 @@ export async function addToCart(userId: string, input: addToCartInput) { return 
     customerId: userId,
     productId: input.productId,
     quantity: input.quantity,
+    productTemp: input.productTemp,
   }, {transaction});
 
   await CartItemAddOnModel.bulkCreate(
