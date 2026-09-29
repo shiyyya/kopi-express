@@ -1,7 +1,6 @@
 import { ApiError } from "../utils/ApiError.js";
 import { sequelize, CartItem as CartItemModel, Product as ProductModel, CartItemAddOn as CartItemAddOnModel, AddOn as AddonModel} from "../models/index.js";
 import { addToCartInput } from "../validators/cart.validator.js";
-import { CATEGORY } from "../constants/product.js";
 
 export async function getCart(userId: string) {
   const cart = await CartItemModel.findAll({ where: { customerId: userId } });
