@@ -1,5 +1,5 @@
 import { ApiError } from "../utils/ApiError.js";
-import { sequelize, InventoryItem as InventoryItemModel, AddOn as AddOnModel, AddOnIngredient as AddOnIngredientModel} from "../models/index.js";
+import { sequelize, Ingredient as IngredientModel, AddOn as AddOnModel, AddOnIngredient as AddOnIngredientModel} from "../models/index.js";
 import { addAddOnIngredientInput, newAddOnInput, updateAddOnInput } from "../validators/addon.validator.js";
 
 export async function getAddOns() {
@@ -16,7 +16,7 @@ export async function getAddOn(id: string) {
 
 export async function newAddOn(input: newAddOnInput) { return sequelize.transaction(async (transaction) => {
   const ingredientIds = input.ingredients.map(ingredient => ingredient.id);
-  const ingredients = await InventoryItemModel.findAll({ where: { id: ingredientIds }, transaction });
+  const ingredients = await IngredientModel.findAll({ where: { id: ingredientIds }, transaction });
   if (ingredients.length !== ingredientIds.length) throw new ApiError(400, 'One or more ingredients not found', 'INGREDIENT_NOT_FOUND');
   
   const addon = await AddOnModel.create({
@@ -62,7 +62,7 @@ export async function getAddOnIngredients(id: string) {
 export async function addAddOnIngredient(id: string, input: addAddOnIngredientInput) {
   const addon = await AddOnModel.findByPk(id);
   if (!addon) throw new ApiError(404, 'Addon not found', 'ADDON_NOT_FOUND');
-  const ingredient = await InventoryItemModel.findByPk(input.ingredientId);
+  const ingredient = await IngredientModel.findByPk(input.ingredientId);
   if (!ingredient) throw new ApiError(404, 'Ingredient not found', 'INGREDIENT_NOT_FOUND');
   
 

@@ -2,6 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { sequelize, CustomerAddress as CustomerAddressModel, Customer as CustomerModel, CartItem as CartItemModel, Product as ProductModel, CartItemAddOn as CartItemAddOnModel, AddOn as AddonModel, Order as OrderModel, OrderItem as OrderItemModel, OrderItemAddOn as OrderItemAddOnModel, StoreBranch as StoreBranchModel } from "../models/index.js";
 import { newOrderInput } from "../validators/order.validator.js";
 import { OrderStatus } from "../constants/order.js";
+import { deductOrderStock } from "./inv.service.js";
 
 export async function getOrders(status: OrderStatus) {
   const orders = await OrderModel.findAll({
@@ -143,8 +144,10 @@ export async function newOrder( userId: string, storeBranchId: string, input: ne
         return {
           orderId: order.id,
           productId: cartItem.productId,
+          productCategory: product.category,
           quantity: cartItem.quantity,
           unitPrice: product.price,
+          productTemp: cartItem.productTemp,
         };
     }), { transaction });
 
@@ -172,8 +175,8 @@ export async function newOrder( userId: string, storeBranchId: string, input: ne
   });
 }
 
-export async function cancelOrder(userId: string, orderId: string) {
-  const order = await OrderModel.findOne({ where: { id: orderId, customerId: userId, }, });
+export async function cancelOrder(orderId: string) {
+  const order = await OrderModel.findOne({ where: { id: orderId }, });
   if (!order) throw new ApiError( 404, 'Order not found', 'ORDER_NOT_FOUND' );
 
   if (['cancelled', 'declined'].includes(order.status)) throw new ApiError( 400, 'Order unavailable', 'ORDER_UNAVAILABLE' );
@@ -183,7 +186,7 @@ export async function cancelOrder(userId: string, orderId: string) {
   await order.save();
 }
 
-export async function nextState(orderId: string) {
+export async function advanceOrder(orderId: string) {
   const order = await OrderModel.findByPk(orderId);
   if (!order) throw new ApiError( 404, 'Order not found', 'ORDER_NOT_FOUND' );
 
@@ -191,8 +194,12 @@ export async function nextState(orderId: string) {
 
   switch (order.status) {
     case 'pending':
-      order.status = 'queued';
-      break;
+      await sequelize.transaction(async (transaction) => {
+        await deductOrderStock(order.id, order.storeBranchId, transaction);
+        order.status = 'queued';
+        await order.save({ transaction });
+      });
+      return;
 
     case 'queued':
       order.status = 'preparing';
