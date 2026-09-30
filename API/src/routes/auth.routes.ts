@@ -7,4 +7,5 @@ export const authRouter = Router();
 authRouter.post('/customer/register', validateBody(registerCustomerSchema), controller.registerCustomer);
 // authRouter.post('/staff/register', validateBody(registerStaffSchema), controller.registerStaff);
 // authRouter.post('/owner/register', validateBody(registerOwnerSchema), controller.registerOwner);
-authRouter.post('/:role/login', validateBody(loginSchema), controller.login);
+authRouter.post('/login', validateBody(loginSchema), controller.login);
+authRouter.post('/admin/login', validateBody(loginSchema), controller.loginAdmin);
