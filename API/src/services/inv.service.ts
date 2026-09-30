@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import {
   Ingredient as IngredientModel,
   InventoryItem as InventoryItemModel,
+  InventoryLoan as InventoryLoanModel,
   StoreBranch as StoreBranchModel,
   OrderItem as OrderItemModel,
   OrderItemAddOn as OrderItemAddOnModel,
@@ -99,7 +100,7 @@ async function computeOrderNeeds(orderId: string, transaction: Transaction) {
   return needs;
 }
 
-export async function deductOrderStock(orderId: string, storeBranchId: string, transaction: Transaction) {
+export async function deductOrderStock( orderId: string, storeBranchId: string, transaction: Transaction, ) {
   const needs = await computeOrderNeeds(orderId, transaction);
   const now = new Date();
 
@@ -113,21 +114,54 @@ export async function deductOrderStock(orderId: string, storeBranchId: string, t
         quantity: { [Op.gt]: 0 },
         expiresAt: { [Op.gt]: now },
       },
-      order: [['expiresAt', 'ASC'], ['purchasedAt', 'ASC']],
+      order: [
+        ['expiresAt', 'ASC'],
+        ['purchasedAt', 'ASC'],
+      ],
       transaction,
       lock: transaction.LOCK.UPDATE,
     });
 
     for (const batch of batches) {
       if (remaining <= 0) break;
+
       const take = Math.min(Number(batch.quantity), remaining);
-      batch.quantity = round2(Number(batch.quantity) - take);
+      batch.quantity = round2( Number(batch.quantity) - take, );
+
       await batch.save({ transaction });
+
+      await InventoryLoanModel.create(
+        {
+          orderId,
+          inventoryItemId: batch.id,
+          quantity: take,
+        },
+        { transaction },
+      );
+
       remaining = round2(remaining - take);
     }
 
-    if (remaining > 0) throw new ApiError(409, 'Not enough stock to accept this order', 'INSUFFICIENT_STOCK');
+    if (remaining > 0) throw new ApiError( 409, 'Not enough stock to accept this order', 'INSUFFICIENT_STOCK', );
   }
 }
 
+export async function restoreOrderStock( orderId: string, transaction: Transaction, ) {
+  const loans = await InventoryLoanModel.findAll({ where: { orderId }, transaction, lock: transaction.LOCK.UPDATE });
+
+  for (const loan of loans) {
+    const inventoryItem = await InventoryItemModel.findByPk(loan.inventoryItemId, { transaction, lock: transaction.LOCK.UPDATE });
+    if (!inventoryItem) throw new ApiError( 409, 'Inventory item for order loan not found', 'INVENTORY_ITEM_NOT_FOUND');
+
+    inventoryItem.quantity = round2(Number(inventoryItem.quantity) + Number(loan.quantity));
+
+    await inventoryItem.save({ transaction });
+  }
+
+  await InventoryLoanModel.destroy({ where: { orderId }, transaction, });
+}
+
+export async function consumeOrderStock( orderId: string, transaction: Transaction, ) {
+  await InventoryLoanModel.destroy({ where: { orderId }, transaction});
+}
 

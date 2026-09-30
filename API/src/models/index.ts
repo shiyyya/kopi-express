@@ -6,6 +6,7 @@ import { initCustomerAddress } from './CustomerAddress.js';
 import { initStoreBranch } from './StoreBranch.js';
 import { initIngredient } from './Ingredient.js';
 import { initInventoryItem } from './InventoryItem.js';
+import { initInventoryLoan } from './InventoryLoan.js';
 import { initProduct } from './Product.js';
 import { initProductIngredient } from './ProductIngredient.js';
 import { initAddOn } from './AddOn.js';
@@ -23,6 +24,7 @@ export const CustomerAddress = initCustomerAddress(sequelize);
 export const StoreBranch = initStoreBranch(sequelize);
 export const Ingredient = initIngredient(sequelize);
 export const InventoryItem = initInventoryItem(sequelize);
+export const InventoryLoan = initInventoryLoan(sequelize);
 export const Product = initProduct(sequelize);
 export const ProductIngredient = initProductIngredient(sequelize);
 export const AddOn = initAddOn(sequelize);
@@ -71,5 +73,9 @@ OrderItem.hasMany(OrderItemAddOn, { foreignKey: 'orderItemId', onDelete: 'CASCAD
 OrderItemAddOn.belongsTo(OrderItem, { foreignKey: 'orderItemId' });
 AddOn.hasMany(OrderItemAddOn, { foreignKey: 'addOnId' });
 OrderItemAddOn.belongsTo(AddOn, { foreignKey: 'addOnId' });
+Order.hasMany(InventoryLoan, { foreignKey: 'orderId', onDelete: 'CASCADE', });
+InventoryLoan.belongsTo(Order, { foreignKey: 'orderId', });
+InventoryItem.hasMany(InventoryLoan, { foreignKey: 'inventoryItemId', });
+InventoryLoan.belongsTo(InventoryItem, { foreignKey: 'inventoryItemId', });
 
 export { sequelize };

@@ -1,12 +1,38 @@
 import { ApiError } from "../utils/ApiError.js";
-import { sequelize, CustomerAddress as CustomerAddressModel, Customer as CustomerModel, CartItem as CartItemModel, Product as ProductModel, CartItemAddOn as CartItemAddOnModel, AddOn as AddonModel, Order as OrderModel, OrderItem as OrderItemModel, OrderItemAddOn as OrderItemAddOnModel, StoreBranch as StoreBranchModel } from "../models/index.js";
+import { 
+  sequelize, 
+  CustomerAddress as CustomerAddressModel, 
+  Customer as CustomerModel, 
+  CartItem as CartItemModel, 
+  Product as ProductModel, 
+  CartItemAddOn as CartItemAddOnModel, 
+  AddOn as AddonModel, 
+  Order as OrderModel, 
+  OrderItem as OrderItemModel, 
+  OrderItemAddOn as OrderItemAddOnModel, 
+  StoreBranch as StoreBranchModel, 
+  InventoryLoan as InventoryLoanModel 
+} from "../models/index.js";
 import { newOrderInput } from "../validators/order.validator.js";
-import { OrderStatus } from "../constants/order.js";
-import { deductOrderStock } from "./inv.service.js";
+import { deductOrderStock, restoreOrderStock } from "./inv.service.js";
+import { Op } from "sequelize";
 
-export async function getOrders(status: OrderStatus) {
+
+export async function getOrders(storeBranchId?: string, orderView?: 'pending' | 'in_queue') {
   const orders = await OrderModel.findAll({
-    where: { status: status },
+    where: { 
+      ...(storeBranchId  
+        ? { storeBranchId }
+        : undefined
+      ), 
+      ...(orderView  
+        ? orderView  === 'pending' 
+          ? { status: 'pending' } 
+          : { status: { [Op.ne]: 'pending' } } 
+        : undefined
+      )
+    },
+    
     include: [
       { model: CustomerModel, attributes: ['fullName'], },
       { model: OrderItemModel, include: [
@@ -106,7 +132,7 @@ export async function getOrder(orderId: string) {
   };
 }
 
-export async function newOrder( userId: string, storeBranchId: string, input: newOrderInput ) {
+export async function newOrder( userId: string, storeBranchId: string, input: newOrderInput ): Promise<{ orderId: string }> {
   return sequelize.transaction(async (transaction) => {
     const storeBranch = await StoreBranchModel.findByPk(storeBranchId, { transaction });
     if (!storeBranch) throw new ApiError( 404, 'Store branch not found', 'STORE_BRANCH_NOT_FOUND' );
@@ -133,7 +159,7 @@ export async function newOrder( userId: string, storeBranchId: string, input: ne
       paymentMethod: input.paymentMethod,
       paymentReference: input.paymentReference,
       notes: input.notes,
-      deliveryFee: 20,
+      deliveryFee: 50,
     }, { transaction });
 
     const orderItems = await OrderItemModel.bulkCreate(
@@ -169,55 +195,51 @@ export async function newOrder( userId: string, storeBranchId: string, input: ne
         });
       }
     }
-
+    
     if (orderItemAddons.length > 0) await OrderItemAddOnModel.bulkCreate( orderItemAddons, { transaction } );
     await CartItemModel.destroy({ where: { customerId: userId }, transaction });
+
+    return { orderId: order.id }
   });
 }
 
-export async function cancelOrder(orderId: string) {
-  const order = await OrderModel.findOne({ where: { id: orderId }, });
-  if (!order) throw new ApiError( 404, 'Order not found', 'ORDER_NOT_FOUND' );
+export async function declineOrCancelOrder(orderId: string) {
+  return sequelize.transaction(async (transaction) => {
+    const order = await OrderModel.findByPk(orderId, { transaction, lock: transaction.LOCK.UPDATE});
+    if (!order) throw new ApiError(404, 'Order not found', 'ORDER_NOT_FOUND');
 
-  if (['cancelled', 'declined'].includes(order.status)) throw new ApiError( 400, 'Order unavailable', 'ORDER_UNAVAILABLE' );
-  if (order.status === 'pending') order.status = 'declined';
-  else order.status = 'cancelled';
+    if (order.status === 'pending') order.status = 'declined';
+    else if (order.status === 'queued') {
+      await restoreOrderStock(order.id, transaction);
+      order.status = 'cancelled';
+    } 
+    else throw new ApiError( 400, 'Order cannot be declined or cancelled at its current status', 'ORDER_CANNOT_BE_CANCELLED');
 
-  await order.save();
+    await order.save({ transaction });
+    return order;
+  });
 }
 
 export async function advanceOrder(orderId: string) {
-  const order = await OrderModel.findByPk(orderId);
-  if (!order) throw new ApiError( 404, 'Order not found', 'ORDER_NOT_FOUND' );
+  return sequelize.transaction(async (transaction) => {
+    const order = await OrderModel.findByPk(orderId, { transaction, lock: transaction.LOCK.UPDATE});
+    if (!order) throw new ApiError(404, 'Order not found', 'ORDER_NOT_FOUND');
 
-  if (['cancelled', 'declined'].includes(order.status)) throw new ApiError( 400, 'Order unavailable', 'ORDER_UNAVAILABLE' );
+    if (order.status === 'pending') {
+      await deductOrderStock( order.id, order.storeBranchId, transaction);
+      order.status = 'queued';
+    } 
+    else if (order.status === 'queued') {
+      await InventoryLoanModel.destroy({ where: { orderId: order.id }, transaction}); 
+      order.status = 'preparing'
+    } 
+    else if (order.status === 'preparing') order.status = 'ready';
+    else if (order.status === 'ready') order.status = 'completed';
+    else throw new ApiError(400, 'Order cannot be advanced from its current status', 'ORDER_CANNOT_BE_ADVANCED');
 
-  switch (order.status) {
-    case 'pending':
-      await sequelize.transaction(async (transaction) => {
-        await deductOrderStock(order.id, order.storeBranchId, transaction);
-        order.status = 'queued';
-        await order.save({ transaction });
-      });
-      return;
-
-    case 'queued':
-      order.status = 'preparing';
-      break;
-
-    case 'preparing':
-      order.status = 'ready';
-      break;
-
-    case 'ready':
-      order.status = 'completed';
-      break;
-
-    default:
-      throw new ApiError( 400, 'Order cannot advance from its current status', 'INVALID_ORDER_STATUS' );
-  }
-
-  await order.save();
+    await order.save({ transaction });
+    return order;
+  });
 }
 
 export async function getCustomerOrders(customerId: string) {
@@ -270,11 +292,12 @@ export async function getCustomerOrder(customerId: string, orderId: string) {
   const order = await OrderModel.findOne({
     where: { id: orderId, customerId },
     include: [
-      { model: CustomerModel, attributes: ['fullName'], },
+      { model: CustomerModel, attributes: ['fullName'] },
+      { model: StoreBranchModel, attributes: ['name', 'address'] },
       { model: OrderItemModel, include: [
-          { model: ProductModel, attributes: ['name'], },
+          { model: ProductModel, attributes: ['name'] },
           { model: OrderItemAddOnModel, include: [
-              { model: AddonModel, attributes: ['name'], },
+              { model: AddonModel, attributes: ['name'] },
   ]}]}]});
 
   if (!order) throw new ApiError( 404, 'Order not found', 'ORDER_NOT_FOUND' );
@@ -314,6 +337,12 @@ export async function getCustomerOrder(customerId: string, orderId: string) {
     status: data.status,
     fulfillmentType: data.fulfillmentType,
     address: address.address,
+
+    store: {
+      name: data.StoreBranch.name,
+      address: data.StoreBranch.address,
+    },
+
     paymentMethod: data.paymentMethod,
     paymentReference: data.paymentReference,
     notes: data.notes,
