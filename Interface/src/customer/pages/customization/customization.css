@@ -3,20 +3,26 @@
     min-height: 100svh;
     background: var(--bg);
     box-sizing: border-box;
-    padding-bottom: 75px;
+    padding-bottom: 75px; 
+    display: flex;
+    flex-direction: column;
 }
+
 .customization-image {
     position: relative;
     width: 100%;
-    height: 120px;
+    height: 240px;
+    flex-shrink: 0;
     overflow: hidden;
 }
+
 .customization-image img {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
+
 .customization-image::after {
     content: "";
     position: absolute;
@@ -24,29 +30,48 @@
     background: rgba(28, 16, 8, 0.28);
     pointer-events: none;
 }
+
 .customization-image .backButton {
     position: absolute;
     top: 16px;
     left: 16px;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    margin: 0;
+    padding: 0;
     z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
+
 .customization-badge {
     position: absolute;
     top: 16px;
     right: 16px;
     z-index: 3;
 }
+
 .customization-content {
     width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     padding: 14px 16px 0;
     text-align: left;
     box-sizing: border-box;
 }
+
 .customization-product-info {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
 }
+
 .customization-category {
     margin: 0;
     font-family: var(--sans);
@@ -57,6 +82,7 @@
     text-transform: uppercase;
     color: var(--text-4);
 }
+
 .customization-name {
     margin: 0;
     font-family: var(--heading);
@@ -65,6 +91,7 @@
     line-height: 1.2;
     color: var(--accent);
 }
+
 .customization-price {
     margin: 0;
     font-family: var(--heading);
@@ -73,6 +100,7 @@
     line-height: 1.2;
     color: var(--accent);
 }
+
 .customization-description {
     margin: 6px 0 0;
     font-family: var(--sans);
@@ -81,10 +109,12 @@
     line-height: 1.4;
     color: var(--text-2);
 }
+
 .customization-section {
     width: 100%;
     margin-top: 18px;
 }
+
 .customization-section-title {
     margin: 0 0 8px;
     font-family: var(--sans);
@@ -93,15 +123,18 @@
     line-height: 1.2;
     color: var(--text-2);
 }
+
 .customization-section-title span {
     font-weight: 400;
 }
+
 .temperature-options {
     display: flex;
     align-items: center;
     gap: 7px;
     width: 100%;
 }
+
 .temperature-option {
     display: inline-flex;
     align-items: center;
@@ -121,31 +154,37 @@
     outline: none;
     box-shadow: none;
 }
+
 .temperature-option:focus,
 .temperature-option:focus-visible {
     outline: none;
     box-shadow: none;
 }
+
 .temperature-icon {
     width: 15px;
     height: 15px;
     flex-shrink: 0;
 }
+
 .temperature-hot.selected {
     background: #FFF7ED;
     border-color: #FFD6A8;
     color: #F54900;
 }
+
 .temperature-iced.selected {
     background: #F0F9FF;
     border-color: #B8E6FE;
     color: #0084D1;
 }
+
 .addon-list {
     display: flex;
     flex-direction: column;
     gap: 7px;
 }
+
 .addon-option {
     display: flex;
     align-items: center;
@@ -163,15 +202,18 @@
     outline: none;
     box-sizing: border-box;
 }
+
 .addon-option:focus,
 .addon-option:focus-visible {
     outline: none;
     box-shadow: none;
 }
+
 .addon-option.selected {
     border-color: var(--btn-primary);
     background: rgba(74, 103, 65, 0.08);
 }
+
 .addon-check {
     display: flex;
     align-items: center;
@@ -187,68 +229,49 @@
     font-weight: 700;
     color: transparent;
 }
+
 .addon-option.selected .addon-check {
     border-color: var(--btn-primary);
     background: var(--btn-primary);
     color: var(--btn-label);
 }
+
 .addon-name {
     flex: 1;
     color: var(--text-2);
 }
+
 .addon-price {
     margin-left: 10px;
     color: var(--text-2);
     white-space: nowrap;
 }
+
 .quantity-section {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    margin-top: auto;
+    padding-top: 18px;
+    padding-bottom: 12px;
 }
+
 .quantity-section .quantity-selector {
     color: #000000;
 }
-.notes-section {
-    margin-top: 18px;
-}
-.customization-notes {
-    display: block;
-    width: 100%;
-    height: 165px;
-    padding: 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--card-bg);
-    color: var(--text-2);
-    font-family: var(--sans);
-    font-size: 12px;
-    line-height: 1.4;
-    resize: none;
-    outline: none;
-    box-shadow: none;
-    box-sizing: border-box;
-}
-.customization-notes::placeholder {
-    color: var(--text-2);
-    opacity: 0.7;
-}
-.customization-notes:focus,
-.customization-notes:focus-visible {
-    border-color: var(--border);
-    outline: none;
-    box-shadow: none;
-}
+
+
 .customization-order-button {
     position: fixed;
-    right: 16px;
     bottom: 12px;
-    left: 16px;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 10;
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: calc(100% - 32px);
+    max-width: 448px; 
     height: 48px;
     padding: 10px 16px;
     border: none;
@@ -262,39 +285,47 @@
     outline: none;
     box-sizing: border-box;
 }
+
 .customization-order-button:focus,
 .customization-order-button:focus-visible {
     outline: none;
     box-shadow: none;
 }
+
 .customization-not-found {
     padding: 20px 16px;
     font-family: var(--sans);
     font-size: 14px;
     color: var(--text-2);
 }
+
 @media (min-width: 1025px) {
     .customization-page {
         max-width: 480px;
         margin: 0 auto;
     }
 }
+
 .temperature-options.error .temperature-option {
     border-color: #d9534f;
 }
+
 .temperature-error {
     margin: 6px 0 0;
     color: #d9534f;
     font-size: 12px;
 }
+
 @media (max-width: 480px) {
-    .customization-page {
-        padding-bottom: 180px;
-    }
     .customization-order-button {
-        right: 12px;
         bottom: 10px;
-        left: 12px;
         width: calc(100% - 24px);
     }
+}
+
+.customization-submit-error {
+    margin: 0 0 8px;
+    color: #d9534f;
+    font-family: var(--sans);
+    font-size: 12px;
 }

@@ -31,7 +31,7 @@ export function initCartItem(sequelize: Sequelize): typeof CartItem {
       quantity: { type: DataTypes.INTEGER, allowNull: false },      
       productTemp: { type: DataTypes.ENUM(...PRODUCT_TEMPERATURE), allowNull: true, field: 'product_temperature' },
     },
-    { sequelize, tableName: 'cart_items', modelName: 'CartItem', underscored: true },
+    { sequelize, tableName: 'cart_items', modelName: 'CartItem', underscored: true, timestamps: false },
   );
   return CartItem;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import "./customization.css";
 
@@ -10,36 +10,23 @@ import HotIcon from "/src/assets/icons/hot.svg?react";
 import IcedIcon from "/src/assets/icons/iced.svg?react";
 import CheckIcon from "/src/assets/icons/check.svg?react";
 
-const ADD_ONS = [
-    {
-        id: "extra-shot",
-        name: "Extra Shot",
-        price: 30,
-    },
-    {
-        id: "vanilla-syrup",
-        name: "Vanilla Syrup",
-        price: 30,
-    },
-    {
-        id: "oat-milk",
-        name: "Oat Milk",
-        price: 30,
-    },
-    {
-        id: "whipped-cream",
-        name: "Whipped Cream",
-        price: 30,
-    },
-    {
-        id: "caramel-drizzle",
-        name: "Caramel Drizzle",
-        price: 30,
-    },
-];
+import { getAddOns } from "/src/api/addon.api.js";
+import { addToCart } from "/src/api/cart.api.js";
+
+const FALLBACK_IMAGE = "/src/assets/images/menu/kopi.png";
+
+function getTemperatures(product) {
+    if (Array.isArray(product.temperature)) {
+        return product.temperature;
+    }
+
+    return [
+        product.isHotAvailable && "hot",
+        product.isIcedAvailable && "iced",
+    ].filter(Boolean);
+}
 
 export default function Customization({
-    //changes
     product: productProp,
     onClose,
     onAddToOrder,
@@ -49,16 +36,43 @@ export default function Customization({
 
     const product = productProp || location.state?.product;
 
+    const [addOns, setAddOns] = useState([]);
     const [selectedTemperature, setSelectedTemperature] = useState(null);
     const [selectedAddOns, setSelectedAddOns] = useState([]);
     const [quantity, setQuantity] = useState(1);
-    const [notes, setNotes] = useState("");
     const [temperatureError, setTemperatureError] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState("");
+
+    useEffect(() => {
+        let cancelled = false;
+
+        getAddOns()
+            .then((list) => {
+                if (!cancelled) setAddOns(list);
+            })
+            .catch((error) => {
+                console.error("Failed to load add-ons:", error);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const handleBack = () => {
+        if (onClose) {
+            onClose();
+            return;
+        }
+
+        navigate(-1);
+    };
 
     if (!product) {
         return (
             <div className="customization-page">
-                <BackButton />
+                <BackButton onClick={handleBack} />
                 <p className="customization-not-found">
                     Product not found.
                 </p>
@@ -66,16 +80,15 @@ export default function Customization({
         );
     }
 
-    const hasTemperature =
-        Array.isArray(product.temperature) &&
-        product.temperature.length > 0;
+    const temperatures = getTemperatures(product);
+
+    const hasTemperature = temperatures.length > 0;
 
     const requiresTemperature =
-        hasTemperature &&
-        product.temperature.includes("hot") &&
-        product.temperature.includes("iced");
+        temperatures.includes("hot") &&
+        temperatures.includes("iced");
 
-    const hasAddOns = ADD_ONS.length > 0;
+    const hasAddOns = addOns.length > 0 && hasTemperature;
 
     const toggleTemperature = (temperature) => {
         setSelectedTemperature((current) =>
@@ -95,11 +108,11 @@ export default function Customization({
 
     const addOnsTotal = selectedAddOns.reduce(
         (total, addOnId) => {
-            const addOn = ADD_ONS.find(
+            const addOn = addOns.find(
                 (item) => item.id === addOnId
             );
 
-            return total + (addOn?.price || 0);
+            return total + Number(addOn?.price || 0);
         },
         0
     );
@@ -107,61 +120,50 @@ export default function Customization({
     const totalPrice =
         (Number(product.price) + addOnsTotal) * quantity;
 
-    const handleAddToOrder = () => {
+    const handleAddToOrder = async () => {
         if (requiresTemperature && !selectedTemperature) {
             setTemperatureError(true);
             return;
         }
 
-        const selectedAddOnDetails = ADD_ONS.filter((addOn) =>
-            selectedAddOns.includes(addOn.id)
-        );
-
-        const newCartItem = {
-            id: `cart-item-${Date.now()}`,
-            product: {
-                id: product.id,
-                name: product.name,
-                price: Number(product.price),
-                image: product.image,
-            },
-            temperature: selectedTemperature,
-            addOns: selectedAddOnDetails,
-            quantity,
-            notes,
-            total: totalPrice,
-        };
-        //para mag pag mag add order sa staff di mapunta sa  cart ng customer
-
         if (onAddToOrder) {
-            onAddToOrder(newCartItem);
+            const selectedAddOnDetails = addOns.filter((addOn) =>
+                selectedAddOns.includes(addOn.id)
+            );
+
+            onAddToOrder({
+                id: `cart-item-${Date.now()}`,
+                product: {
+                    id: product.id,
+                    name: product.name,
+                    price: Number(product.price),
+                    image: product.image || product.image_url,
+                },
+                temperature: selectedTemperature,
+                addOns: selectedAddOnDetails,
+                quantity,
+                total: totalPrice,
+            });
             return;
         }
 
-        const existingCart = JSON.parse(
-            localStorage.getItem("cartItems") || "[]"
-        );
+        setSubmitError("");
+        setSubmitting(true);
 
-        const updatedCart = [
-            ...existingCart,
-            newCartItem,
-        ];
+        try {
+            await addToCart({
+                productId: product.id,
+                quantity,
+                addonIds: selectedAddOns,
+                temperature: selectedTemperature,
+            });
 
-        localStorage.setItem(
-            "cartItems",
-            JSON.stringify(updatedCart)
-        );
-
-        navigate("/");
-    };
-
-    const handleBack = () => {
-        if (onClose) {
-            onClose();
-            return;
+            navigate("/");
+        } catch (error) {
+            setSubmitError(error.message || "Failed to add to order.");
+        } finally {
+            setSubmitting(false);
         }
-
-        navigate(-1);
     };
 
     return (
@@ -170,17 +172,14 @@ export default function Customization({
             <div className="customization-image">
 
                 <img
-                    src="/src/assets/images/menu/kopi.png"
+                    src={product.image || product.image_url || FALLBACK_IMAGE}
                     alt={product.name}
+                    onError={(event) => {
+                        event.currentTarget.src = FALLBACK_IMAGE;
+                    }}
                 />
 
-                <button
-                    type="button"
-                    className="customization-back-button"
-                    onClick={handleBack}
-                >
-                    <BackButton />
-                </button>
+                <BackButton onClick={handleBack} />
 
                 {product.badge &&
                     product.badge !== "soldOut" && (
@@ -228,7 +227,7 @@ export default function Customization({
                             }`}
                         >
 
-                            {product.temperature.includes("hot") && (
+                            {temperatures.includes("hot") && (
                                 <button
                                     type="button"
                                     className={`temperature-option temperature-hot ${
@@ -245,7 +244,7 @@ export default function Customization({
                                 </button>
                             )}
 
-                            {product.temperature.includes("iced") && (
+                            {temperatures.includes("iced") && (
                                 <button
                                     type="button"
                                     className={`temperature-option temperature-iced ${
@@ -282,7 +281,7 @@ export default function Customization({
 
                         <div className="addon-list">
 
-                            {ADD_ONS.map((addOn) => {
+                            {addOns.map((addOn) => {
 
                                 const isSelected =
                                     selectedAddOns.includes(addOn.id);
@@ -312,7 +311,7 @@ export default function Customization({
                                         </span>
 
                                         <span className="addon-price">
-                                            +₱{addOn.price.toFixed(2)}
+                                            +₱{Number(addOn.price).toFixed(2)}
                                         </span>
 
                                     </button>
@@ -346,29 +345,21 @@ export default function Customization({
 
                 </section>
 
-                <section className="customization-section notes-section">
-
-                    <h2 className="customization-section-title">
-                        Additional Notes
-                    </h2>
-
-                    <textarea
-                        className="customization-notes"
-                        value={notes}
-                        onChange={(event) =>
-                            setNotes(event.target.value)
-                        }
-                        placeholder="Add notes..."
-                    />
-
-                </section>
+                {submitError && (
+                    <p className="customization-submit-error" role="alert">
+                        {submitError}
+                    </p>
+                )}
 
                 <button
                     type="button"
                     className="customization-order-button"
                     onClick={handleAddToOrder}
+                    disabled={submitting}
                 >
-                    <span>Add to Order</span>
+                    <span>
+                        {submitting ? "Adding..." : "Add to Order"}
+                    </span>
 
                     <span>
                         ₱{totalPrice.toFixed(2)}

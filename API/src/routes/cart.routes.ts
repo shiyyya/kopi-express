@@ -10,3 +10,4 @@ export const cartRouter = Router();
 cartRouter.get( "/", authenticate, controller.getCart );
 cartRouter.post( "/", authenticate, requireRole("customer"), validateBody(addToCartSchema), controller.addToCart );
 cartRouter.delete( "/:id", authenticate, requireRole("customer"), controller.removeCartItem );
+cartRouter.delete( "/", authenticate, requireRole("customer"), controller.removeCart );

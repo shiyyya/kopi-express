@@ -2,14 +2,19 @@ import Back from '/src/assets/icons/back.svg?react';
 import { useNavigate } from 'react-router';
 import './back-button.css';
 
-function BackButton() {
+function BackButton({ onClick }) {
     const navigate = useNavigate();
 
     return (
-        <div className="backButton" onClick={() => navigate(-1)}>
+        <button
+            type="button"
+            className="backButton"
+            aria-label="Go back"
+            onClick={onClick ?? (() => navigate(-1))}
+        >
             <Back />
-        </div>
+        </button>
     );
 }
 
-export default BackButton
+export default BackButton;

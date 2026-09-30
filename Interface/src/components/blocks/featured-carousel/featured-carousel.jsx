@@ -3,23 +3,25 @@ import { useState } from "react";
 import Badge from "/src/components/elements/badge/badge";
 
 import ArrowNext from "/src/assets/icons/arrow-next.svg?react";
-
 import ArrowBack from "/src/assets/icons/arrow-back.svg?react";
 
 import "./featured-carousel.css";
 
+const BANNER_SLIDE = {
+    id: "hero-banner",
+    isBanner: true,
+    image: "/src/assets/images/kopi.png",
+};
+
 function FeaturedCarousel({ products = [], onOrderNow }) {
     const [currentSlide, setCurrentSlide] = useState(0);
 
-    if (!products.length) {
-        return null;
-    }
-
-    const product = products[currentSlide];
+    const slides = [BANNER_SLIDE, ...products];
+    const slide = slides[currentSlide];
 
     const nextSlide = () => {
         setCurrentSlide((current) =>
-            current === products.length - 1 ? current : current + 1
+            current === slides.length - 1 ? current : current + 1
         );
     };
 
@@ -30,22 +32,38 @@ function FeaturedCarousel({ products = [], onOrderNow }) {
     };
 
     const handleOrderNow = () => {
-        // Let Home decide if the user needs to log in first.
-        onOrderNow?.(product);
+        if (slide.isBanner) {
+            document.getElementById("menu")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+
+            return;
+        }
+
+        onOrderNow?.(slide);
     };
 
     return (
-        <section className="featured-carousel">
+        <section
+            className={`featured-carousel ${slide.isBanner ? "banner" : ""}`}
+        >
             <img
-                className="featured-carousel-image"
-                src={product.image}
-                alt={product.name}
+                className={`featured-carousel-image ${
+                    slide.isBanner ? "banner" : ""
+                }`}
+                src={slide.image ?? slide.image_url}
+                alt={slide.isBanner ? "Kopi Express" : slide.name}
             />
 
-            <div className="featured-carousel-overlay"></div>
+            <div
+                className={`featured-carousel-overlay ${
+                    slide.isBanner ? "banner" : ""
+                }`}
+            ></div>
 
             <div className="featured-carousel-indicators">
-                {products.map((item, index) => (
+                {slides.map((item, index) => (
                     <button
                         key={item.id}
                         type="button"
@@ -69,7 +87,7 @@ function FeaturedCarousel({ products = [], onOrderNow }) {
                 </button>
             )}
 
-            {currentSlide < products.length - 1 && (
+            {currentSlide < slides.length - 1 && (
                 <button
                     type="button"
                     className="featured-carousel-arrow featured-carousel-next"
@@ -81,31 +99,35 @@ function FeaturedCarousel({ products = [], onOrderNow }) {
             )}
 
             <div className="featured-carousel-content">
-                {product.badge && product.badge !== "soldOut" && (
-                    <Badge
-                        type={product.badge}
-                        className="featured-carousel-badge"
-                    />
-                )}
-
-                <h2 className="featured-carousel-product-name">
-                    {product.name}
-                </h2>
-
-                <p className="featured-carousel-product-price">
-                    ₱{Number(product.price).toFixed(2)}
-                </p>
-
-                {product.temperature?.length > 0 && (
-                    <div className="temperature-badges">
-                        {product.temperature.includes("hot") && (
-                            <Badge type="hot" />
+                {!slide.isBanner && (
+                    <>
+                        {slide.badge && slide.badge !== "soldOut" && (
+                            <Badge
+                                type={slide.badge}
+                                className="featured-carousel-badge"
+                            />
                         )}
 
-                        {product.temperature.includes("iced") && (
-                            <Badge type="iced" />
+                        <h2 className="featured-carousel-product-name">
+                            {slide.name}
+                        </h2>
+
+                        <p className="featured-carousel-product-price">
+                            ₱{Number(slide.price).toFixed(2)}
+                        </p>
+
+                        {slide.temperature?.length > 0 && (
+                            <div className="temperature-badges">
+                                {slide.temperature.includes("hot") && (
+                                    <Badge type="hot" />
+                                )}
+
+                                {slide.temperature.includes("iced") && (
+                                    <Badge type="iced" />
+                                )}
+                            </div>
                         )}
-                    </div>
+                    </>
                 )}
 
                 <button
@@ -113,7 +135,7 @@ function FeaturedCarousel({ products = [], onOrderNow }) {
                     className="add-to-order-button"
                     onClick={handleOrderNow}
                 >
-                    Order Now
+                    {slide.isBanner ? "View Menu" : "Order Now"}
                 </button>
             </div>
         </section>

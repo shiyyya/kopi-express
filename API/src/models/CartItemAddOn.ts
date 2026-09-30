@@ -20,7 +20,7 @@ export function initCartItemAddOn(sequelize: Sequelize): typeof CartItemAddOn {
       cartItemId: { type: DataTypes.STRING(26), references: { model: 'cart_items', key: 'id' }, primaryKey: true, field: 'cart_item_id' },
       addOnId: { type: DataTypes.STRING(26), references: { model: 'add_ons', key: 'id' }, primaryKey: true, field: 'add_on_id' },
     },
-    { sequelize, tableName: 'cart_item_add_ons', modelName: 'CartItemAddOn', underscored: true },
+    { sequelize, tableName: 'cart_item_add_ons', modelName: 'CartItemAddOn', underscored: true, timestamps: false },
   );
   return CartItemAddOn;
 }
