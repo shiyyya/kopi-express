@@ -1,75 +1,64 @@
-import { useState } from "react";
-
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-
 import SearchBar from "/src/components/blocks/search-bar/search-bar";
-
 import CategoryTabs from "/src/components/blocks/product-tabs/product-tabs";
-
 import ProductCard from "/src/components/cards/product-card/product-card.jsx";
-
-import products from "/src/data/products";
-
-import categories from "/src/data/categories";
-
+import { getMenuProducts } from "/src/api/product.js";
 import "./menu-section.css";
 
 export default function MenuSection({ onLoginRequired }) {
-
     const navigate = useNavigate();
 
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
-
     const [selectedCategory, setSelectedCategory] = useState("All");
 
-    //temp muna
-    const productData = products;
+    useEffect(() => {
+        let cancelled = false;
 
-    const filteredProducts = productData
-        .filter((product) => {
+        getMenuProducts()
+            .then((list) => {
+                if (!cancelled) setProducts(list);
+            })
+            .catch((error) => {
+                if (!cancelled) {
+                    setLoadError(error.message || "Failed to load menu.");
+                }
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
 
-            let matchesCategory = true;
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
-            if (selectedCategory === "Best Seller") {
+    // CategoryTabs expects objects like { name }, not plain strings
+    const categories = useMemo(() => {
+        const names = [...new Set(products.map((product) => product.category))]
+            .filter(Boolean);
 
-                //temp lng din muna
-                matchesCategory = product.badge === "popular";
+        return ["All", ...names].map((name) => ({ name }));
+    }, [products]);
 
-            } else if (selectedCategory !== "All") {
+    const filteredProducts = products.filter((product) => {
+        const matchesCategory =
+            selectedCategory === "All" ||
+            product.category === selectedCategory;
 
-                matchesCategory =
-                    product.category === selectedCategory;
+        const matchesSearch = (product.name ?? "")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
 
-            }
-
-            const matchesSearch = product.name
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase());
-
-            return matchesCategory && matchesSearch;
-
-        })
-        .sort((a, b) => {
-
-            // temp
-            if (a.badge === "soldOut" && b.badge !== "soldOut") {
-                return 1;
-            }
-
-            if (b.badge === "soldOut" && a.badge !== "soldOut") {
-                return -1;
-            }
-
-            return 0;
-
-        });
+        return matchesCategory && matchesSearch;
+    });
 
     const handleAddToOrder = (product) => {
-
         if (onLoginRequired) {
-
             onLoginRequired(product);
-
             return;
         }
 
@@ -81,20 +70,14 @@ export default function MenuSection({ onLoginRequired }) {
     };
 
     return (
-
         <section id="menu-section" className="menu-section">
-
             <div className="menu-header">
-
                 <SearchBar
                     value={searchTerm}
-                    onChange={(event) =>
-                        setSearchTerm(event.target.value)
-                    }
+                    onChange={(event) => setSearchTerm(event.target.value)}
                     placeholder="Search menu..."
                     className="menu-search"
                 />
-
             </div>
 
             <CategoryTabs
@@ -105,34 +88,30 @@ export default function MenuSection({ onLoginRequired }) {
             />
 
             <div className="product-grid">
-
                 {filteredProducts.map((product) => (
-
                     <ProductCard
                         key={product.id}
                         name={product.name}
                         description={product.description}
                         price={product.price}
-                        image={product.image}
-                        badge={product.badge}
+                        image={product.image_url}
                         temperature={product.temperature}
-                        onAddToOrder={() =>
-                            handleAddToOrder(product)
-                        }
+                        onAddToOrder={() => handleAddToOrder(product)}
                     />
-
                 ))}
-
             </div>
 
-            {filteredProducts.length === 0 && (
+            {loading && <p className="no-products">Loading menu...</p>}
 
-                <p className="no-products">
-                    No products found.
+            {!loading && loadError && (
+                <p className="no-products" role="alert">
+                    {loadError}
                 </p>
-
             )}
 
+            {!loading && !loadError && filteredProducts.length === 0 && (
+                <p className="no-products">No products found.</p>
+            )}
         </section>
     );
 }

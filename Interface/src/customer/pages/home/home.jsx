@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import "./home.css";
 import HomeHeader from "/src/components/layout/home-header/home-header.jsx";
@@ -11,8 +11,9 @@ import LoginCard from "/src/components/cards/login/login.jsx";
 import SignUpCard from "/src/components/cards/signup/signup.jsx";
 import Cart from "/src/components/cards/cart/cart.jsx";
 import Footer from "/src/components/blocks/footer/footer.jsx";
-import products from "/src/data/products";
 import StoreSelection from "/src/components/cards/store-selection/store-selection.jsx";
+import { getMenuProducts } from "/src/api/product.js";
+import { getCart, removeCartItem } from "/src/api/cart.api.js";
 
 export default function Home() {
     const navigate = useNavigate();
@@ -25,16 +26,36 @@ export default function Home() {
     const [signUpOpen, setSignUpOpen] = useState(false);
     const [cartOpen, setCartOpen] = useState(false);
     const [cartItems, setCartItems] = useState([]);
-    const featuredProducts = products;
+    const [featuredProducts, setFeaturedProducts] = useState([]);
     const [currentUser, setCurrentUser] = useState(() => {
         const savedUser = localStorage.getItem("currentUser");
         return savedUser ? JSON.parse(savedUser) : null;
     });
     const [pendingProduct, setPendingProduct] = useState(null);
 
+    const loadCart = useCallback(async () => {
+        if (!localStorage.getItem("token")) {
+            setCartItems([]);
+            return;
+        }
+
+        try {
+            setCartItems(await getCart());
+        } catch (error) {
+            console.error("Failed to load cart:", error);
+        }
+    }, []);
+
     useEffect(() => {
-        const savedCart = JSON.parse(localStorage.getItem("cartItems") || "[]");
-        setCartItems(savedCart);
+        loadCart();
+    }, [loadCart]);
+
+    useEffect(() => {
+        getMenuProducts()
+            .then(setFeaturedProducts)
+            .catch((error) => {
+                console.error("Failed to load products:", error);
+            });
     }, []);
 
     useEffect(() => {
@@ -60,11 +81,12 @@ export default function Home() {
             if (event.persisted) {
                 const savedUser = localStorage.getItem("currentUser");
                 setCurrentUser(savedUser ? JSON.parse(savedUser) : null);
+                loadCart();
             }
         };
         window.addEventListener("pageshow", handlePageShow);
         return () => window.removeEventListener("pageshow", handlePageShow);
-    }, []);
+    }, [loadCart]);
 
     const cartCount = cartItems.reduce(
         (total, item) => total + item.quantity,
@@ -93,6 +115,7 @@ export default function Home() {
         localStorage.removeItem("currentUser");
         localStorage.removeItem("token");
         setCurrentUser(null);
+        setCartItems([]);
         setSidebarOpen(false);
     };
 
@@ -120,14 +143,15 @@ export default function Home() {
         setStoreSelectionOpen(false);
     };
 
-    const handleRemoveFromCart = (itemId) => {
-        setCartItems((currentItems) => {
-            const updatedItems = currentItems.filter(
-                (item) => item.id !== itemId
+    const handleRemoveFromCart = async (itemId) => {
+        try {
+            await removeCartItem(itemId);
+            setCartItems((currentItems) =>
+                currentItems.filter((item) => item.id !== itemId)
             );
-            localStorage.setItem("cartItems", JSON.stringify(updatedItems));
-            return updatedItems;
-        });
+        } catch (error) {
+            console.error("Failed to remove cart item:", error);
+        }
     };
 
     return (
@@ -206,6 +230,7 @@ export default function Home() {
                     }}
                     onLoginSuccess={(user) => {
                         setCurrentUser(user.data.account);
+                        loadCart();
                     }}
                 />
             )}
@@ -218,6 +243,7 @@ export default function Home() {
                     }}
                     onSignUpSuccess={(user) => {
                         setCurrentUser(user.data.customer);
+                        loadCart();
                     }}
                 />
             )}

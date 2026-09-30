@@ -1,10 +1,34 @@
 import { apiFetch, API_ORIGIN } from "./client";
 
+function resolveImageUrl(product) {
+    const raw = product.imageUrl ?? product.image_url ?? product.image ?? "";
+    if (!raw) return "";
+    if (/^(https?:)?\/\//.test(raw) || raw.startsWith("data:")) return raw;
+    return `${API_ORIGIN}${raw.startsWith("/") ? "" : "/"}${raw}`;
+}
+
 function withImageUrl(product) {
     return {
         ...product,
-        image_url: product.imageUrl ? `${API_ORIGIN}${product.imageUrl}` : null,
+        image_url: resolveImageUrl(product) || null,
     };
+}
+
+export async function getMenuProducts() {
+    const { data } = await apiFetch("/products");
+    const list = data.products ?? [];
+
+    return list.map((product) => ({
+        ...withImageUrl(product),
+        price: Number(product.price),
+
+        temperature: [
+            product.isHotAvailable && "hot",
+            product.isIcedAvailable && "iced",
+        ].filter(Boolean),
+
+        badge: product.badge,
+    }));
 }
 
 export async function getProduct(id) {

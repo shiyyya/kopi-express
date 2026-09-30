@@ -3,9 +3,14 @@ import { sequelize, CartItem as CartItemModel, Product as ProductModel, CartItem
 import { addToCartInput } from "../validators/cart.validator.js";
 
 export async function getCart(userId: string) {
-  const cart = await CartItemModel.findAll({ where: { customerId: userId } });
-  if (cart.length === 0) throw new ApiError(404, 'No cart items found', 'NO_CART_ITEMS_FOUND');
-  return cart;
+  return CartItemModel.findAll({
+    where: { customerId: userId },
+    include: [
+      { model: ProductModel },
+      { model: CartItemAddOnModel, include: [{ model: AddonModel }] },
+    ],
+    order: [['id', 'ASC']],
+  });
 }
 
 export async function addToCart(userId: string, input: addToCartInput) { return sequelize.transaction(async (transaction) => {
