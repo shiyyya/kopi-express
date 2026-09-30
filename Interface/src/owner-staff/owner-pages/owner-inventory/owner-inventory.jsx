@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import "./owner-inventory.css";
-import Arrow from "../../../assets/icons/arrow-down.svg?react";
+import Arrow from "/src/assets/icons/arrow-down.svg?react";
 import LargeHeader from "/src/components/largeheader-wback/largeheader-wback.jsx";
 import Item_Inventory from "/src/components/blocks/items-inventory/items.jsx";
 import ConfirmationCard from "/src/components/cards/confirmation-card/confirmation-card.jsx";
+import AddInventoryItem from "/src/components/cards/add-inventory-item/add-inventory-item";
 import {
     getIngredients,
     createIngredient,
@@ -12,6 +13,8 @@ import {
     newStockToBranch,
     deleteStockFromBranch,
     deleteIngredient,
+    incrementStock,
+    decrementStock,
 } from "/src/api/inventory.api.js";
 
 const OWNER_TABS = [
@@ -44,13 +47,6 @@ function OwnerInventory() {
     const [filter, setFilter] = useState("all");
     const [sort, setSort] = useState("none");
     const [adjustments, setAdjustments] = useState({});
-    const [newItem, setNewItem] = useState({
-        ingredientId: "",
-        quantity: "",
-        purchasedAt: "",
-        expiresAt: "",
-        branches: [],
-    });
     const [newIngredient, setNewIngredient] = useState({
         name: "",
         unit: "",
@@ -72,12 +68,8 @@ function OwnerInventory() {
         const loadInventory = async () => {
             try {
                 if (branch === "all") {
-                    const results = await Promise.all(
-                        BRANCHES.map((item) => getBranchStocks(item.id))
-                    );
-                    const allInventory = results.flatMap(
-                        (result) => result.data.inventory || []
-                    );
+                    const results = await Promise.all(BRANCHES.map((item) => getBranchStocks(item.id)));
+                    const allInventory = results.flatMap((result) => result.data.inventory || []);
                     setInventory(allInventory);
                     return;
                 }
@@ -98,49 +90,30 @@ function OwnerInventory() {
     const getIngredient = (item) => {
         if (item.Ingredient) return item.Ingredient;
         if (item.ingredient) return item.ingredient;
-        return ingredients.find(
-            (ingredient) =>
-                ingredient.id === (item.ingredient_id || item.ingredientId)
-        );
+        return ingredients.find((ingredient) => ingredient.id === (item.ingredient_id || item.ingredientId));
     };
 
-    const getItemName = (item) =>
-        getIngredient(item)?.name || item.name || "Unknown";
-
-    const getItemUnit = (item) =>
-        getIngredient(item)?.unit || item.unit || "";
-
-    const getItemBranchId = (item) =>
-        item.store_branch_id || item.storeBranchId;
+    const getItemName = (item) => getIngredient(item)?.name || item.name || "Unknown";
+    const getItemUnit = (item) => getIngredient(item)?.unit || item.unit || "";
+    const getItemBranchId = (item) => item.store_branch_id || item.storeBranchId;
 
     const filteredInventory = inventory
         .filter((item) => {
             const name = getItemName(item);
-            const matchesSearch = name
-                .toLowerCase()
-                .includes(search.toLowerCase());
+            const matchesSearch = name.toLowerCase().includes(search.toLowerCase());
             const itemBranchId = getItemBranchId(item);
-            const matchesBranch =
-                branch === "all" || itemBranchId === selectedBranchId;
+            const matchesBranch = branch === "all" || itemBranchId === selectedBranchId;
             if (!matchesBranch) return false;
-            if (filter === "low")
-                return matchesSearch && Number(item.quantity) < 10;
-            if (filter === "high")
-                return matchesSearch && Number(item.quantity) >= 10;
+            if (filter === "low") return matchesSearch && Number(item.quantity) < 10;
+            if (filter === "high") return matchesSearch && Number(item.quantity) >= 10;
             return matchesSearch;
         })
         .sort((a, b) => {
-            if (sort === "name")
-                return getItemName(a).localeCompare(getItemName(b));
-            if (sort === "quantity")
-                return Number(b.quantity) - Number(a.quantity);
+            if (sort === "name") return getItemName(a).localeCompare(getItemName(b));
+            if (sort === "quantity") return Number(b.quantity) - Number(a.quantity);
             if (sort === "unit") {
-                const unitCompare = getItemUnit(a).localeCompare(
-                    getItemUnit(b)
-                );
-                return unitCompare !== 0
-                    ? unitCompare
-                    : Number(a.quantity) - Number(b.quantity);
+                const unitCompare = getItemUnit(a).localeCompare(getItemUnit(b));
+                return unitCompare !== 0 ? unitCompare : Number(a.quantity) - Number(b.quantity);
             }
             return 0;
         });
@@ -156,23 +129,52 @@ function OwnerInventory() {
         setShowBranch(false);
     };
 
-    const handleStoreChange = (e) => {
-        const selectedBranch = BRANCHES.find(
-            (item) => item.id === e.target.value
-        );
-        setSelectedBranchId(selectedBranch?.id || "");
-        setNewItem((current) => ({
-            ...current,
-            branches: selectedBranch ? [selectedBranch.name] : [],
-        }));
-    };
-
     const handleAdjustmentChange = (id, value) => {
         setAdjustments((current) => ({ ...current, [id]: value }));
     };
 
-    const handleNewItemChange = (field, value) => {
-        setNewItem((current) => ({ ...current, [field]: value }));
+    const handleIncrease = async (id) => {
+        const adjustment = Number(adjustments[id]) || 0;
+        if (adjustment <= 0) return;
+        const item = inventory.find((inventoryItem) => inventoryItem.id === id);
+        if (!item) return;
+        try {
+            await incrementStock(item.id, adjustment);
+            setAdjustments((current) => ({ ...current, [id]: "" }));
+            const data = await getBranchStocks(getItemBranchId(item));
+            if (branch === "all") {
+                const results = await Promise.all(BRANCHES.map((item) => getBranchStocks(item.id)));
+                setInventory(results.flatMap((result) => result.data.inventory || []));
+            } else {
+                setInventory(data.data.inventory || []);
+            }
+        } catch (error) {
+            alert(error.message || "Failed to add stock.");
+        }
+    };
+
+    const handleDecrease = async (id) => {
+        const adjustment = Number(adjustments[id]) || 0;
+        if (adjustment <= 0) return;
+        const item = inventory.find((inventoryItem) => inventoryItem.id === id);
+        if (!item) return;
+        if (adjustment > Number(item.quantity)) {
+            alert("Cannot remove more stock than the current quantity.");
+            return;
+        }
+        try {
+            await decrementStock(item.id, adjustment);
+            setAdjustments((current) => ({ ...current, [id]: "" }));
+            const data = await getBranchStocks(getItemBranchId(item));
+            if (branch === "all") {
+                const results = await Promise.all(BRANCHES.map((item) => getBranchStocks(item.id)));
+                setInventory(results.flatMap((result) => result.data.inventory || []));
+            } else {
+                setInventory(data.data.inventory || []);
+            }
+        } catch (error) {
+            alert(error.message || "Failed to remove stock.");
+        }
     };
 
     const handleNewIngredientChange = (field, value) => {
@@ -204,23 +206,16 @@ function OwnerInventory() {
                 });
                 setIngredients((current) =>
                     current.map((item) =>
-                        item.id === editingIngredient.id
-                            ? data.data.ingredient
-                            : item
+                        item.id === editingIngredient.id ? data.data.ingredient : item
                     )
                 );
             } else {
-                const data = await createIngredient({
+                await createIngredient({
                     name: newIngredient.name.trim(),
                     unit: newIngredient.unit,
                 });
-                const ingredient = data.data.ingredient;
                 const ingredientsData = await getIngredients();
                 setIngredients(ingredientsData.data.inventory || []);
-                setNewItem((current) => ({
-                    ...current,
-                    ingredientId: ingredient.id,
-                }));
             }
             setNewIngredient({ name: "", unit: "" });
             setEditingIngredient(null);
@@ -245,50 +240,47 @@ function OwnerInventory() {
         }
     };
 
-    const handleAddItem = async () => {
-        if (!selectedBranchId) return;
-        if (
-            !newItem.ingredientId ||
-            !newItem.quantity ||
-            !newItem.purchasedAt ||
-            !newItem.expiresAt
-        )
+    const handleAddItem = async (newItem) => {
+        if (!newItem.branchId) {
+            alert("Please select a store.");
             return;
-        if (
-            new Date(newItem.expiresAt) <=
-            new Date(newItem.purchasedAt)
-        ) {
+        }
+        if (!newItem.ingredientId || !newItem.quantity || !newItem.purchasedAt || !newItem.expiresAt) {
+            alert("Please complete all fields.");
+            return;
+        }
+        if (new Date(newItem.expiresAt) <= new Date(newItem.purchasedAt)) {
             alert("Expiration date must be after purchase date.");
             return;
         }
         try {
-            await newStockToBranch(selectedBranchId, {
+            const branchData = await getBranchStocks(newItem.branchId);
+            const branchInventory = branchData.data?.inventory || [];
+            const existingBatch = branchInventory.find(
+                (item) =>
+                    (item.ingredientId || item.ingredient_id) === newItem.ingredientId &&
+                    item.expiresAt &&
+                    new Date(item.expiresAt).toISOString().slice(0, 10) === newItem.expiresAt
+            );
+            if (existingBatch) {
+                const ingredient = ingredients.find((item) => item.id === newItem.ingredientId);
+                alert(
+                    `${ingredient?.name || "This ingredient"} with the same expiration date already exists in this inventory. Please use Adjust Stock instead.`
+                );
+                return;
+            }
+            await newStockToBranch(newItem.branchId, {
                 ingredientId: newItem.ingredientId,
                 quantity: Number(newItem.quantity),
                 purchasedAt: newItem.purchasedAt,
                 expiresAt: newItem.expiresAt,
             });
-            const data = await getBranchStocks(selectedBranchId);
             if (branch === "all") {
-                const results = await Promise.all(
-                    BRANCHES.map((item) => getBranchStocks(item.id))
-                );
-                setInventory(
-                    results.flatMap(
-                        (result) => result.data.inventory || []
-                    )
-                );
-            } else {
-                setInventory(data.data.inventory || []);
+                const results = await Promise.all(BRANCHES.map((item) => getBranchStocks(item.id)));
+                setInventory(results.flatMap((result) => result.data.inventory || []));
+            } else if (newItem.branchId === selectedBranchId) {
+                setInventory(branchData.data.inventory || []);
             }
-            setNewItem({
-                ingredientId: "",
-                quantity: "",
-                purchasedAt: "",
-                expiresAt: "",
-                branches: [],
-            });
-            setSelectedBranchId("");
             setShowAddModal(false);
         } catch (error) {
             console.error("Failed to add inventory item:", error);
@@ -296,29 +288,13 @@ function OwnerInventory() {
         }
     };
 
-    const branchLabel =
-        branch === "all" ? "All Branches" : branch;
-    const filterLabel =
-        filter === "low"
-            ? "Low Stock"
-            : filter === "high"
-            ? "High Stock"
-            : "All";
-    const sortLabel =
-        sort === "name"
-            ? "Name"
-            : sort === "quantity"
-            ? "Quantity"
-            : sort === "unit"
-            ? "Unit"
-            : "Default";
+    const branchLabel = branch === "all" ? "All Branches" : branch;
+    const filterLabel = filter === "low" ? "Low Stock" : filter === "high" ? "High Stock" : "All";
+    const sortLabel = sort === "name" ? "Name" : sort === "quantity" ? "Quantity" : sort === "unit" ? "Unit" : "Default";
 
     return (
         <div className="InventoryPage">
-            <LargeHeader
-                title="Kopi Express / Owner"
-                tabs={OWNER_TABS}
-            />
+            <LargeHeader title="Kopi Express / Owner" tabs={OWNER_TABS} />
             <div className="Inventory">
                 <div className="InventoryControls">
                     <div className="InventorySearch">
@@ -345,20 +321,9 @@ function OwnerInventory() {
                             </button>
                             {showBranch && (
                                 <div className="InventoryDropdown">
-                                    <button
-                                        onClick={() =>
-                                            handleBranchChange("all")
-                                        }
-                                    >
-                                        All Branches
-                                    </button>
+                                    <button onClick={() => handleBranchChange("all")}>All Branches</button>
                                     {BRANCHES.map((item) => (
-                                        <button
-                                            key={item.id}
-                                            onClick={() =>
-                                                handleBranchChange(item)
-                                            }
-                                        >
+                                        <button key={item.id} onClick={() => handleBranchChange(item)}>
                                             {item.name}
                                         </button>
                                     ))}
@@ -377,30 +342,9 @@ function OwnerInventory() {
                             </button>
                             {showFilter && (
                                 <div className="InventoryDropdown">
-                                    <button
-                                        onClick={() => {
-                                            setFilter("all");
-                                            setShowFilter(false);
-                                        }}
-                                    >
-                                        All
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setFilter("low");
-                                            setShowFilter(false);
-                                        }}
-                                    >
-                                        Low Stock
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setFilter("high");
-                                            setShowFilter(false);
-                                        }}
-                                    >
-                                        High Stock
-                                    </button>
+                                    <button onClick={() => { setFilter("all"); setShowFilter(false); }}>All</button>
+                                    <button onClick={() => { setFilter("low"); setShowFilter(false); }}>Low Stock</button>
+                                    <button onClick={() => { setFilter("high"); setShowFilter(false); }}>High Stock</button>
                                 </div>
                             )}
                         </div>
@@ -416,38 +360,10 @@ function OwnerInventory() {
                             </button>
                             {showSort && (
                                 <div className="InventoryDropdown">
-                                    <button
-                                        onClick={() => {
-                                            setSort("none");
-                                            setShowSort(false);
-                                        }}
-                                    >
-                                        Default
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setSort("name");
-                                            setShowSort(false);
-                                        }}
-                                    >
-                                        Name
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setSort("quantity");
-                                            setShowSort(false);
-                                        }}
-                                    >
-                                        Quantity
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setSort("unit");
-                                            setShowSort(false);
-                                        }}
-                                    >
-                                        Unit
-                                    </button>
+                                    <button onClick={() => { setSort("none"); setShowSort(false); }}>Default</button>
+                                    <button onClick={() => { setSort("name"); setShowSort(false); }}>Name</button>
+                                    <button onClick={() => { setSort("quantity"); setShowSort(false); }}>Quantity</button>
+                                    <button onClick={() => { setSort("unit"); setShowSort(false); }}>Unit</button>
                                 </div>
                             )}
                         </div>
@@ -478,9 +394,9 @@ function OwnerInventory() {
                                     unit: getItemUnit(item),
                                 }}
                                 adjustment={adjustments[item.id] || ""}
-                                onAdjustmentChange={(value) =>
-                                    handleAdjustmentChange(item.id, value)
-                                }
+                                onAdjustmentChange={(value) => handleAdjustmentChange(item.id, value)}
+                                onIncrease={() => handleIncrease(item.id)}
+                                onDecrease={() => handleDecrease(item.id)}
                             />
                         ))}
                     </div>
@@ -488,9 +404,7 @@ function OwnerInventory() {
                 <div className="InventoryIngredients">
                     <div className="InventoryIngredientsHeader">
                         <h2>Ingredients</h2>
-                        <button onClick={handleOpenCreateIngredient}>
-                            + Add Ingredient
-                        </button>
+                        <button onClick={handleOpenCreateIngredient}>+ Add Ingredient</button>
                     </div>
                     <div className="InventoryIngredientsTable">
                         <div className="InventoryIngredientsTableHeader">
@@ -500,31 +414,12 @@ function OwnerInventory() {
                         </div>
                         <div className="InventoryIngredientsList">
                             {ingredients.map((ingredient) => (
-                                <div
-                                    className="InventoryIngredientCard"
-                                    key={ingredient.id}
-                                >
+                                <div className="InventoryIngredientCard" key={ingredient.id}>
                                     <span>{ingredient.name}</span>
                                     <span>{ingredient.unit}</span>
                                     <div className="InventoryIngredientActions">
-                                        <button
-                                            onClick={() =>
-                                                handleOpenEditIngredient(
-                                                    ingredient
-                                                )
-                                            }
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() =>
-                                                setDeletingIngredient(
-                                                    ingredient
-                                                )
-                                            }
-                                        >
-                                            Delete
-                                        </button>
+                                        <button onClick={() => handleOpenEditIngredient(ingredient)}>Edit</button>
+                                        <button onClick={() => setDeletingIngredient(ingredient)}>Delete</button>
                                     </div>
                                 </div>
                             ))}
@@ -533,127 +428,24 @@ function OwnerInventory() {
                 </div>
             </div>
             {showAddModal && (
-                <div className="InventoryModalOverlay">
-                    <div className="InventoryModal">
-                        <h2>Add Inventory Item</h2>
-                        <label>
-                            Ingredient
-                            <select
-                                value={newItem.ingredientId}
-                                onChange={(e) =>
-                                    handleNewItemChange(
-                                        "ingredientId",
-                                        e.target.value
-                                    )
-                                }
-                            >
-                                <option value="">
-                                    Select ingredient
-                                </option>
-                                {ingredients.map((ingredient) => (
-                                    <option
-                                        key={ingredient.id}
-                                        value={ingredient.id}
-                                    >
-                                        {ingredient.name} ({ingredient.unit})
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
-                        <label>
-                            Quantity
-                            <input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={newItem.quantity}
-                                onChange={(e) =>
-                                    handleNewItemChange(
-                                        "quantity",
-                                        e.target.value
-                                    )
-                                }
-                            />
-                        </label>
-                        <label>
-                            Store
-                            <select
-                                value={selectedBranchId}
-                                onChange={handleStoreChange}
-                            >
-                                <option value="">Select store</option>
-                                {BRANCHES.map((item) => (
-                                    <option
-                                        key={item.id}
-                                        value={item.id}
-                                    >
-                                        {item.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
-                        <label>
-                            Purchase Date
-                            <input
-                                type="date"
-                                value={newItem.purchasedAt}
-                                onChange={(e) =>
-                                    handleNewItemChange(
-                                        "purchasedAt",
-                                        e.target.value
-                                    )
-                                }
-                            />
-                        </label>
-                        <label>
-                            Expiration Date
-                            <input
-                                type="date"
-                                value={newItem.expiresAt}
-                                onChange={(e) =>
-                                    handleNewItemChange(
-                                        "expiresAt",
-                                        e.target.value
-                                    )
-                                }
-                            />
-                        </label>
-                        <div className="InventoryModalActions">
-                            <button
-                                className="InventoryModalCancel"
-                                onClick={() => setShowAddModal(false)}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                className="InventoryModalConfirm"
-                                onClick={handleAddItem}
-                            >
-                                Add
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <AddInventoryItem
+                    ingredients={ingredients}
+                    branches={BRANCHES}
+                    showBranch={true}
+                    onSubmit={handleAddItem}
+                    onCancel={() => setShowAddModal(false)}
+                />
             )}
             {showIngredientModal && (
                 <div className="InventoryModalOverlay">
                     <div className="InventoryModal">
-                        <h2>
-                            {editingIngredient
-                                ? "Edit Ingredient"
-                                : "Create New Ingredient"}
-                        </h2>
+                        <h2>{editingIngredient ? "Edit Ingredient" : "Create New Ingredient"}</h2>
                         <label>
                             Name
                             <input
                                 type="text"
                                 value={newIngredient.name}
-                                onChange={(e) =>
-                                    handleNewIngredientChange(
-                                        "name",
-                                        e.target.value
-                                    )
-                                }
+                                onChange={(e) => handleNewIngredientChange("name", e.target.value)}
                                 placeholder="Ingredient name"
                             />
                         </label>
@@ -661,12 +453,7 @@ function OwnerInventory() {
                             Unit
                             <select
                                 value={newIngredient.unit}
-                                onChange={(e) =>
-                                    handleNewIngredientChange(
-                                        "unit",
-                                        e.target.value
-                                    )
-                                }
+                                onChange={(e) => handleNewIngredientChange("unit", e.target.value)}
                             >
                                 <option value="">Select unit</option>
                                 {UNITS.map((unit) => (
