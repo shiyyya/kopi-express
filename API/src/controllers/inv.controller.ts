@@ -2,7 +2,7 @@ import type { RequestHandler } from 'express';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import * as invService from '../services/inv.service.js';
-import type { NewStockInput, NewBatchInput, DecrementStockInput, UpdateIngredientInput } from '../validators/inv.validators.js';
+import type { NewStockInput, NewBatchInput, DecrementStockInput, IncrementStockInput, UpdateIngredientInput } from '../validators/inv.validators.js';
 import { assertAuth } from '../utils/assertions.js';
 import { Staff as StaffModel } from '../models/index.js';
 
@@ -59,12 +59,19 @@ export const removeBranchStock: RequestHandler = asyncHandler(async (request, re
     response.status(204).send();
 });
 
-// export const decrementStockToBranch: RequestHandler = asyncHandler(async (request, response) => {
-//     assertAuth(request.user);
-//     if (typeof request.params.invItemId !== 'string') throw new ApiError(400, 'Invalid stock id', 'INVALID_STOCK_ID');
-//     const decrementedStock = await invService.decrementBranchStock(request.params.invItemId, request.body as DecrementStockInput);
-//     response.status(200).json({ data: { decrementedStock } });
-// });
+export const incrementStockToBranch: RequestHandler = asyncHandler(async (request, response) => {
+    assertAuth(request.user);
+    if (typeof request.params.invItemId !== 'string') throw new ApiError(400, 'Invalid stock id', 'INVALID_STOCK_ID');
+    const incrementedStock = await invService.incrementBranchStock(request.params.invItemId, (request.body as IncrementStockInput).quantity);
+    response.status(200).json({ data: { incrementedStock } });
+});
+
+export const decrementStockToBranch: RequestHandler = asyncHandler(async (request, response) => {
+    assertAuth(request.user);
+    if (typeof request.params.invItemId !== 'string') throw new ApiError(400, 'Invalid stock id', 'INVALID_STOCK_ID');
+    const decrementedStock = await invService.decrementBranchStock(request.params.invItemId, request.body as DecrementStockInput);
+    response.status(200).json({ data: { decrementedStock } });
+});
 
 export const getOwnBranchInventory: RequestHandler = asyncHandler(async (request, response) => {
     const storeBranchId = await getStaffBranchId(assertAuth(request.user).id);

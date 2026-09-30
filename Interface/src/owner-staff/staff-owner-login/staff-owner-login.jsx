@@ -16,28 +16,33 @@ function StaffOwnerLogin() {
     const navigate = useNavigate();
 
     const handleLogin = async () => {
+        if (!email || !password) {
+            setError("Please enter your email and password.");
+            return;
+        }
+
         try {
-            const role = email === "anjyyyvalenzuela@gmail.com" ? "owner" : "staff";
-            const endpoint = role === "owner" ? "/auth/owner/login" : "/auth/staff/login";
-            const response = await apiFetch(endpoint, {
+            const response = await apiFetch("/auth/admin/login", {
                 method: "POST",
-                body: JSON.stringify({
-                    email,
-                    password,
-                }),
+                body: JSON.stringify({ email, password }),
             });
+
             const userData = response.data.user;
             const token = response.data.token;
-            setError("");
+
             localStorage.setItem("currentUser", JSON.stringify(userData));
             localStorage.setItem("token", token);
+            setError("");
+
             if (userData.role === "staff") {
                 navigate("/online-orders");
             } else if (userData.role === "owner") {
                 navigate("/owner/menu");
+            } else {
+                setError("Your account does not have a valid role.");
             }
         } catch (error) {
-            setError("Invalid email or password. Please check your credentials.");
+            setError(error.message || "Invalid email or password. Please check your credentials.");
         }
     };
 
@@ -93,14 +98,8 @@ function StaffOwnerLogin() {
                             <button
                                 type="button"
                                 className="staff-owner-login-password-toggle"
-                                onClick={() =>
-                                    setShowPassword((current) => !current)
-                                }
-                                aria-label={
-                                    showPassword
-                                        ? "Hide password"
-                                        : "Show password"
-                                }
+                                onClick={() => setShowPassword((current) => !current)}
+                                aria-label={showPassword ? "Hide password" : "Show password"}
                             >
                                 {showPassword ? <EyeIcon /> : <EyeOffIcon />}
                             </button>

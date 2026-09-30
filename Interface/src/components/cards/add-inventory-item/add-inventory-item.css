@@ -1,0 +1,86 @@
+.InventoryModalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-bg);
+}
+.InventoryModal {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    border-radius: 10px;
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+}
+.InventoryModal h2 {
+    margin: 0 0 4px;
+    color: var(--accent);
+    font-family: var(--heading);
+    font-size: 16px;
+    font-weight: 700;
+}
+.InventoryModal label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    color: var(--text-2);
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+}
+.InventoryModal input,
+.InventoryModal select {
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    outline: none;
+    background: var(--card-bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 11px;
+}
+.InventoryModal select {
+    cursor: pointer;
+}
+.InventoryModal input:focus,
+.InventoryModal select:focus {
+    border-color: var(--accent-border);
+}
+.InventoryModalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 6px;
+}
+.InventoryModalCancel,
+.InventoryModalConfirm {
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+.InventoryModalCancel {
+    background: var(--bg);
+    color: var(--text-3);
+}
+.InventoryModalCancel:hover {
+    filter: brightness(0.96);
+}
+.InventoryModalConfirm {
+    background: var(--btn-primary);
+    color: var(--btn-label);
+}
+.InventoryModalConfirm:hover {
+    filter: brightness(0.96);
+}
