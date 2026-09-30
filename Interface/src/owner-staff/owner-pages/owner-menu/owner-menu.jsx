@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SearchBar from "/src/components/blocks/search-bar/search-bar";
 import CategoryTabs from "/src/components/blocks/product-tabs/product-tabs";
 import ProductCard from "/src/components/cards/product-card/product-card.jsx";
@@ -10,27 +10,63 @@ import NewMenuCard from "/src/components/cards/new-menu-card/new-menu-card.jsx";
 import NewMenuForm from "/src/components/blocks/new-menu-form/new-menu-form.jsx";
 import NewAddonForm from "/src/components/blocks/new-addon-form/new-addon-form.jsx";
 import LargeHeader from "/src/components/largeheader-wback/largeheader-wback.jsx";
-import products from "/src/data/products";
+import { getAllProducts, createProduct, updateProduct, deleteProduct } from "/src/api/product";
+import { getAllAddons, createAddon, updateAddon, deleteAddon } from "/src/api/addon";
 import categories from "/src/data/categories";
-import addons from "/src/data/addons";
 import "./owner-menu.css";
+
 const OWNER_TABS = [
     { label: "Menu", path: "/owner/menu" },
     { label: "Sales Report", path: "/owner/sales-report" },
     { label: "Inventory", path: "/owner/inventory" },
 ];
+
 export default function OwnerMenu() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [menuType, setMenuType] = useState("Products");
-    const [menuItems, setMenuItems] = useState(products);
-    const [addonItems, setAddonItems] = useState(addons);
+    const [menuItems, setMenuItems] = useState([]);
+    const [addonItems, setAddonItems] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [selectedAddon, setSelectedAddon] = useState(null);
     const [showNewMenu, setShowNewMenu] = useState(false);
     const [showNewAddon, setShowNewAddon] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [editingAddon, setEditingAddon] = useState(null);
+
+    useEffect(() => {
+        const loadProducts = async () => {
+            try {
+                const { data } = await getAllProducts();
+                const products = data.products.map((product) => ({
+                    ...product,
+                    image: product.image_url,
+                    temperature: [
+                        ...(product.isHotAvailable ? ["hot"] : []),
+                        ...(product.isIcedAvailable ? ["iced"] : []),
+                    ],
+                }));
+                setMenuItems(products);
+            } catch (error) {
+                console.error("Failed to load products:", error);
+            }
+        };
+        loadProducts();
+    }, []);
+
+    useEffect(() => {
+        const loadAddons = async () => {
+            try {
+                const { data } = await getAllAddons();
+                setAddonItems(data.addons || []);
+            } catch (error) {
+                console.error("Failed to load add-ons:", error);
+                setAddonItems([]);
+            }
+        };
+        loadAddons();
+    }, []);
+
     const filteredProducts = menuItems
         .filter((product) => {
             let matchesCategory = true;
@@ -49,9 +85,11 @@ export default function OwnerMenu() {
             if (b.badge === "soldOut" && a.badge !== "soldOut") return -1;
             return 0;
         });
+
     const filteredAddons = addonItems.filter((addon) =>
         addon.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
     const handleMenuTypeChange = (type) => {
         setMenuType(type);
         setSearchTerm("");
@@ -62,6 +100,7 @@ export default function OwnerMenu() {
         setEditingProduct(null);
         setEditingAddon(null);
     };
+
     const handleProductSelect = (product) => {
         setSelectedProduct(product);
         setSelectedAddon(null);
@@ -70,6 +109,7 @@ export default function OwnerMenu() {
         setShowNewMenu(false);
         setShowNewAddon(false);
     };
+
     const handleNewMenu = () => {
         setSelectedProduct(null);
         setSelectedAddon(null);
@@ -78,38 +118,83 @@ export default function OwnerMenu() {
         setShowNewMenu(true);
         setShowNewAddon(false);
     };
+
     const handleCancelNewMenu = () => {
         setShowNewMenu(false);
         setEditingProduct(null);
     };
-    const handleSaveNewMenu = (newProduct) => {
-        setMenuItems((current) => [...current, newProduct]);
-        setShowNewMenu(false);
-        setSelectedProduct(newProduct);
+
+    const handleSaveNewMenu = async (newProduct) => {
+        try {
+            const { data } = await createProduct({
+                ...newProduct,
+                isHotAvailable: newProduct.temperature.includes("hot"),
+                isIcedAvailable: newProduct.temperature.includes("iced"),
+            });
+            const product = {
+                ...data.product,
+                image: data.product.image_url,
+                temperature: [
+                    ...(data.product.isHotAvailable ? ["hot"] : []),
+                    ...(data.product.isIcedAvailable ? ["iced"] : []),
+                ],
+            };
+            setMenuItems((current) => [...current, product]);
+            setShowNewMenu(false);
+            setSelectedProduct(product);
+        } catch (error) {
+            console.error("Failed to create product:", error);
+        }
     };
+
     const handleEditProduct = (product) => {
         setEditingProduct(product);
         setSelectedProduct(null);
         setShowNewMenu(true);
         setShowNewAddon(false);
     };
-    const handleSaveEditProduct = (updatedProduct) => {
-        setMenuItems((current) =>
-            current.map((item) =>
-                item.id === updatedProduct.id ? updatedProduct : item
-            )
-        );
-        setSelectedProduct(updatedProduct);
-        setEditingProduct(null);
-        setShowNewMenu(false);
+
+    const handleSaveEditProduct = async (updatedProduct) => {
+        try {
+            const { data } = await updateProduct(updatedProduct.id, {
+                ...updatedProduct,
+                isHotAvailable: updatedProduct.temperature?.includes("hot"),
+                isIcedAvailable: updatedProduct.temperature?.includes("iced"),
+            });
+            const product = {
+                ...data.product,
+                image: data.product.image_url,
+                temperature: [
+                    ...(data.product.isHotAvailable ? ["hot"] : []),
+                    ...(data.product.isIcedAvailable ? ["iced"] : []),
+                ],
+            };
+            setMenuItems((current) =>
+                current.map((item) =>
+                    item.id === product.id ? product : item
+                )
+            );
+            setSelectedProduct(product);
+            setEditingProduct(null);
+            setShowNewMenu(false);
+        } catch (error) {
+            console.error("Failed to update product:", error);
+        }
     };
-    const handleDeleteProduct = (product) => {
-        setMenuItems((current) =>
-            current.filter((item) => item.id !== product.id)
-        );
-        setSelectedProduct(null);
-        setEditingProduct(null);
+
+    const handleDeleteProduct = async (product) => {
+        try {
+            await deleteProduct(product.id);
+            setMenuItems((current) =>
+                current.filter((item) => item.id !== product.id)
+            );
+            setSelectedProduct(null);
+            setEditingProduct(null);
+        } catch (error) {
+            console.error("Failed to delete product:", error);
+        }
     };
+
     const handleAddonSelect = (addon) => {
         setSelectedAddon(addon);
         setSelectedProduct(null);
@@ -117,6 +202,7 @@ export default function OwnerMenu() {
         setShowNewAddon(false);
         setShowNewMenu(false);
     };
+
     const handleNewAddon = () => {
         setSelectedAddon(null);
         setSelectedProduct(null);
@@ -124,41 +210,80 @@ export default function OwnerMenu() {
         setShowNewAddon(true);
         setShowNewMenu(false);
     };
+
     const handleCancelNewAddon = () => {
         setShowNewAddon(false);
         setEditingAddon(null);
         setSelectedAddon(null);
     };
-    const handleSaveNewAddon = (newAddon) => {
-        setAddonItems((current) => [...current, newAddon]);
-        setShowNewAddon(false);
-        setEditingAddon(null);
-        setSelectedAddon(newAddon);
+
+    const handleSaveNewAddon = async (newAddon) => {
+        try {
+            const { data } = await createAddon({
+                name: newAddon.name,
+                price: newAddon.price,
+                ingredients: newAddon.ingredients.map((ingredient) => ({
+                    id: ingredient.id,
+                    quantity: ingredient.quantity,
+                })),
+            });
+            const addon = {
+                ...data.addon,
+                available: newAddon.available,
+            };
+            setAddonItems((current) => [...current, addon]);
+            setShowNewAddon(false);
+            setEditingAddon(null);
+            setSelectedAddon(addon);
+        } catch (error) {
+            console.error("Failed to create add-on:", error);
+        }
     };
+
     const handleEditAddon = (addon) => {
         setEditingAddon(addon);
         setSelectedAddon(null);
         setShowNewAddon(true);
         setShowNewMenu(false);
     };
-    const handleSaveEditAddon = (updatedAddon) => {
-        setAddonItems((current) =>
-            current.map((item) =>
-                item.id === updatedAddon.id ? updatedAddon : item
-            )
-        );
-        setShowNewAddon(false);
-        setEditingAddon(null);
-        setSelectedAddon(updatedAddon);
+
+    const handleSaveEditAddon = async (updatedAddon) => {
+        try {
+            const { data } = await updateAddon(updatedAddon.id, {
+                name: updatedAddon.name,
+                price: updatedAddon.price,
+            });
+            const addon = {
+                ...data.addon,
+                available: updatedAddon.available,
+            };
+            setAddonItems((current) =>
+                current.map((item) =>
+                    item.id === addon.id ? addon : item
+                )
+            );
+            setShowNewAddon(false);
+            setEditingAddon(null);
+            setSelectedAddon(addon);
+        } catch (error) {
+            console.error("Failed to update add-on:", error);
+        }
     };
-    const handleDeleteAddon = (addon) => {
-        setAddonItems((current) =>
-            current.filter((item) => item.id !== addon.id)
-        );
-        setSelectedAddon(null);
-        setEditingAddon(null);
-        setShowNewAddon(false);
+
+    const handleDeleteAddon = async (addon) => {
+        try {
+            await deleteAddon(addon.id);
+            setAddonItems((current) =>
+                current.filter((item) => item.id !== addon.id)
+            );
+            setSelectedAddon(null);
+            setEditingAddon(null);
+            setShowNewAddon(false);
+        } catch (error) {
+            console.error("Failed to delete add-on:", error);
+        }
     };
+
     return (
         <div className="OwnerMenuPage">
             <LargeHeader

@@ -9,7 +9,7 @@ Content-Type: application/json
   "fullName": "Valenzuela, Anjanette",
   "email": "anjyyyvalenzuela@gmail.com",
   "phoneNumber": "+639813283228",
-  "password": "valenzuela03",
+  "password": "valenzuela03"
 }
 
 ### Register Staff

@@ -5,9 +5,21 @@ function Item_Inventory({
     onIncrease,
     onDecrease
 }) {
+    const formatDate = (date) => {
+        if (!date) return "";
+        const value = new Date(date);
+        if (Number.isNaN(value.getTime())) return "";
+        return value.toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "numeric"
+        });
+    };
+
     return (
         <div className="ItemInventory">
-            <span>{item.purchaseDate}</span>
+            <span>{formatDate(item.purchasedAt || item.purchaseDate)}</span>
+            <span>{formatDate(item.expiresAt)}</span>
             <span>{item.name}</span>
             <div className="InventoryQuantity">
                 <span className="NormalQuantity">

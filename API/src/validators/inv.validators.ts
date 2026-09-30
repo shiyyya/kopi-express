@@ -9,6 +9,11 @@ export const newStockSchema = z.object({
   unit: z.enum(UNIT),
 }).strict();
 
+export const updateIngredientSchema = z.object({
+  name: z.string().trim().min(2).max(50).regex(/[A-Za-z]/, 'Name must contain a letter'),
+  unit: z.enum(UNIT),
+}).strict();
+
 export const newBatchSchema = z.object({
   ingredientId: z.string().trim().min(1),
   quantity,
@@ -28,6 +33,7 @@ export const decrementStockSchema = z.object({
 }).strict();
 
 export type NewStockInput = z.infer<typeof newStockSchema>;
+export type UpdateIngredientInput = z.infer<typeof updateIngredientSchema>;
 export type NewBatchInput = z.infer<typeof newBatchSchema>;
 export type IncrementStockInput = z.infer<typeof incrementStockSchema>;
 export type DecrementStockInput = z.infer<typeof decrementStockSchema>;

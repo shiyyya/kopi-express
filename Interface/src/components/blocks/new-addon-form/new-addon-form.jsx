@@ -1,31 +1,57 @@
 import { useEffect, useState } from "react";
+import { getIngredients } from "../../../api/inventory.api";
+import { getAddOnIngredients } from "../../../api/addon";
 import "./new-addon-form.css";
-
-const units = ["pcs","g","ml"];
 
 export default function AddonForm({ addon, onCancel, onSave }) {
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [ingredients, setIngredients] = useState([]);
+    const [availableIngredients, setAvailableIngredients] = useState([]);
+    const [ingredientError, setIngredientError] = useState("");
     const isEdit = Boolean(addon);
+
+    useEffect(() => {
+        getIngredients()
+            .then(({ data }) => setAvailableIngredients(data.inventory || []))
+            .catch(() => setAvailableIngredients([]));
+    }, []);
 
     useEffect(() => {
         if (!addon) {
             setName("");
             setPrice("");
             setIngredients([]);
+            setIngredientError("");
             return;
         }
+
         setName(addon.name || "");
         setPrice(addon.price ?? "");
-        setIngredients(addon.ingredients || []);
-    }, [addon]);
+        setIngredientError("");
+
+        getAddOnIngredients(addon.id)
+            .then(({ data }) =>
+                setIngredients(
+                    (data.addonIngredients || []).map((ingredient) => ({
+                        ingredientId: ingredient.ingredientId,
+                        quantity: ingredient.quantityRequired,
+                        unit:
+                            availableIngredients.find(
+                                (item) => item.id === ingredient.ingredientId
+                            )?.unit || "pcs",
+                    }))
+                )
+            )
+            .catch(() => setIngredients([]));
+    }, [addon, availableIngredients]);
 
     const handleAddIngredient = () => {
+        setIngredientError("");
         setIngredients((current) => [
             ...current,
             {
-                inventoryId: "",
+                ingredientId: "",
                 quantity: "",
                 unit: "pcs",
             },
@@ -33,12 +59,24 @@ export default function AddonForm({ addon, onCancel, onSave }) {
     };
 
     const handleIngredientChange = (index, field, value) => {
+        setIngredientError("");
         setIngredients((current) =>
-            current.map((ingredient, ingredientIndex) =>
-                ingredientIndex === index
-                    ? { ...ingredient, [field]: value }
-                    : ingredient
-            )
+            current.map((ingredient, ingredientIndex) => {
+                if (ingredientIndex !== index) return ingredient;
+
+                if (field === "ingredientId") {
+                    const selected = availableIngredients.find(
+                        (item) => item.id === value
+                    );
+                    return {
+                        ...ingredient,
+                        ingredientId: value,
+                        unit: selected?.unit || "pcs",
+                    };
+                }
+
+                return { ...ingredient, [field]: value };
+            })
         );
     };
 
@@ -57,11 +95,19 @@ export default function AddonForm({ addon, onCancel, onSave }) {
 
         const validIngredients = ingredients.filter(
             (ingredient) =>
-                ingredient.inventoryId &&
+                ingredient.ingredientId &&
                 ingredient.quantity !== "" &&
-                Number(ingredient.quantity) > 0 &&
-                ingredient.unit
+                Number(ingredient.quantity) > 0
         );
+
+        if (validIngredients.length === 0) {
+            setIngredientError(
+                "Please add at least one ingredient with a valid quantity before saving."
+            );
+            return;
+        }
+
+        setIngredientError("");
 
         const addonData = {
             ...(addon || {
@@ -71,7 +117,7 @@ export default function AddonForm({ addon, onCancel, onSave }) {
             name: name.trim(),
             price: Number(price),
             ingredients: validIngredients.map((ingredient) => ({
-                inventoryId: ingredient.inventoryId,
+                id: ingredient.ingredientId,
                 quantity: Number(ingredient.quantity),
                 unit: ingredient.unit,
             })),
@@ -144,6 +190,11 @@ export default function AddonForm({ addon, onCancel, onSave }) {
                             + Add Ingredient
                         </button>
                     </div>
+                    {ingredientError && (
+                        <div className="AddonIngredientError">
+                            {ingredientError}
+                        </div>
+                    )}
                     {ingredients.length === 0 ? (
                         <div className="AddonIngredientsEmpty">
                             <span>No ingredients added yet.</span>
@@ -159,23 +210,37 @@ export default function AddonForm({ addon, onCancel, onSave }) {
                                         <label
                                             htmlFor={`addon-ingredient-name-${index}`}
                                         >
-                                            Inventory ID
+                                            Ingredient
                                         </label>
-                                        <input
+                                        <select
                                             id={`addon-ingredient-name-${index}`}
-                                            type="text"
-                                            value={
-                                                ingredient.inventoryId || ""
-                                            }
+                                            value={ingredient.ingredientId || ""}
                                             onChange={(event) =>
                                                 handleIngredientChange(
                                                     index,
-                                                    "inventoryId",
+                                                    "ingredientId",
                                                     event.target.value
                                                 )
                                             }
-                                            placeholder="e.g. inventory-001"
-                                        />
+                                        >
+                                            <option value="">
+                                                Select ingredient
+                                            </option>
+                                            {availableIngredients.map(
+                                                (availableIngredient) => (
+                                                    <option
+                                                        key={
+                                                            availableIngredient.id
+                                                        }
+                                                        value={
+                                                            availableIngredient.id
+                                                        }
+                                                    >
+                                                        {availableIngredient.name}
+                                                    </option>
+                                                )
+                                            )}
+                                        </select>
                                     </div>
                                     <div className="AddonIngredientQuantity">
                                         <label
@@ -216,14 +281,9 @@ export default function AddonForm({ addon, onCancel, onSave }) {
                                                 )
                                             }
                                         >
-                                            {units.map((unit) => (
-                                                <option
-                                                    key={unit}
-                                                    value={unit}
-                                                >
-                                                    {unit}
-                                                </option>
-                                            ))}
+                                            <option value="pcs">pcs</option>
+                                            <option value="g">g</option>
+                                            <option value="ml">ml</option>
                                         </select>
                                     </div>
                                     <button
