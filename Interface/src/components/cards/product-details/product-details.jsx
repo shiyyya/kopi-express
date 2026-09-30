@@ -1,5 +1,6 @@
-import { useState } from "react";
-import inventory from "/src/data/inventory";
+import { useEffect, useState } from "react";
+import { getIngredients } from "/src/api/inventory.api";
+import { getProductIngredients } from "/src/api/product";
 import ConfirmationCard from "../confirmation-card/confirmation-card.jsx";
 import "./product-details.css";
 
@@ -10,16 +11,52 @@ export default function ProductDetailsCard({
     onDelete,
 }) {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [ingredients, setIngredients] = useState([]);
+    const [availableIngredients, setAvailableIngredients] = useState([]);
+
+    useEffect(() => {
+        if (!product?.id) {
+            setIngredients([]);
+            return;
+        }
+
+        const loadIngredients = async () => {
+            try {
+                const [{ data: productData }, { data: inventoryData }] = await Promise.all([
+                    getProductIngredients(product.id),
+                    getIngredients(),
+                ]);
+
+                const inventoryItems = inventoryData.inventory || [];
+                setAvailableIngredients(inventoryItems);
+
+                setIngredients(
+                    (productData.productIngredients || []).map((ingredient) => ({
+                        ingredientId: ingredient.ingredientId,
+                        quantity: ingredient.quantityRequired,
+                        unit: inventoryItems.find((item) => item.id === ingredient.ingredientId)?.unit || "pcs",
+                    }))
+                );
+            } catch (error) {
+                console.error("Failed to load product ingredients:", error);
+                setIngredients([]);
+            }
+        };
+
+        loadIngredients();
+    }, [product?.id]);
+
     if (!product) {
         return null;
     }
-    const ingredients = product.ingredients || [];
+
     const getIngredientName = (ingredient) => {
-        const inventoryItem = inventory.find(
-            (item) => item.id === ingredient.inventoryId
+        const inventoryItem = availableIngredients.find(
+            (item) => item.id === ingredient.ingredientId
         );
-        return inventoryItem?.name || ingredient.inventoryId || "Unknown ingredient";
+        return inventoryItem?.name || ingredient.ingredientId || "Unknown ingredient";
     };
+
     return (
         <>
             <div className="ProductDetailsCard">
@@ -111,7 +148,7 @@ export default function ProductDetailsCard({
                                     <div
                                         className="ProductDetailsCardIngredient"
                                         key={
-                                            ingredient.inventoryId ||
+                                            ingredient.ingredientId ||
                                             `${ingredient.unit}-${index}`
                                         }
                                     >

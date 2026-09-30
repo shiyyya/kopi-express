@@ -156,7 +156,7 @@
     width: 100%;
     min-height: 50px;
     display: grid;
-    grid-template-columns: 1.2fr 2fr 1.2fr 0.7fr 1.8fr;
+    grid-template-columns: 1.1fr 1.1fr 1.8fr 1fr 0.7fr 1.8fr;
     align-items: center;
     padding: 0 12px;
     background: var(--header-bg);
@@ -178,7 +178,7 @@
     width: 100%;
     min-height: 55px;
     display: grid;
-    grid-template-columns: 1.2fr 2fr 1.2fr 0.7fr 1.8fr;
+    grid-template-columns: 1.1fr 1.1fr 1.8fr 1fr 0.7fr 1.8fr;
     align-items: center;
     padding: 8px 12px;
     background: var(--card-bg);
@@ -310,6 +310,152 @@
     filter: brightness(0.96);
 }
 
+.InventoryIngredients {
+    width: 100%;
+    margin-top: 12px;
+    border-radius: 9px;
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.InventoryIngredientsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 60px;
+    padding: 0 10px;
+    background: var(--card-bg);
+    box-sizing: border-box;
+}
+
+.InventoryIngredientsHeader h2 {
+    margin: 0;
+    color: var(--accent);
+    font-family: var(--heading);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.InventoryIngredientsHeader button {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 30px;
+    padding: 0 12px;
+    border: 1px solid var(--success);
+    border-radius: 6px;
+    background: var(--success-bg);
+    color: var(--success);
+    font-family: var(--sans);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.InventoryIngredientsHeader button:hover {
+    filter: brightness(0.96);
+}
+
+.InventoryIngredientsTable {
+    width: 100%;
+    overflow: visible;
+    border-radius: 0 0 9px 9px;
+    box-shadow: var(--shadow);
+}
+
+.InventoryIngredientsTableHeader {
+    position: sticky;
+    top: 60px;
+    z-index: 40;
+    width: 100%;
+    min-height: 50px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.8fr;
+    align-items: center;
+    padding: 0 12px;
+    background: var(--header-bg);
+    color: var(--text-h);
+    font-family: var(--sans);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.InventoryIngredientsList {
+    width: 100%;
+    overflow: visible;
+}
+
+.InventoryIngredientCard {
+    width: 100%;
+    min-height: 55px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.8fr;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-3);
+    font-family: var(--sans);
+    font-size: 10px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.InventoryIngredientCard:last-child {
+    border-bottom: none;
+    border-radius: 0 0 9px 9px;
+}
+
+.InventoryIngredientCard:hover {
+    background: var(--social-bg);
+}
+
+.InventoryIngredientCard > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.InventoryIngredientActions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.InventoryIngredientActions button {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 9px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+.InventoryIngredientActions button:first-child {
+    background: var(--btn-primary);
+    color: var(--btn-label);
+}
+
+.InventoryIngredientActions button:last-child {
+    background: var(--error);
+    color: var(--btn-label);
+}
+
+.InventoryIngredientActions button:hover {
+    filter: brightness(0.96);
+}
+
 .InventoryModalOverlay {
     position: fixed;
     inset: 0;
@@ -431,11 +577,9 @@
     .Inventory {
         overflow-x: auto;
     }
-
     .InventoryControls {
         min-width: 1000px;
     }
-
     .InventoryTable {
         min-width: 1000px;
     }
@@ -446,11 +590,9 @@
         padding: 8px;
         overflow-x: auto;
     }
-
     .InventoryControls {
         min-width: 1000px;
     }
-
     .InventoryTable {
         min-width: 1000px;
     }
@@ -460,7 +602,6 @@
     .InventorySearch {
         width: 240px;
     }
-
     .InventoryActions {
         gap: 15px;
     }

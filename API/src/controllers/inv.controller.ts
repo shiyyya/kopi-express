@@ -2,7 +2,7 @@ import type { RequestHandler } from 'express';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import * as invService from '../services/inv.service.js';
-import type { NewStockInput, NewBatchInput, DecrementStockInput } from '../validators/inv.validators.js';
+import type { NewStockInput, NewBatchInput, DecrementStockInput, UpdateIngredientInput } from '../validators/inv.validators.js';
 import { assertAuth } from '../utils/assertions.js';
 import { Staff as StaffModel } from '../models/index.js';
 
@@ -11,7 +11,6 @@ async function getStaffBranchId(userId: string) {
     if (!staff) throw new ApiError(404, 'Staff not found', 'STAFF_NOT_FOUND');
     return staff.storeBranchId;
 }
-
 
 export const getIngredients: RequestHandler = asyncHandler(async (request, response) => {
     assertAuth(request.user);
@@ -25,13 +24,19 @@ export const newIngredient: RequestHandler = asyncHandler(async (request, respon
     response.status(201).json({ data: { ingredient } });
 });
 
+export const updateIngredient: RequestHandler = asyncHandler(async (request, response) => {
+    assertAuth(request.user);
+    if (typeof request.params.ingredientId !== 'string') throw new ApiError(400, 'Invalid ingredient id', 'INVALID_INGREDIENT_ID');
+    const ingredient = await invService.updateIngredient(request.params.ingredientId, request.body as UpdateIngredientInput);
+    response.status(200).json({ data: { ingredient } });
+});
+
 export const removeIngredient: RequestHandler = asyncHandler(async (request, response) => {
     assertAuth(request.user);
     if (typeof request.params.ingredientId !== 'string') throw new ApiError(400, 'Invalid ingredient id', 'INVALID_INGREDIENT_ID');
     await invService.removeIngredient(request.params.ingredientId);
     response.status(204).send();
 });
-
 
 export const getBranchInventory: RequestHandler = asyncHandler(async (request, response) => {
     assertAuth(request.user);
@@ -60,7 +65,6 @@ export const removeBranchStock: RequestHandler = asyncHandler(async (request, re
 //     const decrementedStock = await invService.decrementBranchStock(request.params.invItemId, request.body as DecrementStockInput);
 //     response.status(200).json({ data: { decrementedStock } });
 // });
-
 
 export const getOwnBranchInventory: RequestHandler = asyncHandler(async (request, response) => {
     const storeBranchId = await getStaffBranchId(assertAuth(request.user).id);

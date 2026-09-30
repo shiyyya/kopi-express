@@ -30,7 +30,7 @@ function StaffOwnerLogin() {
             const token = response.data.token;
             setError("");
             localStorage.setItem("currentUser", JSON.stringify(userData));
-            localStorage.setItem("token", JSON.stringify(token));
+            localStorage.setItem("token", token);
             if (userData.role === "staff") {
                 navigate("/online-orders");
             } else if (userData.role === "owner") {

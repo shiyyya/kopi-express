@@ -1,19 +1,59 @@
-import { useState } from "react";
-import inventory from "/src/data/inventory";
+import { useEffect, useState } from "react";
+import { getIngredients } from "/src/api/inventory.api";
+import { getAddOnIngredients } from "/src/api/addon";
 import ConfirmationCard from "../confirmation-card/confirmation-card.jsx";
 import "./add-on-card.css";
+
 function AddOnCard({ addOn, onEdit, onDelete }) {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [ingredients, setIngredients] = useState([]);
+    const [availableIngredients, setAvailableIngredients] = useState([]);
+
+    useEffect(() => {
+        if (!addOn?.id) {
+            setIngredients([]);
+            return;
+        }
+
+        const loadIngredients = async () => {
+            try {
+                const [{ data: addonData }, { data: inventoryData }] = await Promise.all([
+                    getAddOnIngredients(addOn.id),
+                    getIngredients(),
+                ]);
+
+                const inventoryItems = inventoryData.inventory || [];
+                setAvailableIngredients(inventoryItems);
+
+                setIngredients(
+                    (addonData.addonIngredients || []).map((ingredient) => ({
+                        ingredientId: ingredient.ingredientId,
+                        quantity: ingredient.quantityRequired,
+                        unit: inventoryItems.find(
+                            (item) => item.id === ingredient.ingredientId
+                        )?.unit || "pcs",
+                    }))
+                );
+            } catch (error) {
+                console.error("Failed to load add-on ingredients:", error);
+                setIngredients([]);
+            }
+        };
+
+        loadIngredients();
+    }, [addOn?.id]);
+
     if (!addOn) {
         return null;
     }
-    const ingredients = addOn.ingredients || [];
+
     const getIngredientName = (ingredient) => {
-        const inventoryItem = inventory.find(
-            (item) => item.id === ingredient.inventoryId
+        const inventoryItem = availableIngredients.find(
+            (item) => item.id === ingredient.ingredientId
         );
-        return inventoryItem?.name || ingredient.inventoryId || "Unknown ingredient";
+        return inventoryItem?.name || ingredient.ingredientId || "Unknown ingredient";
     };
+
     return (
         <>
             <div className="AddOnCard">
@@ -50,7 +90,7 @@ function AddOnCard({ addOn, onEdit, onDelete }) {
                                     <div
                                         className="AddOnCardIngredient"
                                         key={
-                                            ingredient.inventoryId ||
+                                            ingredient.ingredientId ||
                                             `${ingredient.unit}-${index}`
                                         }
                                     >
@@ -99,4 +139,5 @@ function AddOnCard({ addOn, onEdit, onDelete }) {
         </>
     );
 }
+
 export default AddOnCard;

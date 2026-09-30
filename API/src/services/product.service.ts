@@ -1,5 +1,5 @@
 import { ApiError } from "../utils/ApiError.js";
-import { Ingredient as IngredientModel, ProductIngredient as ProductIngredientModel, Product as ProductModel, sequelize } from "../models/index.js";
+import { CartItem as CartItemModel, Ingredient as IngredientModel, ProductIngredient as ProductIngredientModel, Product as ProductModel, sequelize } from "../models/index.js";
 import { addProductIngredientInput, newProductInput, updateProductInput } from "../validators/product.validator.js";
 import { Category } from "../constants/product.js";
 
@@ -19,7 +19,6 @@ export async function newProduct(input: newProductInput, imageUrl: string) { ret
   const ingredientIds = input.ingredients.map(ingredient => ingredient.id);
   const ingredients = await IngredientModel.findAll({ where: { id: ingredientIds }, transaction });
   if (ingredients.length !== ingredientIds.length) throw new ApiError(400, 'One or more ingredients not found', 'INGREDIENT_NOT_FOUND');
-  
   const product = await ProductModel.create({
     name: input.name,
     category: input.category,
@@ -29,7 +28,6 @@ export async function newProduct(input: newProductInput, imageUrl: string) { ret
     isIcedAvailable: input.isIcedAvailable,
     imageUrl,
   }, {transaction});
-
   await ProductIngredientModel.bulkCreate(
     input.ingredients.map(ingredient => ({
       productId: product.id,
@@ -37,21 +35,20 @@ export async function newProduct(input: newProductInput, imageUrl: string) { ret
       quantityRequired: ingredient.quantity,
     })), {transaction}
   );
-
   return product;
 })}
 
 export async function removeProduct(id: string) { return sequelize.transaction(async (transaction) => {
-  const deleted = await ProductModel.destroy({ where: { id }, transaction });
-  if (deleted === 0) throw new ApiError(404, 'Product not found', 'PRODUCT_NOT_FOUND');
-
+  const product = await ProductModel.findByPk(id, { transaction });
+  if (!product) throw new ApiError(404, 'Product not found', 'PRODUCT_NOT_FOUND');
   await ProductIngredientModel.destroy({ where: { productId: id }, transaction });
+  await CartItemModel.destroy({ where: { productId: id }, transaction });
+  await product.destroy({ transaction });
 })}
 
-export async function updateProduct(id: string, input: updateProductInput, imageUrl?: string) {
-  const product = await ProductModel.findByPk(id);
+export async function updateProduct(id: string, input: updateProductInput, imageUrl?: string) { return sequelize.transaction(async (transaction) => {
+  const product = await ProductModel.findByPk(id, { transaction });
   if (!product) throw new ApiError(404, 'Product not found', 'PRODUCT_NOT_FOUND');
-  
   if (input.name !== undefined) product.name = input.name;
   if (input.category !== undefined) product.category = input.category;
   if (input.description !== undefined) product.description = input.description;
@@ -59,14 +56,23 @@ export async function updateProduct(id: string, input: updateProductInput, image
   if (input.isHotAvailable !== undefined) product.isHotAvailable = input.isHotAvailable;
   if (input.isIcedAvailable !== undefined) product.isIcedAvailable = input.isIcedAvailable;
   if (imageUrl !== undefined) product.imageUrl = imageUrl;
-
-  return product.save();
-}
+  const ingredientIds = input.ingredients.map(ingredient => ingredient.id);
+  const ingredients = await IngredientModel.findAll({ where: { id: ingredientIds }, transaction });
+  if (ingredients.length !== ingredientIds.length) throw new ApiError(400, 'One or more ingredients not found', 'INGREDIENT_NOT_FOUND');
+  await ProductIngredientModel.destroy({ where: { productId: id }, transaction });
+  await ProductIngredientModel.bulkCreate(
+    input.ingredients.map(ingredient => ({
+      productId: id,
+      ingredientId: ingredient.id,
+      quantityRequired: ingredient.quantity,
+    })), {transaction}
+  );
+  return product.save({ transaction });
+})}
 
 export async function getProductIngredients(id: string) {
   const product = await ProductModel.findByPk(id);
   if (!product) throw new ApiError(404, 'Product not found', 'PRODUCT_NOT_FOUND');
-
   return ProductIngredientModel.findAll({ where: { productId: id } });
 }
 
@@ -75,8 +81,6 @@ export async function addProductIngredient(id: string, input: addProductIngredie
   if (!product) throw new ApiError(404, 'Product not found', 'PRODUCT_NOT_FOUND');
   const ingredient = await IngredientModel.findByPk(input.ingredientId);
   if (!ingredient) throw new ApiError(404, 'Ingredient not found', 'INGREDIENT_NOT_FOUND');
-
-
   return ProductIngredientModel.upsert({
     productId: id,
     ingredientId: input.ingredientId,
@@ -88,4 +92,3 @@ export async function removeProductIngredient(id: string, ingredientId: string) 
   const deleted = await ProductIngredientModel.destroy({ where: { productId: id, ingredientId } });
   if (deleted === 0) throw new ApiError(404, 'Product ingredient not found', 'PRODUCT_INGREDIENT_NOT_FOUND');
 }
-
