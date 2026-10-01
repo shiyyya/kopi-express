@@ -6,15 +6,23 @@ import OrderDetailsPanel from '/src/owner-staff/order-details-panel/order-detail
 import { useOrders } from '/src/owner-staff/orders-context/orders-context.jsx';
 
 function OnlineOrders() {
-  const { onlineRequests, acceptOnlineOrder, declineOnlineOrder } = useOrders();
+  const {
+    onlineRequests,
+    selectedOrder,
+    fetchOrderDetails,
+    acceptOnlineOrder,
+    declineOnlineOrder,
+  } = useOrders();
   const [selectedId, setSelectedId] = useState(null);
 
-  const selectedOrder = onlineRequests.find((o) => o.id === selectedId) ?? null;
+  const handleSelectOrder = async (id) => {
+    setSelectedId(id);
+    await fetchOrderDetails(id);
+  };
 
   return (
     <div className="onlineOrders">
       <Header title="Kopi Express / Staff" />
-
       <div className="ordersBody">
         {onlineRequests.length === 0 ? (
           <p className="emptyState">No orders yet.</p>
@@ -30,14 +38,13 @@ function OnlineOrders() {
                 items={order.items}
                 total={order.total}
                 selected={selectedOrder?.id === order.id}
-                onSelect={() => setSelectedId(order.id)}
+                onSelect={() => handleSelectOrder(order.id)}
                 onAccept={() => acceptOnlineOrder(order.id)}
                 onDecline={() => declineOnlineOrder(order.id)}
               />
             ))}
           </div>
         )}
-
         <OrderDetailsPanel
           order={selectedOrder}
           onAccept={() => selectedOrder && acceptOnlineOrder(selectedOrder.id)}

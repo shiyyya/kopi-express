@@ -17,12 +17,10 @@ function Inventory() {
     const [sort, setSort] = useState("none");
     const [adjustments, setAdjustments] = useState({});
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
 
     const loadInventory = async () => {
         try {
             setLoading(true);
-            setError("");
             const response = await getOwnBranchStocks();
             const stocks = response.data?.inventory || [];
             setInventory(stocks.filter((item) => Number(item.quantity) > 0).map((item) => ({
@@ -35,23 +33,26 @@ function Inventory() {
                 expiresAt: item.expiresAt
             })));
         } catch (error) {
-            setError(error.message || "Failed to load inventory.");
+            window.alert(error.message || "Failed to load inventory.");
         } finally {
             setLoading(false);
         }
     };
+
     const loadIngredients = async () => {
         try {
             const response = await getIngredients();
             setIngredients(response.data?.inventory || []);
         } catch (error) {
-            setError(error.message || "Failed to load ingredients.");
+            window.alert(error.message || "Failed to load ingredients.");
         }
     };
+
     useEffect(() => {
         loadInventory();
         loadIngredients();
     }, []);
+
     const filteredInventory = inventory
         .filter((item) => {
             const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
@@ -71,52 +72,53 @@ function Inventory() {
             if (filter === "high" || filter === "low") return a.unit.localeCompare(b.unit);
             return 0;
         });
+
     const handleAdjustmentChange = (id, value) => {
         setAdjustments((current) => ({ ...current, [id]: value }));
     };
+
     const handleIncrease = async (id) => {
         const adjustment = Number(adjustments[id]) || 0;
         if (adjustment <= 0) return;
         const item = inventory.find((inventoryItem) => inventoryItem.id === id);
         if (!item) return;
         try {
-            setError("");
             await incrementStock(item.id, adjustment);
             setAdjustments((current) => ({ ...current, [id]: "" }));
             await loadInventory();
         } catch (error) {
-            setError(error.message || "Failed to add stock.");
+            window.alert(error.message || "Failed to add stock.");
         }
     };
+
     const handleDecrease = async (id) => {
         const adjustment = Number(adjustments[id]) || 0;
         if (adjustment <= 0) return;
         const item = inventory.find((inventoryItem) => inventoryItem.id === id);
         if (!item) return;
         if (adjustment > Number(item.quantity)) {
-            setError("Cannot remove more stock than the current quantity.");
+            window.alert("Cannot remove more stock than the current quantity.");
             return;
         }
         try {
-            setError("");
             await decrementStock(item.id, adjustment);
             setAdjustments((current) => ({ ...current, [id]: "" }));
             await loadInventory();
         } catch (error) {
-            setError(error.message || "Failed to remove stock.");
+            window.alert(error.message || "Failed to remove stock.");
         }
     };
+
     const handleAddItem = async (newItem) => {
         if (!newItem.ingredientId || !newItem.quantity || !newItem.purchasedAt || !newItem.expiresAt) {
-            setError("Please complete all fields.");
+            window.alert("Please complete all fields.");
             return;
         }
         if (new Date(newItem.expiresAt) <= new Date(newItem.purchasedAt)) {
-            setError("Expiration date must be after purchase date.");
+            window.alert("Expiration date must be after purchase date.");
             return;
         }
         try {
-            setError("");
             const branchData = await getOwnBranchStocks();
             const branchInventory = branchData.data?.inventory || [];
             const existingBatch = branchInventory.find(
@@ -127,7 +129,7 @@ function Inventory() {
             );
             if (existingBatch) {
                 const ingredient = ingredients.find((item) => item.id === newItem.ingredientId);
-                setError(`${ingredient?.name || "This ingredient"} with the same expiration date already exists in this inventory. Please use Adjust Stock instead.`);
+                window.alert(`${ingredient?.name || "This ingredient"} with the same expiration date already exists in this inventory. Please use Adjust Stock instead.`);
                 return;
             }
             await newOwnBranchStock({
@@ -139,9 +141,10 @@ function Inventory() {
             setShowAddModal(false);
             await loadInventory();
         } catch (error) {
-            setError(error.message || "Failed to add inventory item.");
+            window.alert(error.message || "Failed to add inventory item.");
         }
     };
+
     return (
         <div className="InventoryPage">
             <LargeHeader title="Kopi Express/Staff" />
@@ -192,7 +195,6 @@ function Inventory() {
                         </button>
                     </div>
                 </div>
-                {error && <div className="InventoryError">{error}</div>}
                 <div className="InventoryTable">
                     <div className="InventoryHeader">
                         <span>Purchase Date</span>
@@ -232,4 +234,5 @@ function Inventory() {
         </div>
     );
 }
+
 export default Inventory;
