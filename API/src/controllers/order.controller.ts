@@ -25,8 +25,8 @@ export const getOrder: RequestHandler = asyncHandler( async (request, response) 
 
 export const newOrder: RequestHandler = asyncHandler( async (request, response) => {
   const userId = assertAuth(request.user).id;
-  const orderId = await orderService.newOrder(userId, request.body as newOrderInput);
-  response.status(201).json({ data: { orderId } });
+  const result = await orderService.newOrder(userId, request.body as newOrderInput);
+  response.status(201).json({ data: result });
 })
 
 // for order history page

@@ -134,9 +134,11 @@ export async function getOrder(orderId: string) {
   };
 }
 
-export async function newOrder( userId: string, input: newOrderInput, ): Promise<{ orderId: string }> {
+export async function newOrder( userId: string, input: newOrderInput, ): Promise<{ orderId: string; branchName: string; address: string }> {
   return sequelize.transaction(async (transaction) => {
     let storeBranchId: string | null = null;
+    let deliveryAddressId: string | null = null;
+    let deliveryAddress: string | null = null;
 
     if (input.fulfillmentType === 'self_pick_up') {
       if (!input.storeBranchId) throw new ApiError(400, 'Store branch is required for pickup', 'STORE_BRANCH_REQUIRED');
@@ -145,14 +147,22 @@ export async function newOrder( userId: string, input: newOrderInput, ): Promise
     }
 
     if (input.fulfillmentType === 'delivery') {
-      if (!input.customerAddressId) throw new ApiError(400, 'Customer address is required for delivery', 'CUSTOMER_ADDRESS_REQUIRED');
+      // walang ipinadalang address id: gamitin ang pinakabagong saved address ng customer
+      const customerAddress = input.customerAddressId
+        ? await CustomerAddressModel.findOne({
+            where: { id: input.customerAddressId, customerId: userId },
+            transaction,
+          })
+        : await CustomerAddressModel.findOne({
+            where: { customerId: userId },
+            order: [['createdAt', 'DESC']],
+            transaction,
+          });
 
-      const customerAddress = await CustomerAddressModel.findOne({
-        where: { id: input.customerAddressId, customerId: userId },
-        transaction,
-      });
+      if (!customerAddress) throw new ApiError(400, 'No delivery address yet. Please add one in Settings.', 'CUSTOMER_ADDRESS_REQUIRED');
 
-      if (!customerAddress) throw new ApiError(404, 'Customer address not found', 'CUSTOMER_ADDRESS_NOT_FOUND');
+      deliveryAddressId = customerAddress.id;
+      deliveryAddress = customerAddress.address;
 
       const location = await geocodeAddress(customerAddress.address);
 
@@ -162,7 +172,7 @@ export async function newOrder( userId: string, input: newOrderInput, ): Promise
 
       if (branches.length === 0) throw new ApiError(400, 'Address is outside our delivery area', 'AREA_NOT_WITHIN_REACH');
 
-      const { closestBranchId } = await getClosestBranch(input.customerAddressId, branches);
+      const { closestBranchId } = await getClosestBranch(customerAddress.id, branches);
 
       storeBranchId = closestBranchId;
     }
@@ -180,7 +190,7 @@ export async function newOrder( userId: string, input: newOrderInput, ): Promise
 
     const products = await ProductModel.findAll({
       where: { id: productIds },
-      attributes: ['id', 'price'],
+      attributes: ['id', 'price', 'category'],
       transaction,
     });
 
@@ -206,7 +216,7 @@ export async function newOrder( userId: string, input: newOrderInput, ): Promise
 
     const order = await OrderModel.create({
       customerId: userId,
-      customerAddressId: input.fulfillmentType === 'delivery' ? input.customerAddressId : null,
+      customerAddressId: deliveryAddressId,
       storeBranchId,
       fulfillmentType: input.fulfillmentType,
       paymentMethod: input.paymentMethod,
@@ -258,7 +268,11 @@ export async function newOrder( userId: string, input: newOrderInput, ): Promise
 
     await CartItemModel.destroy({ where: { customerId: userId }, transaction });
 
-    return { orderId: order.id };
+    return {
+      orderId: order.id,
+      branchName: storeBranch.name,
+      address: deliveryAddress ?? storeBranch.address,
+    };
   });
 }
 
@@ -320,7 +334,8 @@ export async function getCustomerOrders(customerId: string) {
       total += Number(item.unitPrice) * item.quantity;
 
       const addons = item.OrderItemAddOns.map((addon: any) => {
-        total += Number(addon.unitPrice);
+        // total += Number(addon.unitPrice);
+        total += Number(addon.unitPrice) * item.quantity;
 
         return {
           name: addon.AddOn.name,
@@ -371,8 +386,8 @@ export async function getCustomerOrder(customerId: string, orderId: string) {
 
   const items = data.OrderItems.map((item: any) => {
     const addons = item.OrderItemAddOns.map((addon: any) => {
-      subtotal += Number(addon.unitPrice);
-
+      // subtotal += Number(addon.unitPrice);
+      subtotal += Number(addon.unitPrice) * item.quantity;
       return {
         name: addon.AddOn.name,
         unitPrice: Number(addon.unitPrice),

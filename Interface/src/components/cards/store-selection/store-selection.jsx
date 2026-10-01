@@ -4,17 +4,17 @@ import CheckIcon from "/src/assets/icons/check.svg?react";
 
 const stores = [
     {
-        id: "poblacion",
+        id: "01M34B40SEJKXD58FB337RY1RD",
         name: "Kopi-Express Poblacion Branch",
         address: "Poblacion, Pandi, Bulacan",
     },
     {
-        id: "bunsuran",
+        id: "01M34B3AZHBT272V4H49CWZZ4E",
         name: "Kopi-Express Bunsuran II Branch",
-        address: "Bunsuran, Pandi, Bulacan",
+        address: "Bunsuran II, Pandi, Bulacan",
     },
     {
-        id: "cacarongbata",
+        id: "01M34B2F2M5GH5EHJA2PARV0TK",
         name: "Kopi-Express Cacarong Bata Branch",
         address: "Cacarong Bata, Pandi, Bulacan",
     },

@@ -1,5 +1,4 @@
 import './payment-confirmation.css';
-import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
 import CheckIcon from '/src/assets/icons/check-circle.svg?react';
 import ClockIcon from '/src/assets/icons/time.svg?react';
@@ -17,33 +16,17 @@ export default function PaymentConfirmed() {
     const {
         method,
         orderId,
-        order,
+        branchName,
         referenceNumber,
         amountPaid,
         receiptEmail,
         deliveryAddress,
+        isPickup = false,
         paymentNote = 'Pay cash upon delivery',
         confirmationSentTo,
         etaText = 'Ready in approximately 20-35 minutes',
     } = location.state || {};
     const isCash = method === 'cash';
-
-    useEffect(() => {
-        localStorage.removeItem("cartItems");
-        const savedOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-        const updatedOrder = {
-            ...order,
-            orderId,
-            status: "Preparing",
-            paymentStatus: isCash ? "Pending" : "Paid",
-            referenceNumber: referenceNumber || null,
-        };
-        const updatedOrders = [
-            ...savedOrders.filter((savedOrder) => savedOrder.orderId !== orderId),
-            updatedOrder,
-        ];
-        localStorage.setItem("orders", JSON.stringify(updatedOrders));
-    }, []);
 
     return (
         <div className="paymentConfirmedPage">
@@ -58,6 +41,11 @@ export default function PaymentConfirmed() {
                     Order <strong>{orderId || 'Pending'}</strong>{' '}
                     {isCash ? 'has been sent to our team.' : 'is being prepared.'}
                 </p>
+                {branchName && (
+                    <p className="confirmedSubtext">
+                        Branch: <strong>{branchName}</strong>
+                    </p>
+                )}
                 {!isCash && receiptEmail && (
                     <p className="confirmedSubtext">
                         A receipt was sent to {receiptEmail}
@@ -67,7 +55,9 @@ export default function PaymentConfirmed() {
                     <div className="confirmedInfoCard">
                         <div className="confirmedInfoRow confirmedInfoRowHeading">
                             <PinIcon className="confirmedInfoIcon" />
-                            <span className="confirmedInfoLabel">Delivering to</span>
+                            <span className="confirmedInfoLabel">
+                                {isPickup ? 'Pick up at' : 'Delivering to'}
+                            </span>
                         </div>
                         <p className="confirmedInfoAddress">{deliveryAddress}</p>
                         <hr className="confirmedInfoDivider" />

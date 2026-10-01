@@ -190,6 +190,9 @@
     color: var(--text-muted);
     font-size: 12px;
 }
+.OrderInformation .OrderError {
+    color: var(--error);
+}
 .PlaceOrderFooter {
     position: fixed;
     right: 0;
@@ -237,5 +240,36 @@
     .PaymentDetails small {
         font-size: 10px;
     }
-    
+}
+.NotesSection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.NotesInput {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #d9d2c7;
+    border-radius: 12px;
+    font: inherit;
+    resize: none;
+    background: #fff;
+}
+
+.NotesInput:focus {
+    outline: none;
+    border-color: #2f5d3a;
+}
+
+.NotesCount {
+    align-self: flex-end;
+    color: #8a8178;
+}
+
+.DeliveryNote {
+    margin: 0;
+    color: #8a8178;
+    font-size: 0.9rem;
 }
