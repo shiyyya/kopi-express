@@ -23,10 +23,11 @@ import Customization from "./customer/pages/customization/customization.jsx";
 import Inventory from "./owner-staff/pages/inventory/inventory.jsx";
 import OnlineOrders from "./owner-staff/pages/online-orders/online-orders.jsx";
 import OrdersQueue from "./owner-staff/pages/orders-queue/orders-queue.jsx";
+import SalesReport from "./owner-staff/pages/sales-report.jsx";
 
 import { OrdersProvider } from "./owner-staff/orders-context/orders-context.jsx";
 
-import SalesReport from "./owner-staff/owner-pages/owner-sales-report/owner-sales-report.jsx";
+import OwnerSalesReport from "./owner-staff/owner-pages/owner-sales-report/owner-sales-report.jsx";
 import OwnerInventory from "./owner-staff/owner-pages/owner-inventory/owner-inventory.jsx";
 import OwnerMenu from "./owner-staff/owner-pages/owner-menu/owner-menu.jsx";
 
@@ -40,12 +41,9 @@ createRoot(document.getElementById("root")).render(
         <OrdersProvider>
             <BrowserRouter>
                 <Routes>
-
                     <Route path="/" element={<App />}>
-
                         {/* PUBLIC ROUTES */}
                         <Route index element={<Home />} />
-
                         <Route path="login" element={<Login />} />
                         <Route path="signup" element={<Signup />} />
                         <Route path="portal" element={<StaffOwnerLogin />} />
@@ -53,25 +51,26 @@ createRoot(document.getElementById("root")).render(
                         {/* CUSTOMER PROTECTED ROUTES */}
                         <Route path="store-locator" element={<StoreLocator />} />
                         <Route path="order-status" element={<ProtectedRoute><OrderStatus /></ProtectedRoute>} />
-                        <Route path="order-history" element={ <ProtectedRoute><OrderHistory /></ProtectedRoute>} />
-                        <Route path="order-history/details" element={<ProtectedRoute> <OrderHistoryDetails /> </ProtectedRoute>} />
+                        <Route path="order-history" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
+                        <Route path="order-history/details" element={<ProtectedRoute><OrderHistoryDetails /></ProtectedRoute>} />
                         <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                        <Route path="place-order" element={<ProtectedRoute><PlaceOrder /> </ProtectedRoute>} />
+                        <Route path="place-order" element={<ProtectedRoute><PlaceOrder /></ProtectedRoute>} />
                         <Route path="delivery-eligibility" element={<ProtectedRoute><DeliveryEligibility /></ProtectedRoute>} />
-                        <Route path="qr-payment" element={ <ProtectedRoute> <QRPayment /> </ProtectedRoute> } />
-                        <Route path="payment-confirmed" element={<ProtectedRoute><PaymentConfirmed /> </ProtectedRoute>} />
+                        <Route path="qr-payment" element={<ProtectedRoute><QRPayment /></ProtectedRoute>} />
+                        <Route path="payment-confirmed" element={<ProtectedRoute><PaymentConfirmed /></ProtectedRoute>} />
                         <Route path="customization" element={<ProtectedRoute><Customization /></ProtectedRoute>} />
 
                         {/* OWNER / STAFF PROTECTED ROUTES */}
-                        <Route path="inventory"element={<ProtectedRoute> <Inventory /> </ProtectedRoute>} />
-                        <Route path="online-orders" element={ <ProtectedRoute><OnlineOrders /></ProtectedRoute>} />
-                        <Route path="orders-queue" element={ <ProtectedRoute> <OrdersQueue /> </ProtectedRoute>} />
-                        <Route path="owner/menu" element={ <ProtectedRoute> <OwnerMenu /> </ProtectedRoute>} />
-                        <Route path="owner/sales-report" element={  <ProtectedRoute><SalesReport />  </ProtectedRoute> } />
-                        <Route path="owner/inventory" element={<ProtectedRoute> <OwnerInventory /> </ProtectedRoute>} />
+                        <Route path="inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+                        <Route path="online-orders" element={<ProtectedRoute><OnlineOrders /></ProtectedRoute>} />
+                        <Route path="orders-queue" element={<ProtectedRoute><OrdersQueue /></ProtectedRoute>} />
+                        <Route path="sales-report" element={<ProtectedRoute><SalesReport /></ProtectedRoute>} />
 
+                        {/* OWNER PROTECTED ROUTES */}
+                        <Route path="owner/menu" element={<ProtectedRoute><OwnerMenu /></ProtectedRoute>} />
+                        <Route path="owner/sales-report" element={<ProtectedRoute><OwnerSalesReport /></ProtectedRoute>} />
+                        <Route path="owner/inventory" element={<ProtectedRoute><OwnerInventory /></ProtectedRoute>} />
                     </Route>
-
                 </Routes>
             </BrowserRouter>
         </OrdersProvider>
