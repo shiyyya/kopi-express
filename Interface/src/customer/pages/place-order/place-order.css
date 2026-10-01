@@ -241,35 +241,46 @@
         font-size: 10px;
     }
 }
+
 .NotesSection {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    margin-bottom: 12px;
 }
 
-.NotesInput {
+.NotesSection .NotesInput {
     width: 100%;
     box-sizing: border-box;
-    padding: 12px;
-    border: 1px solid #d9d2c7;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
     border-radius: 12px;
+    background: var(--card-bg);
+    color: var(--text);
     font: inherit;
+    font-family: var(--sans);
+    font-size: 13px;
     resize: none;
-    background: #fff;
 }
 
-.NotesInput:focus {
+.NotesSection .NotesInput::placeholder {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.NotesSection .NotesInput:focus {
     outline: none;
-    border-color: #2f5d3a;
+    border-color: var(--btn-primary);
 }
 
 .NotesCount {
     align-self: flex-end;
-    color: #8a8178;
+    color: var(--text-muted);
+    font-size: 11px;
 }
 
 .DeliveryNote {
     margin: 0;
-    color: #8a8178;
-    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-size: 12px;
 }
