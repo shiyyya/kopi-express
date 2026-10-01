@@ -7,6 +7,7 @@ import Logo from "/src/assets/logo/logo.svg?react";
 import EyeIcon from "/src/assets/icons/eye.svg?react";
 import EyeOffIcon from "/src/assets/icons/eye-off.svg?react";
 import { apiFetch } from "/src/api/client.js";
+import { homeForRole } from "/src/components/ProtectedRoute.jsx";
 
 function StaffOwnerLogin() {
     const [email, setEmail] = useState("");
@@ -30,17 +31,16 @@ function StaffOwnerLogin() {
             const userData = response.data.user;
             const token = response.data.token;
 
+            if (userData.role !== "staff" && userData.role !== "owner") {
+                setError("Your account does not have a valid role.");
+                return;
+            }
+
             localStorage.setItem("currentUser", JSON.stringify(userData));
             localStorage.setItem("token", token);
             setError("");
 
-            if (userData.role === "staff") {
-                navigate("/online-orders");
-            } else if (userData.role === "owner") {
-                navigate("/owner/menu");
-            } else {
-                setError("Your account does not have a valid role.");
-            }
+            navigate(homeForRole(userData.role), { replace: true });
         } catch (error) {
             setError(error.message || "Invalid email or password. Please check your credentials.");
         }
