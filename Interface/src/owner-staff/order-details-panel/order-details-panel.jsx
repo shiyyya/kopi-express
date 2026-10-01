@@ -1,4 +1,5 @@
 import "./order-details-panel.css";
+
 import DefaultAvatar from "/src/assets/icons/avatar.svg?react";
 import HotIcon from "/src/assets/icons/hot.svg?react";
 import IcedIcon from "/src/assets/icons/iced.svg?react";
@@ -10,15 +11,24 @@ function peso(amount) {
 function OrderDetailsPanel({ order, onAccept, onDecline, isProcessing = false }) {
   if (!order) return null;
 
+  const normalizedStatus = String(order.status ?? "").toLowerCase();
+  const normalizedType = String(order.type ?? "").toLowerCase();
+
   const statusLabel =
-    order.status === "accepted" ? "Accepted" : order.status === "declined" ? "Declined" : "Pending";
+    normalizedStatus === "accepted"
+      ? "Accepted"
+      : normalizedStatus === "declined"
+        ? "Declined"
+        : "Pending";
 
   const notesEntries = order.items
     .map((item) => {
-      const isDrink = item.category === "drink";
+      const category = item.category ?? item.productCategory;
+      const isDrink = category === "drink";
+      const addOns = item.addOns ?? item.addons ?? [];
       const text = isDrink
-        ? item.addOns?.length
-          ? item.addOns.map((a) => a.name).join(", ")
+        ? addOns.length
+          ? addOns.map((a) => a.name).join(", ")
           : null
         : item.notes || null;
       return text ? { id: item.id, name: item.name, isDrink, text } : null;
@@ -26,7 +36,7 @@ function OrderDetailsPanel({ order, onAccept, onDecline, isProcessing = false })
     .filter(Boolean);
 
   return (
-    <aside className="orderPanel" data-status={order.status}>
+    <aside className="orderPanel" data-status={normalizedStatus}>
       <div className="orderBody">
         <div className="orderTop">
           <div className="orderCustomer">
@@ -36,21 +46,19 @@ function OrderDetailsPanel({ order, onAccept, onDecline, isProcessing = false })
             <div>
               <p className="orderName">{order.customer}</p>
               <p className="orderType">
-                {order.type === "delivery" ? "Delivery" : "Pick-Up"}
+                {normalizedType === "delivery" ? "Delivery" : "Pick-Up"}
                 {order.orderNumber ? ` #${order.orderNumber}` : ""}
               </p>
             </div>
           </div>
-          <span className={`cleanStatus clean${order.status}`}>
+          <span className={`cleanStatus clean${normalizedStatus}`}>
             <span className="orderDot" />
             {statusLabel}
           </span>
         </div>
-
         <div className="orderDivider" />
-
         <div className="orderScrollArea">
-          {order.type === "delivery" && order.address ? (
+          {normalizedType === "delivery" && order.address ? (
             <>
               <div className="orderSection">
                 <p className="orderLabel">Delivery address</p>
@@ -70,44 +78,49 @@ function OrderDetailsPanel({ order, onAccept, onDecline, isProcessing = false })
               </>
             )
           )}
-
           {order.paymentMethod && (
             <>
               <div className="orderSection">
                 <p className="orderLabel">Payment method</p>
                 <p className="orderValue">{order.paymentMethod}</p>
-                <p className="orderSub">{order.paymentSub}</p>
-                {order.paymentMethod === "GCash QR" && order.referenceNumber && (
+                {order.paymentSub && <p className="orderSub">{order.paymentSub}</p>}
+                {order.referenceNumber && (
                   <p className="orderSub">Ref No: {order.referenceNumber}</p>
                 )}
               </div>
               <div className="orderDivider" />
             </>
           )}
-
           <div className="orderSection">
             <p className="orderLabel">Order summary</p>
             {order.items.map((item) => {
-              const isDrink = item.category === "drink";
+              const category = item.category ?? item.productCategory;
+              const temperature = item.temperature ?? item.productTemp;
+              const isDrink = category === "drink";
+              const price = item.price ?? item.unitPrice;
+
               return (
                 <div className="orderItem" key={item.id}>
                   <div className="orderItemMain">
                     <span className="orderItemNameRow">
-                      {isDrink && (
-                        item.temperature === "hot" ? (
+                      {isDrink &&
+                        (temperature === "hot" ? (
                           <HotIcon className="orderItemTempIcon orderItemTempHot" aria-label="Hot" />
                         ) : (
                           <IcedIcon className="orderItemTempIcon orderItemTempCold" aria-label="Cold" />
-                        )
-                      )}
-                      <span>{item.name}{item.quantity ? ` x${item.quantity}` : ""}</span>
+                        ))}
+                      <span>
+                        {item.name}
+                        {item.quantity ? ` x${item.quantity}` : ""}
+                      </span>
                     </span>
-                    <span className="orderItemPrice">{peso(item.price * (item.quantity ?? 1))}</span>
+                    <span className="orderItemPrice">
+                      {peso(price * (item.quantity ?? 1))}
+                    </span>
                   </div>
                 </div>
               );
             })}
-
             {notesEntries.length > 0 && (
               <div className="orderNotesList">
                 {notesEntries.map((entry) => (
@@ -117,10 +130,13 @@ function OrderDetailsPanel({ order, onAccept, onDecline, isProcessing = false })
                 ))}
               </div>
             )}
+            {order.notes && (
+              <div className="orderNotesList">
+                <p className="orderItemSubline">Order note: {order.notes}</p>
+              </div>
+            )}
           </div>
-
           <div className="orderDivider" />
-
           <div className="orderTotals">
             {order.subtotal != null && (
               <div className="orderRow">
@@ -141,13 +157,22 @@ function OrderDetailsPanel({ order, onAccept, onDecline, isProcessing = false })
           </div>
         </div>
       </div>
-
-      {order.status === "pending" && (
+      {normalizedStatus === "pending" && (
         <div className="orderActions">
-          <button className="orderDeclineBtn" type="button" onClick={onDecline} disabled={isProcessing}>
+          <button
+            className="orderDeclineBtn"
+            type="button"
+            onClick={onDecline}
+            disabled={isProcessing}
+          >
             Decline
           </button>
-          <button className="orderAcceptBtn" type="button" onClick={onAccept} disabled={isProcessing}>
+          <button
+            className="orderAcceptBtn"
+            type="button"
+            onClick={onAccept}
+            disabled={isProcessing}
+          >
             Accept
           </button>
         </div>
@@ -155,4 +180,5 @@ function OrderDetailsPanel({ order, onAccept, onDecline, isProcessing = false })
     </aside>
   );
 }
+
 export default OrderDetailsPanel;

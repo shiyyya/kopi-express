@@ -5,10 +5,10 @@ import HotIcon from "/src/assets/icons/hot.svg?react";
 import IcedIcon from "/src/assets/icons/iced.svg?react";
 
 const STATUS_LABELS = {
-  pending: "Pending",
+  queued: "Queued",
   preparing: "Preparing",
   ready: "Ready",
-  delivered: "Delivered",
+  completed: "Delivered",
   cancelled: "Cancelled",
 };
 
@@ -18,7 +18,7 @@ const FULFILLMENT_LABELS = {
 };
 
 const STATUS_ACTIONS = {
-  pending: {
+  queued: {
     label: "Start Preparation",
     getHandler: (props) => props.onStartPreparation,
     className: "ordersQueueStartButton",
@@ -59,7 +59,6 @@ function OrdersQueue(props) {
 
   const normalizedStatus = String(status ?? "").toLowerCase();
   const normalizedFulfillment = String(fulfillmentType ?? "").toLowerCase();
-
   const computedTotal =
     total ?? items.reduce((sum, item) => sum + item.price * (item.quantity ?? 1), 0);
   const resolvedStatusLabel = statusLabel ?? STATUS_LABELS[normalizedStatus] ?? status;
@@ -96,9 +95,7 @@ function OrdersQueue(props) {
             <span className="ordersQueueStatusLabel">{resolvedStatusLabel}</span>
           </div>
         </div>
-
         <div className="ordersQueueDivider" />
-
         <div className="ordersQueueItems">
           {items.length === 0 ? (
             <p className="ordersQueueEmpty">No items yet</p>
@@ -109,13 +106,12 @@ function OrdersQueue(props) {
                 <div className="ordersQueueItem" key={item.id}>
                   <div className="ordersQueueItemMain">
                     <span className="ordersQueueItemName">
-                      {isDrink && (
-                        item.temperature === "hot" ? (
+                      {isDrink &&
+                        (item.temperature === "hot" ? (
                           <HotIcon className="orderItemTempIcon orderItemTempHot" aria-label="Hot" />
                         ) : (
                           <IcedIcon className="orderItemTempIcon orderItemTempCold" aria-label="Cold" />
-                        )
-                      )}
+                        ))}
                       {item.name}
                       {item.quantity ? ` x${item.quantity}` : ""}
                     </span>
@@ -128,9 +124,7 @@ function OrdersQueue(props) {
             })
           )}
         </div>
-
         <div className="ordersQueueDivider" />
-
         <div className="ordersQueueTotalRow">
           <span className="ordersQueueTotalLabel">Total</span>
           <span className="ordersQueueTotalValue">
@@ -138,7 +132,6 @@ function OrdersQueue(props) {
           </span>
         </div>
       </div>
-
       {action ? (
         <div className="ordersQueueActions">
           <button
@@ -168,4 +161,5 @@ function OrdersQueue(props) {
     </div>
   );
 }
+
 export default OrdersQueue;

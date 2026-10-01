@@ -29,6 +29,7 @@ function StaffOwnerLogin() {
             });
 
             const userData = response.data.user;
+            const accountData = response.data.account;
             const token = response.data.token;
 
             if (userData.role !== "staff" && userData.role !== "owner") {
@@ -36,10 +37,14 @@ function StaffOwnerLogin() {
                 return;
             }
 
-            localStorage.setItem("currentUser", JSON.stringify(userData));
+            const currentUser = {
+                ...userData,
+                ...(accountData || {}),
+            };
+
+            localStorage.setItem("currentUser", JSON.stringify(currentUser));
             localStorage.setItem("token", token);
             setError("");
-
             navigate(homeForRole(userData.role), { replace: true });
         } catch (error) {
             setError(error.message || "Invalid email or password. Please check your credentials.");

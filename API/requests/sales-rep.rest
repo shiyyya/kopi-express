@@ -1,0 +1,15 @@
+@baseUrl = http://localhost:3000/api/v1
+
+### Login Staff - Poblacion
+# @name staffLogin
+POST {{baseUrl}}/auth/admin/login
+Content-Type: application/json
+
+{
+  "email": "tempaccountpoblacion@gmail.com",
+  "password": "temppasswordpoblacion"
+}
+
+### Sales Rep Report - Poblacion
+GET {{baseUrl}}/sales-rep
+Authorization: Bearer {{staffLogin.response.body.$.data.token}}

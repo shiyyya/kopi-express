@@ -6,6 +6,8 @@ import { productRouter } from './product.routes.js';
 import { addonRouter } from './addon.routes.js';
 import { cartRouter } from './cart.routes.js';
 import { orderRouter } from './order.routes.js';
+import { salesRepRouter } from './sales-rep.routes.js';
+
 
 export const apiRouter = Router();
 apiRouter.use('/auth', authRouter);
@@ -15,3 +17,4 @@ apiRouter.use('/products', productRouter);
 apiRouter.use('/cart', cartRouter);
 apiRouter.use('/orders', orderRouter);
 apiRouter.use('/addons', addonRouter);
+apiRouter.use('/sales-rep', salesRepRouter);

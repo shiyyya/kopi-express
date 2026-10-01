@@ -8,13 +8,11 @@ import { useOrders } from '/src/owner-staff/orders-context/orders-context.jsx';
 function OrdersQueuePage() {
   const { queueOrders, updateQueueStatus, cancelQueueOrder } = useOrders();
   const [selectedId, setSelectedId] = useState(null);
-
   const selectedOrder = queueOrders.find((o) => o.id === selectedId) ?? null;
 
   return (
     <div className="ordersQueuePage">
       <Header />
-
       <div className="queueBody">
         {queueOrders.length === 0 ? (
           <p className="queueEmptyState">No orders in queue.</p>
@@ -34,18 +32,17 @@ function OrdersQueuePage() {
                 onCancel={() => cancelQueueOrder(order.id)}
                 onStartPreparation={() => updateQueueStatus(order.id, 'preparing')}
                 onMarkReady={() => updateQueueStatus(order.id, 'ready')}
-                onComplete={() => updateQueueStatus(order.id, 'delivered')}
+                onComplete={() => updateQueueStatus(order.id, 'completed')}
               />
             ))}
           </div>
         )}
-
         <OrdersQueueDetailsPanel
           order={selectedOrder}
           onCancel={() => selectedOrder && cancelQueueOrder(selectedOrder.id)}
           onStartPreparation={() => selectedOrder && updateQueueStatus(selectedOrder.id, 'preparing')}
           onMarkReady={() => selectedOrder && updateQueueStatus(selectedOrder.id, 'ready')}
-          onComplete={() => selectedOrder && updateQueueStatus(selectedOrder.id, 'delivered')}
+          onComplete={() => selectedOrder && updateQueueStatus(selectedOrder.id, 'completed')}
         />
       </div>
     </div>
