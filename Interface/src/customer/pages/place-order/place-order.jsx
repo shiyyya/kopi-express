@@ -10,7 +10,7 @@ import CashIcon from "/src/assets/icons/cash.svg?react";
 import QrIcon from "/src/assets/icons/qr.svg?react";
 import { createOrder } from "/src/api/orders.api.js";
 
-const DELIVERY_FEE = 50; 
+const DELIVERY_FEE = 50;
 
 function PlaceOrder() {
     const navigate = useNavigate();
@@ -131,13 +131,12 @@ function PlaceOrder() {
                     orderType={orderType}
                 />
                 <section className="NotesSection">
-                    <h2>Notes</h2>
                     <textarea
                         className="NotesInput"
                         name="notes"
                         placeholder="Add a note for your order (optional)"
                         maxLength={255}
-                        rows={3}
+                        rows={2}
                         value={notes}
                         onChange={(event) => setNotes(event.target.value)}
                     />

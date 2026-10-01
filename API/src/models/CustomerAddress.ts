@@ -5,7 +5,7 @@ import {
   InferCreationAttributes,
   Model,
   Sequelize,
-} from 'sequelize'; 
+} from 'sequelize';
 import { generateID } from '../utils/idGenerator.js';
 
 export class CustomerAddress extends Model<InferAttributes<CustomerAddress>, InferCreationAttributes<CustomerAddress>> {
@@ -14,6 +14,7 @@ export class CustomerAddress extends Model<InferAttributes<CustomerAddress>, Inf
   declare address: string;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+  declare deletedAt: CreationOptional<Date | null>;
   declare latitude: number;
   declare longitude: number;
 }
@@ -28,8 +29,15 @@ export function initCustomerAddress(sequelize: Sequelize): typeof CustomerAddres
       longitude: { type: DataTypes.DECIMAL(10, 7), allowNull: false },
       createdAt: { type: DataTypes.DATE, allowNull: false, field: 'created_at' },
       updatedAt: { type: DataTypes.DATE, allowNull: false, field: 'updated_at' },
+      deletedAt: { type: DataTypes.DATE, allowNull: true, field: 'deleted_at' },
     },
-    { sequelize, tableName: 'customer_addresses', modelName: 'CustomerAddress', underscored: true },
+    {
+      sequelize,
+      tableName: 'customer_addresses',
+      modelName: 'CustomerAddress',
+      underscored: true,
+      paranoid: true,
+    },
   );
   return CustomerAddress;
 }
