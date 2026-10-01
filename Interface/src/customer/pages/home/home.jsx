@@ -24,8 +24,18 @@ function hasCustomerSession() {
 export default function Home() {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [orderType, setOrderType] = useState("delivery");
-    const [selectedStore, setSelectedStore] = useState(null);
+
+    const [orderType, setOrderType] = useState(
+        () => sessionStorage.getItem("orderType") || "delivery"
+    );
+    const [selectedStore, setSelectedStore] = useState(() => {
+        try {
+            return JSON.parse(sessionStorage.getItem("selectedStore") || "null");
+        } catch {
+            return null;
+        }
+    });
+
     const [storeSelectionOpen, setStoreSelectionOpen] = useState(false);
     const [deliveryEligibilityOpen, setDeliveryEligibilityOpen] = useState(false);
     const [loginOpen, setLoginOpen] = useState(false);
@@ -40,6 +50,18 @@ export default function Home() {
         return savedUser ? JSON.parse(savedUser) : null;
     });
     const [pendingProduct, setPendingProduct] = useState(null);
+
+    useEffect(() => {
+        sessionStorage.setItem("orderType", orderType);
+    }, [orderType]);
+
+    useEffect(() => {
+        if (selectedStore) {
+            sessionStorage.setItem("selectedStore", JSON.stringify(selectedStore));
+        } else {
+            sessionStorage.removeItem("selectedStore");
+        }
+    }, [selectedStore]);
 
     const loadCart = useCallback(async () => {
         if (!hasCustomerSession()) {
@@ -151,6 +173,10 @@ export default function Home() {
     const handleLogout = () => {
         localStorage.removeItem("currentUser");
         localStorage.removeItem("token");
+        sessionStorage.removeItem("orderType");
+        sessionStorage.removeItem("selectedStore");
+        setOrderType("delivery");
+        setSelectedStore(null);
         setCurrentUser(null);
         setCartItems([]);
         setSidebarOpen(false);

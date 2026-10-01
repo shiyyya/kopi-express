@@ -66,10 +66,19 @@ export async function suspendUser(user: User): Promise<User> {
 }
 
 export async function addCustomerAddress(id: string, input: addCustomerAddressInput) {
-  const location = await geocodeAddress(input.newAddress);
-  if (!location) throw new ApiError(400, 'Invalid address', 'INVALID_ADDRESS');
+  let location;
+  try {
+    location = await geocodeAddress(input.newAddress);
+  } catch {
+    throw new ApiError(502, 'Address lookup is unavailable. Please try again.', 'GEOCODING_FAILED');
+  }
+
+  if (!location) throw new ApiError(400, 'We could not find that address. Please be more specific.', 'INVALID_ADDRESS');
+  if (!location.barangay) throw new ApiError(400, 'Please include your barangay in the address.', 'AREA_NOT_FOUND');
+
   const branches = await getBranchesForArea(location.barangay);
   if (branches.length === 0) throw new ApiError(400, 'Not within reach of any area', 'AREA_NOT_WITHIN_REACH');
+
   return await CustomerAddressModel.create({
     customerId: id,
     address: input.newAddress,

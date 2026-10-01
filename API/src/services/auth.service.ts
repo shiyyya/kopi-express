@@ -6,7 +6,7 @@ import { Customer, CustomerAddress, Staff, StoreBranch, User as UserModel } from
 import { ApiError } from '../utils/ApiError.js';
 import type { loginInput, registerCustomerInput, registerOwnerInput, registerStaffInput } from '../validators/user.validators.js';
 import { UserRole } from '../constants/user.js';
-import { geocodeAddress, getBranchesForArea } from './geocoding.service.js';
+import { geocodeAddress } from './geocoding.service.js';
 
 function createToken(user: User): string {
   return jwt.sign(
@@ -31,6 +31,18 @@ async function registerUser(email: string, password: string, role: UserRole): Pr
 }
 
 export async function registerCustomer(input: registerCustomerInput) {
+  let location = null;
+  if (input.defaultAddress) {
+    try {
+      location = await geocodeAddress(input.defaultAddress);
+    } catch {
+      throw new ApiError(502, 'Address lookup is unavailable. Please try again.', 'GEOCODING_FAILED');
+    }
+    if (!location) {
+      throw new ApiError(400, 'We could not find that address. Please be more specific.', 'ADDRESS_NOT_FOUND');
+    }
+  }
+
   const user = await registerUser(input.email, input.password, 'customer');
 
   const customer = await Customer.create({
@@ -39,11 +51,7 @@ export async function registerCustomer(input: registerCustomerInput) {
     phoneNumber: input.phoneNumber,
   });
 
-  if (input.defaultAddress) {
-    const location = await geocodeAddress(input.defaultAddress);
-    if (!location) throw new ApiError(400, 'Invalid address', 'INVALID_ADDRESS');
-    const branches = await getBranchesForArea(location.barangay);
-    if (branches.length === 0) throw new ApiError(400, 'Not within reach of any area', 'AREA_NOT_WITHIN_REACH');
+  if (input.defaultAddress && location) {
     await CustomerAddress.create({
       customerId: customer.userId,
       address: input.defaultAddress,

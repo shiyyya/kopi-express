@@ -5,6 +5,7 @@ import Header from "/src/components/blocks/header-wback/header-wback.jsx";
 import Input from "/src/components/elements/input/input.jsx";
 import Button from "/src/components/elements/button/button.jsx";
 import qrImage from "/src/assets/images/qr.png";
+import { createOrder } from "/src/api/orders.api.js";
 
 function formatAmount(value) {
     const number = Number(value) || 0;
@@ -16,29 +17,53 @@ const REFERENCE_LENGTH = 13;
 export default function QrPayment() {
     const navigate = useNavigate();
     const location = useLocation();
-    const orderId = location.state?.orderId;
     const amount = location.state?.amount;
-    const order = location.state?.order;
+    const orderPayload = location.state?.orderPayload;
+    const store = location.state?.store;
+    const isPickup = location.state?.isPickup;
     const [referenceNumber, setReferenceNumber] = useState("");
+    const [error, setError] = useState("");
+    const [submitting, setSubmitting] = useState(false);
     const canConfirm = referenceNumber.length === REFERENCE_LENGTH;
-    const branchName = order?.store?.name || order?.storeName || "Kopi-Express";
+    const branchName = store?.name || "Kopi-Express";
+
     const handleReferenceChange = (e) => {
         const digitsOnly = e.target.value.replace(/\D/g, "").slice(0, REFERENCE_LENGTH);
         setReferenceNumber(digitsOnly);
     };
-    const handleConfirm = () => {
-        if (!canConfirm) return;
-        navigate("/payment-confirmed", {
-            state: {
-                method: "qr",
-                orderId,
-                order,
-                referenceNumber,
-                amountPaid: amount,
-                deliveryAddress: order?.address || "",
-            },
-        });
+
+    const handleConfirm = async () => {
+        if (!canConfirm || submitting) return;
+        if (!orderPayload) {
+            setError("Order details are missing. Please go back and try again.");
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+            setError("");
+            const result = await createOrder({
+                ...orderPayload,
+                paymentReference: referenceNumber,
+            });
+            navigate("/payment-confirmed", {
+                replace: true,
+                state: {
+                    method: "qr",
+                    orderId: result.orderId,
+                    branchName: result.branchName,
+                    referenceNumber,
+                    amountPaid: amount,
+                    deliveryAddress: result.address,
+                    isPickup,
+                },
+            });
+        } catch (err) {
+            setError(err.message || "Failed to place order. Please try again.");
+            setSubmitting(false);
+        }
     };
+
     return (
         <div className="qrPaymentPage">
             <Header title="GCash Payment" />
@@ -46,9 +71,7 @@ export default function QrPayment() {
                 <div className="qrCard">
                     <div className="qrCardHeader">
                         <p className="qrCardHeaderLabel">{branchName}</p>
-                        <p className="qrCardHeaderOrder">
-                            {orderId || "Order ID pending"}
-                        </p>
+                        <p className="qrCardHeaderOrder">Awaiting payment</p>
                     </div>
                     <div className="qrCardBody">
                         <p className="qrInstruction">
@@ -84,11 +107,16 @@ export default function QrPayment() {
                         />
                         <Button
                             className="confirmButton"
-                            disabled={!canConfirm}
+                            disabled={!canConfirm || submitting}
                             onClick={handleConfirm}
                         >
-                            Confirm Payment
+                            {submitting ? "Placing order..." : "Confirm Payment"}
                         </Button>
+                        {error && (
+                            <p role="alert" style={{ color: "#b3261e" }}>
+                                {error}
+                            </p>
+                        )}
                         <p className="refHint">
                             Find your reference number in your GCash transaction history.
                         </p>
