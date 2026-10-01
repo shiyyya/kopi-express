@@ -7,6 +7,7 @@ import { ApiError } from '../utils/ApiError.js';
 import type { addCustomerAddressInput, updateUserInput } from '../validators/user.validators.js';
 import { UserRole } from '../constants/user.js';
 import { Staff } from '../models/Staff.js';
+import { geocodeAddress, getBranchesForArea } from './geocoding.service.js';
 
 async function updateUser(requestedUser: User, input: updateUserInput, role: UserRole): Promise<User> {
   if (input.email && input.email !== requestedUser.email) {
@@ -65,9 +66,15 @@ export async function suspendUser(user: User): Promise<User> {
 }
 
 export async function addCustomerAddress(id: string, input: addCustomerAddressInput) {
+  const location = await geocodeAddress(input.newAddress);
+  if (!location) throw new ApiError(400, 'Invalid address', 'INVALID_ADDRESS');
+  const branches = await getBranchesForArea(location.barangay);
+  if (branches.length === 0) throw new ApiError(400, 'Not within reach of any area', 'AREA_NOT_WITHIN_REACH');
   return await CustomerAddressModel.create({
     customerId: id,
     address: input.newAddress,
+    latitude: location.latitude,
+    longitude: location.longitude,
   });
 }
 

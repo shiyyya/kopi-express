@@ -6,6 +6,7 @@ import { Customer, CustomerAddress, Staff, StoreBranch, User as UserModel } from
 import { ApiError } from '../utils/ApiError.js';
 import type { loginInput, registerCustomerInput, registerOwnerInput, registerStaffInput } from '../validators/user.validators.js';
 import { UserRole } from '../constants/user.js';
+import { geocodeAddress, getBranchesForArea } from './geocoding.service.js';
 
 function createToken(user: User): string {
   return jwt.sign(
@@ -39,9 +40,15 @@ export async function registerCustomer(input: registerCustomerInput) {
   });
 
   if (input.defaultAddress) {
+    const location = await geocodeAddress(input.defaultAddress);
+    if (!location) throw new ApiError(400, 'Invalid address', 'INVALID_ADDRESS');
+    const branches = await getBranchesForArea(location.barangay);
+    if (branches.length === 0) throw new ApiError(400, 'Not within reach of any area', 'AREA_NOT_WITHIN_REACH');
     await CustomerAddress.create({
       customerId: customer.userId,
       address: input.defaultAddress,
+      latitude: location.latitude,
+      longitude: location.longitude,
     });
   }
   
