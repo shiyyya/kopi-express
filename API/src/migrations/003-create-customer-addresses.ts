@@ -12,6 +12,7 @@ export async function up({ context }: MigrationContext): Promise<void> {
     longitude: { type: DataTypes.DECIMAL(10, 7), allowNull: false },
     created_at: { type: DataTypes.DATE, allowNull: false },
     updated_at: { type: DataTypes.DATE, allowNull: false },
+    deleted_at: { type: DataTypes.DATE, allowNull: true  },
   });
 }
 
