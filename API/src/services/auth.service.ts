@@ -9,7 +9,7 @@ import { UserRole } from '../constants/user.js';
 
 function createToken(user: User): string {
   return jwt.sign(
-    { sub: user.id },
+    { sub: user.id, role: user.role },
     env.jwtSecret,
     { expiresIn: env.jwtExpiresIn },
   );

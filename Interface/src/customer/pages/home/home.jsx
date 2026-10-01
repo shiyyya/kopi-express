@@ -14,6 +14,12 @@ import Footer from "/src/components/blocks/footer/footer.jsx";
 import StoreSelection from "/src/components/cards/store-selection/store-selection.jsx";
 import { getMenuProducts } from "/src/api/product.js";
 import { getCart, removeCartItem } from "/src/api/cart.api.js";
+import { isTokenExpired, getRole, homeForRole } from "/src/components/ProtectedRoute.jsx";
+
+function hasCustomerSession() {
+    const token = localStorage.getItem("token");
+    return !!token && !isTokenExpired(token) && getRole(token) === "customer";
+}
 
 export default function Home() {
     const navigate = useNavigate();
@@ -27,14 +33,16 @@ export default function Home() {
     const [cartOpen, setCartOpen] = useState(false);
     const [cartItems, setCartItems] = useState([]);
     const [featuredProducts, setFeaturedProducts] = useState([]);
+
     const [currentUser, setCurrentUser] = useState(() => {
+        if (!hasCustomerSession()) return null;
         const savedUser = localStorage.getItem("currentUser");
         return savedUser ? JSON.parse(savedUser) : null;
     });
     const [pendingProduct, setPendingProduct] = useState(null);
 
     const loadCart = useCallback(async () => {
-        if (!localStorage.getItem("token")) {
+        if (!hasCustomerSession()) {
             setCartItems([]);
             return;
         }
@@ -80,13 +88,42 @@ export default function Home() {
         const handlePageShow = (event) => {
             if (event.persisted) {
                 const savedUser = localStorage.getItem("currentUser");
-                setCurrentUser(savedUser ? JSON.parse(savedUser) : null);
+                setCurrentUser(
+                    hasCustomerSession() && savedUser ? JSON.parse(savedUser) : null
+                );
                 loadCart();
             }
         };
         window.addEventListener("pageshow", handlePageShow);
         return () => window.removeEventListener("pageshow", handlePageShow);
     }, [loadCart]);
+
+    useEffect(() => {
+        const onStorage = (e) => {
+            if (e.key !== null && e.key !== "token" && e.key !== "currentUser") return;
+
+            const token = localStorage.getItem("token");
+
+            if (!token || isTokenExpired(token)) {
+                setCurrentUser(null); 
+                setCartItems([]);
+                return;
+            }
+
+            const role = getRole(token);
+            if (role && role !== "customer") {
+                navigate(homeForRole(role), { replace: true });
+                return;
+            }
+
+            const savedUser = localStorage.getItem("currentUser");
+            setCurrentUser(savedUser ? JSON.parse(savedUser) : null);
+            loadCart();
+        };
+
+        window.addEventListener("storage", onStorage);
+        return () => window.removeEventListener("storage", onStorage);
+    }, [navigate, loadCart]);
 
     const cartCount = cartItems.reduce(
         (total, item) => total + item.quantity,
