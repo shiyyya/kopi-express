@@ -25,8 +25,7 @@ export const getOrder: RequestHandler = asyncHandler( async (request, response) 
 
 export const newOrder: RequestHandler = asyncHandler( async (request, response) => {
   const userId = assertAuth(request.user).id;
-  const storeBranchId = request.params.storeBranchId as string;
-  const orderId = await orderService.newOrder(userId, storeBranchId, request.body as newOrderInput);
+  const orderId = await orderService.newOrder(userId, request.body as newOrderInput);
   response.status(201).json({ data: { orderId } });
 })
 

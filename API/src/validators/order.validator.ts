@@ -2,10 +2,11 @@ import { z } from 'zod';
 import { FULFILLMENT_TYPE, PAYMENT_METHOD } from '../constants/order.js';
 
 export const newOrder = z.object({
-  customerAddressId: z.string().trim().min(1),
+  storeBranchId: z.string().trim().min(1).optional(),
+  customerAddressId: z.string().trim().min(1).optional(),
   fulfillmentType: z.enum(FULFILLMENT_TYPE),
   paymentMethod: z.enum(PAYMENT_METHOD),
-  paymentReference: z.string().trim().min(1),
+  paymentReference: z.string().trim().min(1).optional(),
   notes: z.string().min(1).max(255).optional(),
 }).strict();
 

@@ -5,7 +5,7 @@ import * as controller from "../controllers/order.controller.js";
 
 export const orderRouter = Router();
 // ccustomer
-orderRouter.post( "/:storeBranchId", authenticate, requireRole('customer'), controller.newOrder);
+orderRouter.post( "/", authenticate, requireRole('customer'), controller.newOrder);
 orderRouter.get( "/customer", authenticate, requireRole('customer'), controller.getCustomerOrders);
 orderRouter.get( "/customer/:orderId", authenticate, requireRole('customer'), controller.getCustomerOrder);
 
