@@ -11,9 +11,20 @@ function OrderItem({
     if (!product) {
         return null;
     }
+
     const temperature = item.temperature;
     const addOns = item.addOns || [];
     const quantity = item.quantity || 1;
+
+    const addOnsUnitTotal = addOns.reduce(
+        (sum, addOn) => sum + Number(addOn.price || 0),
+        0
+    );
+
+    const productTotal = Number(product.price) * quantity;
+
+    const addOnsTotal = addOnsUnitTotal * quantity;
+
     return (
         <div className="order-item">
             <img
@@ -21,15 +32,26 @@ function OrderItem({
                 alt={product.name}
                 className="order-item-image"
             />
+
             <div className="order-item-info">
                 <div className="order-item-details">
                     <h3 className="order-item-name">
                         {product.name}
                     </h3>
-                    <p className="order-item-price">
-                        ₱{Number(product.price).toFixed(2)}
-                    </p>
+
+                    <div className="order-item-price-group">
+                        <p className="order-item-price">
+                            ₱{productTotal.toFixed(2)}
+                        </p>
+
+                        {addOnsTotal > 0 && (
+                            <p className="order-item-addons-price">
+                                +₱{addOnsTotal.toFixed(2)}
+                            </p>
+                        )}
+                    </div>
                 </div>
+
                 {(temperature || addOns.length > 0) && (
                     <div className="order-item-customization">
                         {temperature && (
@@ -38,6 +60,7 @@ function OrderItem({
                                 className="order-item-temperature"
                             />
                         )}
+
                         {addOns.map((addOn, index) => (
                             <span
                                 key={addOn.id || index}
@@ -48,10 +71,12 @@ function OrderItem({
                         ))}
                     </div>
                 )}
+
                 <div className="order-item-bottom">
                     <span className="order-item-quantity">
                         × {quantity}
                     </span>
+
                     {showRemove && (
                         <button
                             type="button"
