@@ -11,6 +11,7 @@ function NewMenuForm({ product,onCancel,onSave }) {
     const [price,setPrice] = useState("");
     const [category,setCategory] = useState("");
     const [image,setImage] = useState(null);
+    const [imagePreview,setImagePreview] = useState(null);
     const [temperature,setTemperature] = useState([]);
     const [ingredients,setIngredients] = useState([]);
     const [availableIngredients,setAvailableIngredients] = useState([]);
@@ -31,6 +32,7 @@ function NewMenuForm({ product,onCancel,onSave }) {
             setPrice("");
             setCategory("");
             setImage(null);
+            setImagePreview(null);
             setTemperature([]);
             setIngredients([]);
             setIngredientError("");
@@ -47,6 +49,7 @@ function NewMenuForm({ product,onCancel,onSave }) {
             product.category || ""
         );
         setImage(product.image || null);
+        setImagePreview(product.image || null);
         setTemperature(product.temperature || []);
         setIngredientError("");
         getProductIngredients(product.id)
@@ -76,6 +79,7 @@ function NewMenuForm({ product,onCancel,onSave }) {
         const file = event.target.files?.[0];
         if (!file) return;
         setImage(file);
+        setImagePreview(URL.createObjectURL(file));
     };
 
     const handleAddIngredient = () => {
@@ -142,7 +146,14 @@ function NewMenuForm({ product,onCancel,onSave }) {
                 <div className="NewMenuField">
                     <label>Product Image</label>
                     <label className="NewMenuImageUpload" htmlFor="menu-image">
-                        {image ? <span>{typeof image === "string" ? image.split("/").pop() : image.name}</span> : <><strong>+ Upload Image</strong><span>Choose a product image</span></>}
+                        {imagePreview ? (
+                            <img src={imagePreview} alt="Product preview" />
+                        ) : (
+                            <>
+                                <strong>+ Upload Image</strong>
+                                <span>Choose a product image</span>
+                            </>
+                        )}
                     </label>
                     <input id="menu-image" type="file" accept="image/*" onChange={handleImageChange} />
                 </div>
