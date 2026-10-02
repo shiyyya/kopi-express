@@ -10,8 +10,18 @@ import NewMenuCard from "/src/components/cards/new-menu-card/new-menu-card.jsx";
 import NewMenuForm from "/src/components/blocks/new-menu-form/new-menu-form.jsx";
 import NewAddonForm from "/src/components/blocks/new-addon-form/new-addon-form.jsx";
 import LargeHeader from "/src/components/largeheader-wback/largeheader-wback.jsx";
-import { getAllProducts, createProduct, updateProduct, deleteProduct } from "/src/api/product";
-import { getAllAddons, createAddon, updateAddon, deleteAddon } from "/src/api/addon";
+import {
+    getAllProducts,
+    createProduct,
+    updateProduct,
+    deleteProduct,
+} from "/src/api/product";
+import {
+    getAllAddons,
+    createAddon,
+    updateAddon,
+    deleteAddon,
+} from "/src/api/addon";
 import categories from "/src/data/categories";
 import "./owner-menu.css";
 
@@ -38,6 +48,7 @@ export default function OwnerMenu() {
         const loadProducts = async () => {
             try {
                 const { data } = await getAllProducts();
+
                 const products = data.products.map((product) => ({
                     ...product,
                     image: product.image_url,
@@ -46,11 +57,13 @@ export default function OwnerMenu() {
                         ...(product.isIcedAvailable ? ["iced"] : []),
                     ],
                 }));
+
                 setMenuItems(products);
             } catch (error) {
                 console.error("Failed to load products:", error);
             }
         };
+
         loadProducts();
     }, []);
 
@@ -64,31 +77,56 @@ export default function OwnerMenu() {
                 setAddonItems([]);
             }
         };
+
         loadAddons();
     }, []);
 
     const filteredProducts = menuItems
         .filter((product) => {
-            let matchesCategory = true;
-            if (selectedCategory === "Best Seller") {
-                matchesCategory = product.badge === "popular";
-            } else if (selectedCategory !== "All") {
-                matchesCategory = product.category === selectedCategory;
+            if (selectedCategory === "All") {
+                return true;
             }
-            const matchesSearch = product.name
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase());
-            return matchesCategory && matchesSearch;
+
+            if (selectedCategory === "Best Seller") {
+                return product.badge === "popular";
+            }
+
+            return (
+                String(product.category || "").trim().toLowerCase() ===
+                String(selectedCategory || "").trim().toLowerCase()
+            );
         })
+        .filter((product) =>
+            String(product.name || "")
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())
+        )
         .sort((a, b) => {
-            if (a.badge === "soldOut" && b.badge !== "soldOut") return 1;
-            if (b.badge === "soldOut" && a.badge !== "soldOut") return -1;
+            if (a.badge === "soldOut" && b.badge !== "soldOut") {
+                return 1;
+            }
+
+            if (b.badge === "soldOut" && a.badge !== "soldOut") {
+                return -1;
+            }
+
             return 0;
         });
 
     const filteredAddons = addonItems.filter((addon) =>
-        addon.name.toLowerCase().includes(searchTerm.toLowerCase())
+        String(addon.name || "")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
     );
+
+    const handleCategorySelect = (category) => {
+        setSelectedCategory(
+            typeof category === "object" ? category.value : category
+        );
+        setSelectedProduct(null);
+        setShowNewMenu(false);
+        setEditingProduct(null);
+    };
 
     const handleMenuTypeChange = (type) => {
         setMenuType(type);
@@ -131,6 +169,7 @@ export default function OwnerMenu() {
                 isHotAvailable: newProduct.temperature.includes("hot"),
                 isIcedAvailable: newProduct.temperature.includes("iced"),
             });
+
             const product = {
                 ...data.product,
                 image: data.product.image_url,
@@ -139,6 +178,7 @@ export default function OwnerMenu() {
                     ...(data.product.isIcedAvailable ? ["iced"] : []),
                 ],
             };
+
             setMenuItems((current) => [...current, product]);
             setShowNewMenu(false);
             setSelectedProduct(product);
@@ -158,9 +198,12 @@ export default function OwnerMenu() {
         try {
             const { data } = await updateProduct(updatedProduct.id, {
                 ...updatedProduct,
-                isHotAvailable: updatedProduct.temperature?.includes("hot"),
-                isIcedAvailable: updatedProduct.temperature?.includes("iced"),
+                isHotAvailable:
+                    updatedProduct.temperature?.includes("hot"),
+                isIcedAvailable:
+                    updatedProduct.temperature?.includes("iced"),
             });
+
             const product = {
                 ...data.product,
                 image: data.product.image_url,
@@ -169,11 +212,13 @@ export default function OwnerMenu() {
                     ...(data.product.isIcedAvailable ? ["iced"] : []),
                 ],
             };
+
             setMenuItems((current) =>
                 current.map((item) =>
                     item.id === product.id ? product : item
                 )
             );
+
             setSelectedProduct(product);
             setEditingProduct(null);
             setShowNewMenu(false);
@@ -185,9 +230,11 @@ export default function OwnerMenu() {
     const handleDeleteProduct = async (product) => {
         try {
             await deleteProduct(product.id);
+
             setMenuItems((current) =>
                 current.filter((item) => item.id !== product.id)
             );
+
             setSelectedProduct(null);
             setEditingProduct(null);
         } catch (error) {
@@ -227,10 +274,12 @@ export default function OwnerMenu() {
                     quantity: ingredient.quantity,
                 })),
             });
+
             const addon = {
                 ...data.addon,
                 available: newAddon.available,
             };
+
             setAddonItems((current) => [...current, addon]);
             setShowNewAddon(false);
             setEditingAddon(null);
@@ -253,15 +302,18 @@ export default function OwnerMenu() {
                 name: updatedAddon.name,
                 price: updatedAddon.price,
             });
+
             const addon = {
                 ...data.addon,
                 available: updatedAddon.available,
             };
+
             setAddonItems((current) =>
                 current.map((item) =>
                     item.id === addon.id ? addon : item
                 )
             );
+
             setShowNewAddon(false);
             setEditingAddon(null);
             setSelectedAddon(addon);
@@ -273,9 +325,11 @@ export default function OwnerMenu() {
     const handleDeleteAddon = async (addon) => {
         try {
             await deleteAddon(addon.id);
+
             setAddonItems((current) =>
                 current.filter((item) => item.id !== addon.id)
             );
+
             setSelectedAddon(null);
             setEditingAddon(null);
             setShowNewAddon(false);
@@ -290,6 +344,7 @@ export default function OwnerMenu() {
                 title="Kopi Express / Owner"
                 tabs={OWNER_TABS}
             />
+
             <div className="OwnerMenu">
                 <div className="owner-menu-card">
                     <section className="menu-section">
@@ -307,19 +362,23 @@ export default function OwnerMenu() {
                                 className="menu-search"
                             />
                         </div>
+
                         {menuType === "Products" && (
                             <div className="menu-navigation">
                                 <CategoryTabs
                                     categories={categories}
                                     selectedCategory={selectedCategory}
-                                    onSelect={setSelectedCategory}
+                                    onSelect={handleCategorySelect}
                                     className="menu-categories"
                                 />
+
                                 <div className="menu-type-toggle">
                                     <button
                                         type="button"
                                         className={
-                                            menuType === "Products" ? "active" : ""
+                                            menuType === "Products"
+                                                ? "active"
+                                                : ""
                                         }
                                         onClick={() =>
                                             handleMenuTypeChange("Products")
@@ -327,10 +386,13 @@ export default function OwnerMenu() {
                                     >
                                         Products
                                     </button>
+
                                     <button
                                         type="button"
                                         className={
-                                            menuType === "Add-ons" ? "active" : ""
+                                            menuType === "Add-ons"
+                                                ? "active"
+                                                : ""
                                         }
                                         onClick={() =>
                                             handleMenuTypeChange("Add-ons")
@@ -341,10 +403,14 @@ export default function OwnerMenu() {
                                 </div>
                             </div>
                         )}
+
                         {menuType === "Products" ? (
                             <>
                                 <div className="product-grid">
-                                    <NewMenuCard onClick={handleNewMenu} />
+                                    <NewMenuCard
+                                        onClick={handleNewMenu}
+                                    />
+
                                     {filteredProducts.map((product) => (
                                         <ProductCard
                                             key={product.id}
@@ -360,6 +426,7 @@ export default function OwnerMenu() {
                                         />
                                     ))}
                                 </div>
+
                                 {filteredProducts.length === 0 && (
                                     <p className="no-products">
                                         No products found.
@@ -372,9 +439,11 @@ export default function OwnerMenu() {
                                     <div>
                                         <h3>Add-ons</h3>
                                         <p>
-                                            Manage add-ons available for drinks.
+                                            Manage add-ons available for
+                                            drinks.
                                         </p>
                                     </div>
+
                                     <div className="menu-type-toggle">
                                         <button
                                             type="button"
@@ -384,11 +453,14 @@ export default function OwnerMenu() {
                                                     : ""
                                             }
                                             onClick={() =>
-                                                handleMenuTypeChange("Products")
+                                                handleMenuTypeChange(
+                                                    "Products"
+                                                )
                                             }
                                         >
                                             Products
                                         </button>
+
                                         <button
                                             type="button"
                                             className={
@@ -397,15 +469,21 @@ export default function OwnerMenu() {
                                                     : ""
                                             }
                                             onClick={() =>
-                                                handleMenuTypeChange("Add-ons")
+                                                handleMenuTypeChange(
+                                                    "Add-ons"
+                                                )
                                             }
                                         >
                                             Add-ons
                                         </button>
                                     </div>
                                 </div>
+
                                 <div className="addon-list">
-                                    <NewAddonRow onClick={handleNewAddon} />
+                                    <NewAddonRow
+                                        onClick={handleNewAddon}
+                                    />
+
                                     {filteredAddons.map((addon) => (
                                         <AddonRow
                                             key={addon.id}
@@ -414,6 +492,7 @@ export default function OwnerMenu() {
                                         />
                                     ))}
                                 </div>
+
                                 {filteredAddons.length === 0 && (
                                     <p className="no-addons">
                                         No add-ons found.
@@ -423,6 +502,7 @@ export default function OwnerMenu() {
                         )}
                     </section>
                 </div>
+
                 <div className="Owner_Menu_Cards">
                     {menuType === "Products" ? (
                         showNewMenu ? (
@@ -446,12 +526,17 @@ export default function OwnerMenu() {
                             />
                         ) : (
                             <div className="OwnerMenuEmptyCard">
-                                <div className="OwnerMenuEmptyIcon">+</div>
+                                <div className="OwnerMenuEmptyIcon">
+                                    +
+                                </div>
+
                                 <h2>Product Details</h2>
+
                                 <p>
                                     Select a product to view its details or
                                     create a new menu item.
                                 </p>
+
                                 <button
                                     type="button"
                                     onClick={handleNewMenu}
@@ -478,12 +563,17 @@ export default function OwnerMenu() {
                         />
                     ) : (
                         <div className="OwnerMenuEmptyCard">
-                            <div className="OwnerMenuEmptyIcon">+</div>
+                            <div className="OwnerMenuEmptyIcon">
+                                +
+                            </div>
+
                             <h2>Add-on Details</h2>
+
                             <p>
-                                Select an add-on to view its details or create
-                                a new add-on.
+                                Select an add-on to view its details or
+                                create a new add-on.
                             </p>
+
                             <button
                                 type="button"
                                 onClick={handleNewAddon}
