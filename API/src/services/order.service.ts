@@ -49,7 +49,7 @@ export async function getOrders(storeBranchId?: string, orderView?: "pending" | 
         const items = data.OrderItems.map((item: any) => {
             total += Number(item.unitPrice) * item.quantity;
             const addons = item.OrderItemAddOns.map((addon: any) => {
-                total += Number(addon.unitPrice);
+                total += Number(addon.unitPrice) * item.quantity;
                 return {
                     name: addon.AddOn.name,
                     unitPrice: Number(addon.unitPrice)
@@ -101,7 +101,7 @@ export async function getOrder(orderId: string) {
     let subtotal = 0;
     const items = data.OrderItems.map((item: any) => {
         const addons = item.OrderItemAddOns.map((addon: any) => {
-            subtotal += Number(addon.unitPrice);
+            subtotal += Number(addon.unitPrice) * item.quantity;
             return {
                 name: addon.AddOn.name,
                 unitPrice: Number(addon.unitPrice)
@@ -456,18 +456,16 @@ export async function getCustomerOrders(customerId: string) {
     });
 }
 
-export async function getCustomerOrder(
-    customerId: string,
-    orderId: string
-) {
-    const order = await OrderModel.findOne({
+export async function getCustomerActiveOrders(customerId: string) {
+    const orders = await OrderModel.findAll({
         where: {
-            id: orderId,
-            customerId
+            customerId,
+            status: {
+                [Op.in]: ["pending", "queued", "preparing", "ready"]
+            }
         },
+        order: [["createdAt", "DESC"]],
         include: [
-            { model: CustomerModel, attributes: ["fullName"] },
-            { model: StoreBranchModel, attributes: ["name", "address"] },
             {
                 model: OrderItemModel,
                 include: [
@@ -480,18 +478,77 @@ export async function getCustomerOrder(
             }
         ]
     });
+    return orders.map((order) => {
+        const data = order.toJSON() as any;
+        let total = Number(data.deliveryFee ?? 0);
+        const items = data.OrderItems.map((item: any) => {
+            total += Number(item.unitPrice) * item.quantity;
+            const addons = item.OrderItemAddOns.map((addon: any) => {
+                total += Number(addon.unitPrice) * item.quantity;
+                return {
+                    name: addon.AddOn.name,
+                    unitPrice: Number(addon.unitPrice)
+                };
+            });
+            return {
+                name: item.Product.name,
+                image: item.Product.imageUrl,
+                quantity: item.quantity,
+                unitPrice: Number(item.unitPrice),
+                addons
+            };
+        });
+        return {
+            id: data.id,
+            status: data.status,
+            fulfillmentType: data.fulfillmentType,
+            createdAt: data.createdAt,
+            items,
+            deliveryFee: Number(data.deliveryFee ?? 0),
+            total
+        };
+    });
+}
+
+export async function getCustomerOrder(customerId: string, orderId: string) {
+    const order = await OrderModel.findOne({
+        where: {
+            id: orderId,
+            customerId
+        }
+    });
     if (!order) {
         throw new ApiError(404, "Order not found", "ORDER_NOT_FOUND");
     }
+
+    const [customer, storeBranch, address, orderItems] = await Promise.all([
+        CustomerModel.findByPk(order.customerId, {
+            attributes: ["fullName"]
+        }),
+        StoreBranchModel.findByPk(order.storeBranchId, {
+            attributes: ["name", "address"]
+        }),
+        order.customerAddressId
+            ? CustomerAddressModel.findByPk(order.customerAddressId, {
+                attributes: ["address"]
+            })
+            : null,
+        OrderItemModel.findAll({
+            where: { orderId: order.id },
+            include: [
+                { model: ProductModel, attributes: ["name", "imageUrl"] },
+                {
+                    model: OrderItemAddOnModel,
+                    include: [{ model: AddonModel, attributes: ["name"] }]
+                }
+            ]
+        })
+    ]);
+
     const data = order.toJSON() as any;
-    const address = data.customerAddressId
-        ? await CustomerAddressModel.findByPk(
-            data.customerAddressId,
-            { attributes: ["address"] }
-        )
-        : null;
     let subtotal = 0;
-    const items = data.OrderItems.map((item: any) => {
+
+    const items = orderItems.map((item: any) => {
         const addons = item.OrderItemAddOns.map((addon: any) => {
             subtotal += Number(addon.unitPrice) * item.quantity;
             return {
@@ -508,17 +565,19 @@ export async function getCustomerOrder(
             addons
         };
     });
+
     const deliveryFee = Number(data.deliveryFee ?? 0);
+
     return {
         id: data.id,
-        customerName: data.Customer.fullName,
+        customerName: customer?.fullName ?? null,
         status: data.status,
         fulfillmentType: data.fulfillmentType,
         createdAt: data.createdAt,
         address: address?.address ?? null,
         store: {
-            name: data.StoreBranch.name,
-            address: data.StoreBranch.address
+            name: storeBranch?.name ?? null,
+            address: storeBranch?.address ?? null
         },
         paymentMethod: data.paymentMethod,
         paymentReference: data.paymentReference,

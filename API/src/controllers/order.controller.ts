@@ -17,6 +17,7 @@ export const getOrders: RequestHandler = asyncHandler(async (request, response) 
 export const getOrder: RequestHandler = asyncHandler(async (request, response) => {
     assertAuth(request.user);
     const orderId = request.params.orderId as string;
+    if (!orderId) throw new ApiError(400, "Order ID is required", "ORDER_ID_REQUIRED");
     const order = await orderService.getOrder(orderId);
     response.status(200).json({ data: { order } });
 });
@@ -33,9 +34,16 @@ export const getCustomerOrders: RequestHandler = asyncHandler(async (request, re
     response.status(200).json({ data: { orders } });
 });
 
+export const getCustomerActiveOrders: RequestHandler = asyncHandler(async (request, response) => {
+    const userId = assertAuth(request.user).id;
+    const orders = await orderService.getCustomerActiveOrders(userId);
+    response.status(200).json({ data: { orders } });
+});
+
 export const getCustomerOrder: RequestHandler = asyncHandler(async (request, response) => {
     const userId = assertAuth(request.user).id;
     const orderId = request.params.orderId as string;
+    if (!orderId) throw new ApiError(400, "Order ID is required", "ORDER_ID_REQUIRED");
     const order = await orderService.getCustomerOrder(userId, orderId);
     response.status(200).json({ data: { order } });
 });
@@ -43,9 +51,7 @@ export const getCustomerOrder: RequestHandler = asyncHandler(async (request, res
 export const checkDeliveryEligibility: RequestHandler = asyncHandler(async (request, response) => {
     assertAuth(request.user);
     const address = String(request.query.address || "").trim();
-    if (!address) {
-        throw new ApiError(400, "Address is required", "ADDRESS_REQUIRED");
-    }
+    if (!address) throw new ApiError(400, "Address is required", "ADDRESS_REQUIRED");
     const location = await geocodeAddress(address);
     const municipality = location?.municipality?.trim().toLowerCase();
     const province = location?.province?.trim().toLowerCase();
@@ -63,6 +69,7 @@ export const checkDeliveryEligibility: RequestHandler = asyncHandler(async (requ
 export const advanceOrder: RequestHandler = asyncHandler(async (request, response) => {
     assertAuth(request.user);
     const orderId = request.params.orderId as string;
+    if (!orderId) throw new ApiError(400, "Order ID is required", "ORDER_ID_REQUIRED");
     const order = await orderService.advanceOrder(orderId);
     response.status(200).json({ data: { order } });
 });
@@ -70,6 +77,7 @@ export const advanceOrder: RequestHandler = asyncHandler(async (request, respons
 export const declineOrCancelOrder: RequestHandler = asyncHandler(async (request, response) => {
     assertAuth(request.user);
     const orderId = request.params.orderId as string;
+    if (!orderId) throw new ApiError(400, "Order ID is required", "ORDER_ID_REQUIRED");
     const order = await orderService.declineOrCancelOrder(orderId);
     response.status(200).json({ data: { order } });
 });
