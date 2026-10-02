@@ -1,8 +1,13 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 import { apiFetch } from "/src/api/client.js";
 
 const OrdersContext = createContext(null);
+
+function getStoreBranchId() {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+    return currentUser?.storeBranchId || null;
+}
 
 function mapItems(items = []) {
     return items.map((item, index) => ({
@@ -49,12 +54,7 @@ export function OrdersProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState(null);
 
-    const getStoreBranchId = () => {
-        const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
-        return currentUser?.storeBranchId || null;
-    };
-
-    const fetchOrders = async () => {
+    const fetchOrders = useCallback(async ({ silent = false } = {}) => {
         const storeBranchId = getStoreBranchId();
 
         if (!storeBranchId) {
@@ -64,7 +64,7 @@ export function OrdersProvider({ children }) {
         }
 
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
             const response = await apiFetch(
                 `/orders?storeBranchId=${encodeURIComponent(storeBranchId)}&orderView=pending`
             );
@@ -72,13 +72,13 @@ export function OrdersProvider({ children }) {
             setOnlineRequests(orders.map(mapOrder));
         } catch (error) {
             console.error("Failed to fetch online orders:", error);
-            setOnlineRequests([]);
+            if (!silent) setOnlineRequests([]);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
-    };
+    }, []);
 
-    const fetchQueueOrders = async () => {
+    const fetchQueueOrders = useCallback(async () => {
         const storeBranchId = getStoreBranchId();
 
         if (!storeBranchId) {
@@ -98,14 +98,13 @@ export function OrdersProvider({ children }) {
             );
         } catch (error) {
             console.error("Failed to fetch queue orders:", error);
-            setQueueOrders([]);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchOrders();
         fetchQueueOrders();
-    }, []);
+    }, [fetchOrders, fetchQueueOrders]);
 
     const fetchOrderDetails = async (id) => {
         try {

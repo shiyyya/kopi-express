@@ -118,6 +118,16 @@
     line-height: 135%;
 }
 
+.SignUpPasswordWrapper {
+    position: relative;
+    margin: 0 0 11px;
+}
+
+.SignUpPasswordWrapper .SignUpInput {
+    margin-bottom: 0;
+    padding-right: 44px; 
+}
+
 .SignUpPasswordWrapper.SignUpPasswordError .SignUpInput {
     border-color: #c96b6b;
     box-shadow: 0 0 0 2px rgba(201, 107, 107, 0.12), 0 0 6px rgba(201, 107, 107, 0.16);
@@ -241,6 +251,15 @@
         margin-bottom: 7px;
         padding: 8px 14px;
         font-size: 14px;
+    }
+
+    .SignUpPasswordWrapper {
+        margin-bottom: 7px;
+    }
+
+    .SignUpPasswordWrapper .SignUpInput {
+        margin-bottom: 0;
+        padding-right: 44px;
     }
 
     .SignUpFieldError {
