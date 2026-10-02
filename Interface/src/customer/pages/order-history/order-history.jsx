@@ -109,7 +109,7 @@ function OrderHistory() {
                                 >
                                     <div className="history-card-top">
                                         <h2 className="history-order-id">
-                                            {order.orderId || order.id || "Pending"}
+                                            {order.orderNo ? `#${order.orderNo}` : "Pending"}
                                         </h2>
                                         <span className="history-status">
                                             {getHistoryStatus(order)}

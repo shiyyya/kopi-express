@@ -43,8 +43,12 @@ function getItemPrice(item) {
     return Number(item.unitPrice ?? item.product?.price ?? item.Product?.price ?? item.price ?? 0);
 }
 
+function getItemAddOns(item) {
+    return item.addons || item.addOns || item.OrderItemAddOns || [];
+}
+
 function getAddOnsTotal(item) {
-    return (item.addOns || item.OrderItemAddOns || []).reduce(
+    return getItemAddOns(item).reduce(
         (total, addOn) => total + Number(addOn.unitPrice ?? addOn.price ?? 0),
         0
     );
@@ -148,7 +152,7 @@ function OrderHistoryDetails() {
                     <div className="receipt-order-info">
                         <div>
                             <span>Order Number</span>
-                            <strong>{order.orderId || order.id || "Pending"}</strong>
+                            <strong>{order.orderNo ? `#${order.orderNo}` : "Pending"}</strong>
                         </div>
                         <div>
                             <span>Date</span>
@@ -170,6 +174,7 @@ function OrderHistoryDetails() {
                                 const addOnsTotal = getAddOnsTotal(item);
                                 const quantity = Number(item.quantity) || 1;
                                 const itemTotal = (productPrice + addOnsTotal) * quantity;
+                                const itemAddOns = getItemAddOns(item);
 
                                 return (
                                     <div
@@ -186,7 +191,7 @@ function OrderHistoryDetails() {
                                                 <span>{formatAmount(productPrice)} × {quantity}</span>
                                             </div>
 
-                                            {(item.temperature || item.addOns?.length > 0) && (
+                                            {(item.temperature || itemAddOns.length > 0) && (
                                                 <div className="receipt-customization">
                                                     {item.temperature && (
                                                         <Badge
@@ -195,7 +200,7 @@ function OrderHistoryDetails() {
                                                         />
                                                     )}
 
-                                                    {item.addOns?.map((addOn, addOnIndex) => (
+                                                    {itemAddOns.map((addOn, addOnIndex) => (
                                                         <span
                                                             className="receipt-addon-badge"
                                                             key={addOn.id || addOnIndex}

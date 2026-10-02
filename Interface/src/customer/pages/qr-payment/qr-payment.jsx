@@ -51,6 +51,7 @@ export default function QrPayment() {
                 state: {
                     method: "qr",
                     orderId: result.orderId,
+                    orderNo: result.orderNo, // CHANGED
                     branchName: result.branchName,
                     referenceNumber,
                     amountPaid: amount,

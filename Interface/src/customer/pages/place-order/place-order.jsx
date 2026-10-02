@@ -128,6 +128,7 @@ function PlaceOrder() {
                 state: {
                     method: "cash",
                     orderId: result.orderId,
+                    orderNo: result.orderNo, // CHANGED
                     branchName: result.branchName,
                     deliveryAddress: result.address,
                     isPickup: !isDelivery,

@@ -157,7 +157,7 @@ export default function OrderStatus() {
                                     })}
                                 >
                                     <div className="order-info-details">
-                                        <h2 className="order-number">{activeOrder.id || "Pending"}</h2>
+                                        <h2 className="order-number">{activeOrder.orderNo ? `#${activeOrder.orderNo}` : "Pending"}</h2>
                                         <div className="status-badge">
                                             <span className="order-status">{currentStatus}</span>
                                         </div>
@@ -194,7 +194,7 @@ export default function OrderStatus() {
             <div className="order-status-content">
                 <div className="order-info-card">
                     <div className="order-info-details">
-                        <h2 className="order-number">{order.id || "Pending"}</h2>
+                        <h2 className="order-number">{order.orderNo ? `#${order.orderNo}` : "Pending"}</h2>
                         <div className="status-badge">
                             <span className="order-status">{currentStatus}</span>
                         </div>
@@ -259,6 +259,12 @@ export default function OrderStatus() {
                                         × {item.quantity || 1}
                                         {item.temperature && ` · ${item.temperature}`}
                                     </p>
+                                    {/* CHANGED: show add-ons */}
+                                    {item.addons?.length > 0 && (
+                                        <p className="ordered-addons">
+                                            + {item.addons.map((addOn) => addOn.name).join(", ")}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="ordered-price">
                                     <span>{formatAmount(itemTotal)}</span>

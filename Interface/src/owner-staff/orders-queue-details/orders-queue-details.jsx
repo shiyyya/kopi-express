@@ -46,17 +46,6 @@ function OrdersQueueDetailsPanel({
     const statusLabel = STATUS_LABELS[normalizedStatus] ?? order.status;
     const action = STATUS_ACTIONS[normalizedStatus];
     const showActions = Boolean(action);
-    const notesEntries = order.items
-        .map((item) => {
-            const isDrink = item.category === "drink";
-            const text = isDrink
-                ? item.addOns?.length
-                    ? item.addOns.map((a) => a.name).join(", ")
-                    : null
-                : item.notes || null;
-            return text ? { id: item.id, name: item.name, isDrink, text } : null;
-        })
-        .filter(Boolean);
     return (
         <aside className="orderPanel" data-status={normalizedStatus}>
             <div className="orderBody">
@@ -135,34 +124,25 @@ function OrdersQueueDetailsPanel({
                                 </div>
                             );
                         })}
-                        {notesEntries.length > 0 && (
-                            <div className="orderNotesList">
-                                {notesEntries.map((entry) => (
-                                    <p className="orderItemSubline" key={entry.id}>
-                                        {entry.name} — {entry.isDrink ? "Add-ons" : "Note"}: {entry.text}
-                                    </p>
-                                ))}
-                            </div>
-                        )}
                     </div>
-                    <div className="orderDivider" />
-                    <div className="orderTotals">
-                        {order.subtotal != null && (
-                            <div className="orderRow">
-                                <span>Subtotal</span>
-                                <span>{peso(order.subtotal)}</span>
-                            </div>
-                        )}
-                        {order.deliveryFee != null && (
-                            <div className="orderRow">
-                                <span>Delivery fee</span>
-                                <span>{peso(order.deliveryFee)}</span>
-                            </div>
-                        )}
-                        <div className="orderRow orderRowTotal">
-                            <span>Total</span>
-                            <span>{peso(order.total)}</span>
+                </div>
+                <div className="orderDivider" />
+                <div className="orderTotals">
+                    {order.subtotal != null && (
+                        <div className="orderRow">
+                            <span>Subtotal</span>
+                            <span>{peso(order.subtotal)}</span>
                         </div>
+                    )}
+                    {order.deliveryFee != null && (
+                        <div className="orderRow">
+                            <span>Delivery fee</span>
+                            <span>{peso(order.deliveryFee)}</span>
+                        </div>
+                    )}
+                    <div className="orderRow orderRowTotal">
+                        <span>Total</span>
+                        <span>{peso(order.total)}</span>
                     </div>
                 </div>
             </div>

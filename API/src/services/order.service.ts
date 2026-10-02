@@ -475,19 +475,9 @@ export async function getCustomerActiveOrders(customerId: string) {
     const orders = await OrderModel.findAll({
         where: {
             customerId,
-            [Op.or]: [
-                {
-                    status: {
-                        [Op.in]: ["pending", "queued", "preparing", "ready"]
-                    }
-                },
-                {
-                    status: "completed",
-                    updatedAt: {
-                        [Op.gte]: new Date(Date.now() - 5 * 60 * 1000)
-                    }
-                }
-            ]
+            status: {
+                [Op.in]: ["pending", "queued", "preparing", "ready"]
+            }
         },
         order: [["createdAt", "DESC"]],
         include: [
@@ -528,9 +518,6 @@ export async function getCustomerActiveOrders(customerId: string) {
                 attributes: ["address"]
             })
             : null;
-        const storeBranch = await StoreBranchModel.findByPk(data.storeBranchId, {
-            attributes: ["name", "address"]
-        });
         return {
             id: data.id,
             orderNo: data.orderNo.toString().padStart(3, "0"),
@@ -538,10 +525,6 @@ export async function getCustomerActiveOrders(customerId: string) {
             fulfillmentType: data.fulfillmentType,
             createdAt: data.createdAt,
             address: address?.address ?? null,
-            store: {
-                name: storeBranch?.name ?? null,
-                address: storeBranch?.address ?? null
-            },
             items,
             deliveryFee: Number(data.deliveryFee ?? 0),
             total
