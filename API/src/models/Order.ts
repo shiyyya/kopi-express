@@ -21,6 +21,7 @@ import { OrderItem } from './OrderItem.js';
 
 export class Order extends Model<InferAttributes<Order>, InferCreationAttributes<Order>> {
   declare id: CreationOptional<string>;
+  declare orderNo: Number;
   declare customerId: string;
   declare customerAddressId: CreationOptional<string | null>;
   declare storeBranchId: string;
@@ -40,6 +41,7 @@ export function initOrder(sequelize: Sequelize): typeof Order {
   Order.init(
     {
       id: { type: DataTypes.STRING(26), primaryKey: true, defaultValue: generateID },
+      orderNo: { type: DataTypes.INTEGER, allowNull: false, field: 'order_number' },
       customerId: { type: DataTypes.STRING(26), allowNull: false, references: { model: 'customers', key: 'user_id' }, field: 'customer_id' },
       customerAddressId: { type: DataTypes.STRING, allowNull: true, references: { model: 'customer_addresses', key: 'id' }, field: 'customer_address_id' },
       storeBranchId: { type: DataTypes.STRING(26), allowNull: false, references: { model: 'store_branches', key: 'id' }, field: 'store_branch_id' },

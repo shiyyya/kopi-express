@@ -20,6 +20,8 @@ import { Op } from "sequelize";
 import { geocodeAddress } from "./geocoding.service.js";
 import { getBranchesForArea, getClosestBranch } from "./store-branch.service.js";
 
+
+
 export async function getOrders(storeBranchId?: string, orderView?: "pending" | "in_queue") {
     const orders = await OrderModel.findAll({
         where: {
@@ -65,6 +67,7 @@ export async function getOrders(storeBranchId?: string, orderView?: "pending" | 
         });
         return {
             id: data.id,
+            orderNo: data.orderNo.toString().padStart(3, "0"),
             customerName: data.Customer.fullName,
             fulfillmentType: data.fulfillmentType,
             status: data.status,
@@ -119,6 +122,7 @@ export async function getOrder(orderId: string) {
     const deliveryFee = Number(data.deliveryFee ?? 0);
     return {
         id: data.id,
+        orderNo: data.orderNo.toString().padStart(3, "0"),
         customerName: data.Customer.fullName,
         status: data.status,
         fulfillmentType: data.fulfillmentType,
@@ -133,10 +137,7 @@ export async function getOrder(orderId: string) {
     };
 }
 
-export async function newOrder(
-    userId: string,
-    input: newOrderInput
-): Promise<{ orderId: string; branchName: string; address: string }> {
+export async function newOrder( userId: string, input: newOrderInput ): Promise<{ orderId: string; branchName: string; address: string }> {
     return sequelize.transaction(async (transaction) => {
         let storeBranchId: string | null = null;
         let deliveryAddressId: string | null = null;
@@ -264,6 +265,16 @@ export async function newOrder(
                 "ADDON_NOT_FOUND"
             );
         }
+
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const todayOrderCount = await OrderModel.count({ where: { createdAt: { [Op.between]: [startOfDay, endOfDay] }}, transaction});
+        const orderNo = todayOrderCount + 1;
+
         const order = await OrderModel.create({
             customerId: userId,
             customerAddressId: deliveryAddressId,
@@ -272,7 +283,8 @@ export async function newOrder(
             paymentMethod: input.paymentMethod,
             paymentReference: input.paymentReference ?? null,
             notes: input.notes,
-            deliveryFee: input.fulfillmentType === "delivery" ? 50 : 0
+            deliveryFee: input.fulfillmentType === "delivery" ? 50 : 0,
+            orderNo,
         }, { transaction });
         const orderItems = await OrderItemModel.bulkCreate(
             cart.map((cartItem) => {
@@ -334,6 +346,7 @@ export async function newOrder(
         });
         return {
             orderId: order.id,
+            orderNo: order.orderNo.toString().padStart(3, "0"),
             branchName: storeBranch.name,
             address: deliveryAddress ?? storeBranch.address
         };
@@ -448,6 +461,7 @@ export async function getCustomerOrders(customerId: string) {
         });
         return {
             id: data.id,
+            orderNo: data.orderNo.toString().padStart(3, "0"),
             status: data.status,
             fulfillmentType: data.fulfillmentType,
             createdAt: data.createdAt,
@@ -506,6 +520,7 @@ export async function getCustomerActiveOrders(customerId: string) {
             : null;
         return {
             id: data.id,
+            orderNo: data.orderNo.toString().padStart(3, "0"),
             status: data.status,
             fulfillmentType: data.fulfillmentType,
             createdAt: data.createdAt,
@@ -572,6 +587,7 @@ export async function getCustomerOrder(customerId: string, orderId: string) {
     const deliveryFee = Number(data.deliveryFee ?? 0);
     return {
         id: data.id,
+        orderNo: data.orderNo.toString().padStart(3, "0"),
         customerName: customer?.fullName ?? null,
         status: data.status,
         fulfillmentType: data.fulfillmentType,
