@@ -15,7 +15,7 @@ export default function PaymentConfirmed() {
 
     const {
         method,
-        orderId,
+        orderNo, // CHANGED: order number passed from place-order
         branchName,
         referenceNumber,
         amountPaid,
@@ -27,6 +27,8 @@ export default function PaymentConfirmed() {
     } = location.state || {};
 
     const isCash = method === 'cash';
+    // CHANGED: display the order number instead of the order id
+    const orderLabel = orderNo ? `#${orderNo}` : 'Pending';
 
     return (
         <div className="paymentConfirmedPage">
@@ -38,7 +40,7 @@ export default function PaymentConfirmed() {
                     {isCash ? 'Order Placed!' : 'Payment Confirmed!'}
                 </h2>
                 <p className="confirmedSubtext">
-                    Order <strong>{orderId || 'Pending'}</strong>{' '}
+                    Order <strong>{orderLabel}</strong>{' '}
                     {isCash ? 'has been sent to our team.' : 'is being prepared.'}
                 </p>
                 {branchName && (
@@ -68,8 +70,8 @@ export default function PaymentConfirmed() {
                     </div>
                 ) : (
                     <div className="receiptCard">
-                        <p className="receiptLabel">Order ID</p>
-                        <p className="receiptValue">{orderId || 'Pending'}</p>
+                        <p className="receiptLabel">Order Number</p>
+                        <p className="receiptValue">{orderLabel}</p>
                         {referenceNumber && (
                             <>
                                 <p className="receiptLabel receiptLabelSpaced">Reference no.</p>

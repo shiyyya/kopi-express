@@ -9,11 +9,15 @@ function getStoreBranchId() {
     return currentUser?.storeBranchId || null;
 }
 
+const DRINK_CATEGORIES = ["drink", "coffee", "non_coffee"];
+
 function mapItems(items = []) {
     return items.map((item, index) => ({
         ...item,
         id: item.id ?? index,
-        category: item.productCategory ?? item.category,
+        category: DRINK_CATEGORIES.includes(item.productCategory ?? item.category)
+            ? "drink"
+            : item.productCategory ?? item.category,
         temperature: item.productTemp ?? item.temperature,
         price: Number(item.unitPrice ?? item.price ?? 0),
         addOns: (item.addons ?? item.addOns ?? []).map((addOn) => ({
@@ -27,9 +31,10 @@ function mapOrder(order) {
     return {
         id: order.id,
         customer: order.customerName,
-        orderNumber: order.id,
+        orderNumber: order.orderNo,
         type: order.fulfillmentType === "self_pick_up" ? "pickup" : "delivery",
         status: order.status,
+        notes: order.notes,
         items: mapItems(order.items),
         total: Number(order.total || 0),
     };
