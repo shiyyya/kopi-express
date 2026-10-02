@@ -10,7 +10,7 @@ function CategoryTabs({
         <div className={`category-tabs ${className}`}>
             {categories.map((category) => (
                 <button
-                    key={category.name}
+                    key={category.value}
                     type="button"
                     className={`category-tab ${
                         selectedCategory === category.value ? "active" : ""
