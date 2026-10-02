@@ -8,6 +8,7 @@ import Address from "/src/assets/icons/location.svg?react";
 import { apiFetch, API_ORIGIN } from "/src/api/client.js";
 
 const statuses = ["Order Received", "Preparing", "Done Preparing", "Completed"];
+
 const statusMap = {
     pending: "Order Received",
     queued: "Order Received",
@@ -15,6 +16,7 @@ const statusMap = {
     ready: "Done Preparing",
     completed: "Completed"
 };
+
 const statusMessages = {
     "Order Received": "We got your order!",
     Preparing: "Our team is brewing and cooking.",
@@ -52,10 +54,6 @@ function formatOrderDate(date) {
     });
 }
 
-function isActiveOrder(order) {
-    return !["completed", "declined", "cancelled"].includes(order.status);
-}
-
 export default function OrderStatus() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -70,31 +68,27 @@ export default function OrderStatus() {
 
         const fetchOrders = async () => {
             try {
-                const response = await apiFetch("/orders/customer");
+                const response = await apiFetch("/orders/customer-active");
                 const fetchedOrders = response.data?.orders || [];
-                if (cancelled) return;
-
-                setOrders(fetchedOrders.filter(isActiveOrder));
-
-                if (!selectedOrderId) {
-                    setOrder(null);
-                    setError("");
-                    setLoading(false);
-                    return;
-                }
-
-                const detailResponse = await apiFetch(
-                    `/orders/customer/${selectedOrderId}`
-                );
-                const selectedOrder = detailResponse.data?.order;
 
                 if (cancelled) return;
 
-                if (!selectedOrder) {
-                    setOrder(null);
-                    setError("Order not found.");
+                setOrders(fetchedOrders);
+
+                if (selectedOrderId) {
+                    const selectedOrder = fetchedOrders.find(
+                        (activeOrder) => String(activeOrder.id) === String(selectedOrderId)
+                    );
+
+                    if (selectedOrder) {
+                        setOrder(selectedOrder);
+                        setError("");
+                    } else {
+                        setOrder(null);
+                        setError("This order is no longer active.");
+                    }
                 } else {
-                    setOrder(selectedOrder);
+                    setOrder(null);
                     setError("");
                 }
 
@@ -150,39 +144,27 @@ export default function OrderStatus() {
                 <div className="order-status-content">
                     {orders.length ? (
                         orders.map((activeOrder) => {
-                            const currentStatus =
-                                statusMap[activeOrder.status] || activeOrder.status;
-                            const isPickup =
-                                activeOrder.fulfillmentType === "self_pick_up";
+                            const currentStatus = statusMap[activeOrder.status] || activeOrder.status;
+                            const isPickup = activeOrder.fulfillmentType === "self_pick_up";
 
                             return (
                                 <button
                                     type="button"
                                     className="order-info-card"
                                     key={activeOrder.id}
-                                    onClick={() =>
-                                        navigate("/order-status", {
-                                            state: { orderId: activeOrder.id }
-                                        })
-                                    }
+                                    onClick={() => navigate("/order-status", {
+                                        state: { orderId: activeOrder.id }
+                                    })}
                                 >
                                     <div className="order-info-details">
-                                        <h2 className="order-number">
-                                            {activeOrder.id || "Pending"}
-                                        </h2>
+                                        <h2 className="order-number">{activeOrder.id || "Pending"}</h2>
                                         <div className="status-badge">
-                                            <span className="order-status">
-                                                {currentStatus}
-                                            </span>
+                                            <span className="order-status">{currentStatus}</span>
                                         </div>
                                     </div>
-                                    <p className="order-date">
-                                        {formatOrderDate(activeOrder.createdAt)}
-                                    </p>
+                                    <p className="order-date">{formatOrderDate(activeOrder.createdAt)}</p>
                                     <div className="order-card-summary">
-                                        <span>
-                                            {isPickup ? "Pickup" : "Delivery"}
-                                        </span>
+                                        <span>{isPickup ? "Pickup" : "Delivery"}</span>
                                         <span>{formatAmount(activeOrder.total)}</span>
                                     </div>
                                 </button>
@@ -201,7 +183,6 @@ export default function OrderStatus() {
     if (!order) return null;
 
     const isPickup = order.fulfillmentType === "self_pick_up";
-    const isCancelled = ["declined", "cancelled"].includes(order.status);
     const currentStatus = statusMap[order.status] || order.status;
     const currentStatusIndex = getStatusIndex(order.status);
     const items = order.items || [];
@@ -215,76 +196,47 @@ export default function OrderStatus() {
                     <div className="order-info-details">
                         <h2 className="order-number">{order.id || "Pending"}</h2>
                         <div className="status-badge">
-                            <span className="order-status">
-                                {isCancelled ? order.status : currentStatus}
-                            </span>
+                            <span className="order-status">{currentStatus}</span>
                         </div>
                     </div>
                     <p className="order-date">{formatOrderDate(order.createdAt)}</p>
                 </div>
 
                 <div className="order-progress-card">
-                    <h2 className="progress-title">
-                        {isCancelled ? "Order Status" : "Order Progress"}
-                    </h2>
+                    <h2 className="progress-title">Order Progress</h2>
                     <div className="progress-list">
-                        {isCancelled ? (
-                            <div className="progress-item completed">
-                                <div className="progress-icon-wrap">
-                                    <span className="progress-check current">
-                                        <CheckIcon />
-                                    </span>
-                                </div>
-                                <div className="progress-details">
-                                    <h2 className="progress-status">
-                                        {order.status === "declined"
-                                            ? "Order Declined"
-                                            : "Order Cancelled"}
-                                    </h2>
-                                    <p className="progress-message">
-                                        {order.status === "declined"
-                                            ? "Your order was declined."
-                                            : "Your order was cancelled."}
-                                    </p>
-                                </div>
-                            </div>
-                        ) : (
-                            statuses.map((status, index) => {
-                                const isCompleted = index <= currentStatusIndex;
-                                const isCurrent = index === currentStatusIndex;
-                                const hasLine = index < currentStatusIndex;
+                        {statuses.map((status, index) => {
+                            const isCompleted = index <= currentStatusIndex;
+                            const isCurrent = index === currentStatusIndex;
+                            const hasLine = index < currentStatusIndex;
 
-                                return (
-                                    <div
-                                        className={`progress-item ${isCompleted ? "completed" : ""} ${hasLine ? "has-line" : ""}`}
-                                        key={status}
-                                    >
-                                        <div className="progress-icon-wrap">
-                                            {isCompleted ? (
-                                                <span
-                                                    className={`progress-check ${isCurrent ? "current" : ""}`}
-                                                >
-                                                    <CheckIcon />
-                                                </span>
-                                            ) : (
-                                                <span className="progress-circle" />
-                                            )}
-                                        </div>
-                                        <div className="progress-details">
-                                            <h2 className="progress-status">{status}</h2>
-                                            <p className="progress-message">
-                                                {statusMessages[status]}
-                                            </p>
-                                        </div>
+                            return (
+                                <div
+                                    className={`progress-item ${isCompleted ? "completed" : ""} ${hasLine ? "has-line" : ""}`}
+                                    key={status}
+                                >
+                                    <div className="progress-icon-wrap">
+                                        {isCompleted ? (
+                                            <span className={`progress-check ${isCurrent ? "current" : ""}`}>
+                                                <CheckIcon />
+                                            </span>
+                                        ) : (
+                                            <span className="progress-circle" />
+                                        )}
                                     </div>
-                                );
-                            })
-                        )}
+                                    <div className="progress-details">
+                                        <h2 className="progress-status">{status}</h2>
+                                        <p className="progress-message">{statusMessages[status]}</p>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 
                 <div className="items-ordered-card">
                     <h2 className="ordered-title">Items Ordered</h2>
+
                     {items.map((item, index) => {
                         const addOnsTotal = (item.addons || []).reduce(
                             (sum, addOn) => sum + Number(addOn.unitPrice || 0),
@@ -295,10 +247,7 @@ export default function OrderStatus() {
                             Number(item.quantity || 1);
 
                         return (
-                            <div
-                                className="ordered-item"
-                                key={item.id || index}
-                            >
+                            <div className="ordered-item" key={item.id || index}>
                                 <img
                                     className="ordered-image"
                                     src={getImageUrl(item.image)}
@@ -308,8 +257,7 @@ export default function OrderStatus() {
                                     <h3 className="ordered-name">{item.name}</h3>
                                     <p className="quantity-temp">
                                         × {item.quantity || 1}
-                                        {item.temperature &&
-                                            ` · ${item.temperature}`}
+                                        {item.temperature && ` · ${item.temperature}`}
                                     </p>
                                 </div>
                                 <div className="ordered-price">
@@ -318,6 +266,7 @@ export default function OrderStatus() {
                             </div>
                         );
                     })}
+
                     <div className="total-section">
                         <span className="total-font">Total</span>
                         <span className="total-price">{formatAmount(total)}</span>
@@ -331,19 +280,14 @@ export default function OrderStatus() {
                             {isPickup ? "Pickup Store" : "Delivery Address"}
                         </p>
                     </div>
+
                     {isPickup ? (
                         <>
-                            <p className="address-location">
-                                {order.store?.name || "Kopi-Express"}
-                            </p>
-                            <p className="address-location">
-                                {order.store?.address || ""}
-                            </p>
+                            <p className="address-location">{order.store?.name || "Kopi-Express"}</p>
+                            <p className="address-location">{order.store?.address || ""}</p>
                         </>
                     ) : (
-                        <p className="address-location">
-                            {order.address || "Address pending"}
-                        </p>
+                        <p className="address-location">{order.address || "Address pending"}</p>
                     )}
                 </div>
             </div>
