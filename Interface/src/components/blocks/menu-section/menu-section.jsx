@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import SearchBar from "/src/components/blocks/search-bar/search-bar";
 import CategoryTabs from "/src/components/blocks/product-tabs/product-tabs";
@@ -6,9 +6,16 @@ import ProductCard from "/src/components/cards/product-card/product-card.jsx";
 import { getMenuProducts } from "/src/api/product.js";
 import "./menu-section.css";
 
+const CATEGORIES = [
+    { name: "All", value: "All" },
+    { name: "Coffee", value: "coffee" },
+    { name: "Non-Coffee", value: "non_coffee" },
+    { name: "Pastry", value: "pastry" },
+    { name: "Pasta", value: "pasta" },
+];
+
 export default function MenuSection({ onLoginRequired }) {
     const navigate = useNavigate();
-
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState("");
@@ -24,7 +31,9 @@ export default function MenuSection({ onLoginRequired }) {
             })
             .catch((error) => {
                 if (!cancelled) {
-                    setLoadError(error.message || "Failed to load menu.");
+                    setLoadError(
+                        error.message || "Failed to load menu."
+                    );
                 }
             })
             .finally(() => {
@@ -35,14 +44,6 @@ export default function MenuSection({ onLoginRequired }) {
             cancelled = true;
         };
     }, []);
-
-    // CategoryTabs expects objects like { name }, not plain strings
-    const categories = useMemo(() => {
-        const names = [...new Set(products.map((product) => product.category))]
-            .filter(Boolean);
-
-        return ["All", ...names].map((name) => ({ name }));
-    }, [products]);
 
     const filteredProducts = products.filter((product) => {
         const matchesCategory =
@@ -74,16 +75,24 @@ export default function MenuSection({ onLoginRequired }) {
             <div className="menu-header">
                 <SearchBar
                     value={searchTerm}
-                    onChange={(event) => setSearchTerm(event.target.value)}
+                    onChange={(event) =>
+                        setSearchTerm(event.target.value)
+                    }
                     placeholder="Search menu..."
                     className="menu-search"
                 />
             </div>
 
             <CategoryTabs
-                categories={categories}
+                categories={CATEGORIES}
                 selectedCategory={selectedCategory}
-                onSelect={setSelectedCategory}
+                onSelect={(category) =>
+                    setSelectedCategory(
+                        typeof category === "object"
+                            ? category.value
+                            : category
+                    )
+                }
                 className="menu-categories"
             />
 
@@ -96,12 +105,18 @@ export default function MenuSection({ onLoginRequired }) {
                         price={product.price}
                         image={product.image_url}
                         temperature={product.temperature}
-                        onAddToOrder={() => handleAddToOrder(product)}
+                        onAddToOrder={() =>
+                            handleAddToOrder(product)
+                        }
                     />
                 ))}
             </div>
 
-            {loading && <p className="no-products">Loading menu...</p>}
+            {loading && (
+                <p className="no-products">
+                    Loading menu...
+                </p>
+            )}
 
             {!loading && loadError && (
                 <p className="no-products" role="alert">
@@ -109,9 +124,13 @@ export default function MenuSection({ onLoginRequired }) {
                 </p>
             )}
 
-            {!loading && !loadError && filteredProducts.length === 0 && (
-                <p className="no-products">No products found.</p>
-            )}
+            {!loading &&
+                !loadError &&
+                filteredProducts.length === 0 && (
+                    <p className="no-products">
+                        No products found.
+                    </p>
+                )}
         </section>
     );
 }

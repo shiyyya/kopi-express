@@ -14,19 +14,22 @@ function withImageUrl(product) {
     };
 }
 
-export async function getMenuProducts() {
-    const { data } = await apiFetch("/products");
-    const list = data.products ?? [];
-
-    return list.map((product) => ({
+function withTemperature(product) {
+    return {
         ...withImageUrl(product),
-        price: Number(product.price),
-
         temperature: [
             product.isHotAvailable && "hot",
             product.isIcedAvailable && "iced",
         ].filter(Boolean),
+    };
+}
 
+export async function getMenuProducts() {
+    const { data } = await apiFetch("/products");
+    const list = data.products ?? [];
+    return list.map((product) => ({
+        ...withTemperature(product),
+        price: Number(product.price),
         badge: product.badge,
     }));
 }
@@ -35,7 +38,7 @@ export async function getProduct(id) {
     const { data } = await apiFetch(`/products/${id}`);
     return {
         data: {
-            product: withImageUrl(data.product),
+            product: withTemperature(data.product),
         },
     };
 }
@@ -45,7 +48,7 @@ export async function getAllProducts(category) {
     const { data } = await apiFetch(`/products${query}`);
     return {
         data: {
-            products: data.products.map(withImageUrl),
+            products: data.products.map(withTemperature),
         },
     };
 }
@@ -76,7 +79,7 @@ export async function createProduct(product) {
     });
     return {
         data: {
-            product: withImageUrl(data.product),
+            product: withTemperature(data.product),
         },
     };
 }
@@ -121,7 +124,7 @@ export async function updateProduct(id, product) {
     });
     return {
         data: {
-            product: withImageUrl(data.product),
+            product: withTemperature(data.product),
         },
     };
 }

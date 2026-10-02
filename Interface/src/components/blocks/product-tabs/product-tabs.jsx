@@ -13,14 +13,13 @@ function CategoryTabs({
                     key={category.name}
                     type="button"
                     className={`category-tab ${
-                        selectedCategory === category.name ? "active" : ""
+                        selectedCategory === category.value ? "active" : ""
                     }`}
-                    onClick={() => onSelect(category.name)}
+                    onClick={() => onSelect(category)}
                 >
                     {category.icon && (
                         <category.icon className="category-tab-icon" />
                     )}
-
                     <span>{category.name}</span>
                 </button>
             ))}

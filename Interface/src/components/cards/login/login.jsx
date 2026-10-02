@@ -13,11 +13,9 @@ function LoginCard({ onClose, onSignUp, onLoginSuccess }) {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
-
     const handleLogin = async () => {
         try {
             const user = await login({ email, password });
-            localStorage.setItem("currentUser", JSON.stringify(user.data.account));
             localStorage.setItem("token", user.data.token);
             console.log("Login successful:", user.data.account.fullName);
             onLoginSuccess?.(user);
@@ -26,7 +24,6 @@ function LoginCard({ onClose, onSignUp, onLoginSuccess }) {
             setError(err.message || "Login failed. Please try again.");
         }
     };
-
     return (
         <div className="loginOverlay" onClick={onClose}>
             <div

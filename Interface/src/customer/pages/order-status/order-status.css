@@ -3,6 +3,7 @@
     min-height: 100vh;
     background-color: var(--bg);
 }
+
 .order-status-content {
     width: 100%;
     max-width: 500px;
@@ -10,6 +11,7 @@
     padding: 20px;
     box-sizing: border-box;
 }
+
 .order-info-card,
 .order-progress-card,
 .items-ordered-card,
@@ -22,38 +24,53 @@
     border: 1px solid rgba(44, 26, 14, 0.15);
     border-radius: 18px;
 }
+
 .order-info-card {
     text-align: left;
 }
+
 .order-info-details {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 14px;
+    gap: 8px;
+    width: 100%;
 }
+
 .order-number {
+    min-width: 0;
     margin: 0;
+    overflow: hidden;
     font-family: var(--mono);
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 700;
-    line-height: 24px;
+    line-height: 22px;
     color: var(--accent);
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
+
 .status-badge {
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    padding: 6px 11px;
+    max-width: 42%;
+    padding: 7px 10px;
     background-color: var(--success-bg);
     border-radius: 999px;
 }
+
 .order-status {
+    overflow: hidden;
     font-family: var(--mono);
     font-size: 12px;
     font-weight: 700;
-    line-height: 17px;
+    line-height: 16px;
     color: var(--success);
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
+
 .order-date {
     margin: 6px 0 0;
     font-family: var(--sans);
@@ -62,9 +79,11 @@
     line-height: 20px;
     color: var(--text);
 }
+
 .order-progress-card {
     text-align: left;
 }
+
 .progress-title,
 .ordered-title {
     margin: 0 0 20px;
@@ -74,12 +93,14 @@
     line-height: 25px;
     color: var(--text-3);
 }
+
 .progress-list {
     display: flex;
     flex-direction: column;
     width: 100%;
     padding: 0;
 }
+
 .progress-item {
     position: relative;
     display: flex;
@@ -90,10 +111,12 @@
     padding: 0 0 20px;
     box-sizing: border-box;
 }
+
 .progress-item:last-child {
     min-height: 0;
     padding-bottom: 0;
 }
+
 .progress-icon-wrap {
     position: relative;
     display: flex;
@@ -101,6 +124,7 @@
     width: 24px;
     flex-shrink: 0;
 }
+
 .progress-icon-wrap::after {
     content: "";
     position: absolute;
@@ -113,14 +137,17 @@
     z-index: 0;
     display: none;
 }
+
 .progress-item.has-line .progress-icon-wrap::after {
     display: block;
 }
+
 .progress-check,
 .progress-circle {
     position: relative;
     z-index: 1;
 }
+
 .progress-check {
     display: flex;
     align-items: center;
@@ -133,13 +160,16 @@
     background: var(--btn-primary);
     color: var(--btn-label);
 }
+
 .progress-check svg {
     width: 15px;
     height: 15px;
 }
+
 .progress-check.current {
     animation: statusPulse 1.5s ease-in-out infinite;
 }
+
 @keyframes statusPulse {
     0%,
     100% {
@@ -149,6 +179,7 @@
         box-shadow: 0 0 0 8px rgba(74, 103, 65, 0);
     }
 }
+
 .progress-circle {
     width: 24px;
     height: 24px;
@@ -157,6 +188,7 @@
     border-radius: 50%;
     background: var(--card-bg);
 }
+
 .progress-details {
     display: flex;
     flex: 1;
@@ -164,6 +196,7 @@
     min-width: 0;
     padding-top: 0;
 }
+
 .progress-status {
     margin: 0;
     font-family: var(--sans);
@@ -173,6 +206,7 @@
     line-height: 24px;
     color: var(--text-3);
 }
+
 .progress-message {
     margin: 4px 0 0;
     font-family: var(--sans);
@@ -181,9 +215,11 @@
     line-height: 20px;
     color: var(--text);
 }
+
 .items-ordered-card {
     text-align: left;
 }
+
 .ordered-item {
     display: flex;
     flex-direction: row;
@@ -194,6 +230,7 @@
     margin-bottom: 14px;
     box-sizing: border-box;
 }
+
 .ordered-image {
     width: 52px;
     height: 52px;
@@ -201,6 +238,7 @@
     border-radius: 10px;
     object-fit: cover;
 }
+
 .ordered-details {
     display: flex;
     flex: 1;
@@ -208,6 +246,7 @@
     min-width: 0;
     padding: 0;
 }
+
 .ordered-name {
     margin: 0;
     font-family: var(--sans);
@@ -217,6 +256,7 @@
     line-height: 20px;
     color: var(--text-3);
 }
+
 .quantity-temp {
     margin: 3px 0 0;
     font-family: var(--sans);
@@ -226,6 +266,7 @@
     line-height: 18px;
     color: var(--text);
 }
+
 .ordered-price {
     flex-shrink: 0;
     font-family: var(--mono);
@@ -234,6 +275,7 @@
     line-height: 20px;
     color: var(--text-3);
 }
+
 .total-section {
     display: flex;
     flex-direction: row;
@@ -245,6 +287,7 @@
     border-top: 1px solid rgba(44, 26, 14, 0.15);
     box-sizing: border-box;
 }
+
 .total-font {
     font-family: var(--sans);
     font-weight: 400;
@@ -253,6 +296,7 @@
     line-height: 22px;
     color: var(--text);
 }
+
 .total-price {
     font-family: var(--heading);
     font-weight: 700;
@@ -260,9 +304,11 @@
     line-height: 28px;
     color: var(--text-3);
 }
+
 .delivery-address-card {
     text-align: left;
 }
+
 .delivery-address-header {
     display: flex;
     flex-direction: row;
@@ -270,11 +316,13 @@
     gap: 10px;
     width: 100%;
 }
+
 .address-icon {
     width: 18px;
     height: 18px;
     flex-shrink: 0;
 }
+
 .address-title {
     margin: 0;
     font-family: var(--sans);
@@ -283,6 +331,7 @@
     line-height: 21px;
     color: var(--text-3);
 }
+
 .address-location {
     margin: 10px 0;
     font-family: var(--sans);
@@ -292,6 +341,7 @@
     line-height: 23px;
     color: var(--text);
 }
+
 .address-time-row {
     display: flex;
     flex-direction: row;
@@ -302,11 +352,13 @@
     border-top: 1px solid rgba(44, 26, 14, 0.15);
     box-sizing: border-box;
 }
+
 .time-icon {
     width: 17px;
     height: 17px;
     flex-shrink: 0;
 }
+
 .arrival-time {
     margin: 0;
     font-family: var(--sans);
@@ -316,19 +368,42 @@
     line-height: 20px;
     color: var(--text);
 }
+
 @media (max-width: 480px) {
     .order-status-content {
         padding: 16px;
     }
+
     .order-info-card,
     .order-progress-card,
     .items-ordered-card,
     .delivery-address-card {
         padding: 18px;
     }
+
+    .order-info-details {
+        gap: 6px;
+    }
+
+    .order-number {
+        font-size: 15px;
+        line-height: 20px;
+    }
+
+    .status-badge {
+        max-width: 45%;
+        padding: 6px 9px;
+    }
+
+    .order-status {
+        font-size: 11px;
+        line-height: 15px;
+    }
+
     .progress-status {
         font-size: 15px;
     }
+
     .progress-message {
         font-size: 13px;
     }

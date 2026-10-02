@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Badge from "/src/components/elements/badge/badge";
 import BackButton from "/src/components/elements/button/back-button/back-button";
 import QuantitySelector from "/src/components/elements/quantity-selector/qty-selector";
@@ -15,11 +15,7 @@ const ADD_ONS = [
     { id: "caramel-drizzle", name: "Caramel Drizzle", price: 20 },
 ];
 
-export default function Customizer({
-    product,
-    onClose,
-    onAddToOrder,
-}) {
+export default function Customizer({ product, onClose, onAddToOrder }) {
     const [selectedTemperature, setSelectedTemperature] = useState(null);
     const [selectedAddOns, setSelectedAddOns] = useState([]);
     const [quantity, setQuantity] = useState(1);
@@ -30,7 +26,6 @@ export default function Customizer({
         return (
             <div className="customization-card">
                 <BackButton onClick={onClose} />
-
                 <div className="customization-not-found">
                     <p>Product not found.</p>
                 </div>
@@ -42,10 +37,19 @@ export default function Customizer({
         Array.isArray(product.temperature) &&
         product.temperature.length > 0;
 
-    const requiresTemperature =
-        hasTemperature &&
-        product.temperature.includes("hot") &&
-        product.temperature.includes("iced");
+    const requiresTemperature = hasTemperature && product.temperature.length > 1;
+
+    useEffect(() => {
+        if (hasTemperature && product.temperature.length === 1) {
+            setSelectedTemperature(product.temperature[0]);
+            setTemperatureError(false);
+        } else if (!hasTemperature) {
+            setSelectedTemperature(null);
+            setTemperatureError(false);
+        } else {
+            setSelectedTemperature(null);
+        }
+    }, [product, hasTemperature]);
 
     const toggleTemperature = (temperature) => {
         setSelectedTemperature(temperature);
@@ -62,10 +66,7 @@ export default function Customizer({
 
     const addOnsTotal = selectedAddOns.reduce(
         (total, addOnId) => {
-            const addOn = ADD_ONS.find(
-                (item) => item.id === addOnId
-            );
-
+            const addOn = ADD_ONS.find((item) => item.id === addOnId);
             return total + (addOn?.price || 0);
         },
         0
@@ -88,31 +89,60 @@ export default function Customizer({
             localStorage.getItem("cartItems") || "[]"
         );
 
+        const existingItem = existingCart.find((item) => {
+            if (item.product?.id !== product.id) return false;
+            if ((item.temperature || null) !== (selectedTemperature || null)) return false;
+
+            const existingAddOnIds = (item.addOns || [])
+                .map((addOn) => addOn.id)
+                .sort();
+
+            const selectedAddOnIds = selectedAddOnDetails
+                .map((addOn) => addOn.id)
+                .sort();
+
+            return (
+                existingAddOnIds.length === selectedAddOnIds.length &&
+                existingAddOnIds.every(
+                    (id, index) => id === selectedAddOnIds[index]
+                )
+            );
+        });
+
+        if (existingItem) {
+            existingItem.quantity += quantity;
+            existingItem.total =
+                (Number(product.price) + addOnsTotal) *
+                existingItem.quantity;
+
+            localStorage.setItem(
+                "cartItems",
+                JSON.stringify(existingCart)
+            );
+
+            if (onAddToOrder) {
+                onAddToOrder(existingItem, existingCart);
+            }
+
+            return;
+        }
+
         const newCartItem = {
             id: `cart-item-${Date.now()}`,
-
             product: {
                 id: product.id,
                 name: product.name,
                 price: Number(product.price),
                 image: product.image,
             },
-
             temperature: selectedTemperature,
-
             addOns: selectedAddOnDetails,
-
             quantity,
-
             notes,
-
             total: totalPrice,
         };
 
-        const updatedCart = [
-            ...existingCart,
-            newCartItem,
-        ];
+        const updatedCart = [...existingCart, newCartItem];
 
         localStorage.setItem(
             "cartItems",
@@ -120,16 +150,12 @@ export default function Customizer({
         );
 
         if (onAddToOrder) {
-            onAddToOrder(
-                newCartItem,
-                updatedCart
-            );
+            onAddToOrder(newCartItem, updatedCart);
         }
     };
 
     return (
         <div className="customization-card">
-
             <div className="customization-image">
                 <img
                     src={
@@ -142,9 +168,7 @@ export default function Customizer({
                             "/src/assets/images/menu/kopi.png";
                     }}
                 />
-
                 <BackButton onClick={onClose} />
-
                 {product.badge &&
                     product.badge !== "soldOut" && (
                         <Badge
@@ -153,36 +177,26 @@ export default function Customizer({
                         />
                     )}
             </div>
-
             <div className="customization-content">
-
                 <div className="customization-product-info">
-
                     <span className="customization-category">
                         {product.category}
                     </span>
-
                     <h1 className="customization-name">
                         {product.name}
                     </h1>
-
                     <p className="customization-price">
                         ₱{Number(product.price).toFixed(2)}
                     </p>
-
                     <p className="customization-description">
                         {product.description}
                     </p>
-
                 </div>
-
                 {hasTemperature && (
                     <section className="customization-section">
-
                         <h2 className="customization-section-title">
                             Temperature
                         </h2>
-
                         <div
                             className={`temperature-options ${
                                 temperatureError
@@ -190,7 +204,6 @@ export default function Customizer({
                                     : ""
                             }`}
                         >
-
                             {product.temperature.includes("hot") && (
                                 <button
                                     type="button"
@@ -204,13 +217,9 @@ export default function Customizer({
                                     }
                                 >
                                     <HotIcon className="temperature-icon" />
-
-                                    <span>
-                                        Hot
-                                    </span>
+                                    <span>Hot</span>
                                 </button>
                             )}
-
                             {product.temperature.includes("iced") && (
                                 <button
                                     type="button"
@@ -224,42 +233,25 @@ export default function Customizer({
                                     }
                                 >
                                     <IcedIcon className="temperature-icon" />
-
-                                    <span>
-                                        Iced
-                                    </span>
+                                    <span>Iced</span>
                                 </button>
                             )}
-
                         </div>
-
                         {temperatureError && (
                             <p className="temperature-error">
                                 Please select a temperature.
                             </p>
                         )}
-
                     </section>
                 )}
-
                 <section className="customization-section">
-
                     <h2 className="customization-section-title">
-                        Add-ons{" "}
-                        <span>
-                            Optional
-                        </span>
+                        Add-ons <span>Optional</span>
                     </h2>
-
                     <div className="addon-list">
-
                         {ADD_ONS.map((addOn) => {
-
                             const isSelected =
-                                selectedAddOns.includes(
-                                    addOn.id
-                                );
-
+                                selectedAddOns.includes(addOn.id);
                             return (
                                 <button
                                     key={addOn.id}
@@ -273,45 +265,31 @@ export default function Customizer({
                                         toggleAddOn(addOn.id)
                                     }
                                 >
-
                                     <span className="addon-check">
-
                                         {isSelected && (
                                             <CheckIcon />
                                         )}
-
                                     </span>
-
                                     <span className="addon-name">
                                         {addOn.name}
                                     </span>
-
                                     <span className="addon-price">
                                         +₱{addOn.price.toFixed(2)}
                                     </span>
-
                                 </button>
                             );
                         })}
-
                     </div>
-
                 </section>
-
                 <section className="customization-section quantity-section">
-
                     <h2 className="customization-section-title">
                         Quantity
                     </h2>
-
                     <QuantitySelector
                         quantity={quantity}
                         onDecrease={() =>
                             setQuantity((current) =>
-                                Math.max(
-                                    1,
-                                    current - 1
-                                )
+                                Math.max(1, current - 1)
                             )
                         }
                         onIncrease={() =>
@@ -320,15 +298,11 @@ export default function Customizer({
                             )
                         }
                     />
-
                 </section>
-
                 <section className="customization-section notes-section">
-
                     <h2 className="customization-section-title">
                         Additional Notes
                     </h2>
-
                     <textarea
                         className="customization-notes"
                         value={notes}
@@ -337,25 +311,16 @@ export default function Customizer({
                         }
                         placeholder="Add notes..."
                     />
-
                 </section>
-
             </div>
-
             <button
                 type="button"
                 className="customization-order-button"
                 onClick={handleAddToOrder}
             >
-                <span>
-                    Add to Order
-                </span>
-
-                <span>
-                    · ₱{totalPrice.toFixed(2)}
-                </span>
+                <span>Add to Order</span>
+                <span>· ₱{totalPrice.toFixed(2)}</span>
             </button>
-
         </div>
     );
 }

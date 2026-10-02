@@ -39,21 +39,14 @@ export default function DeliveryAddress({
                 {!isSettings && <LocationIcon className="DeliveryAddressIcon" />}
                 <h3>{isSettings ? "Saved Addresses" : "Delivery Address"}</h3>
             </div>
-
             {addresses.length > 0 && (
                 <div className="DeliveryAddressList">
                     {addresses.map((address, index) => {
                         const isSelected = selectedAddress === address;
-
                         if (isSettings) {
                             return (
-                                <div
-                                    className="DeliveryAddressSettingsRow"
-                                    key={address + index}
-                                >
-                                    <span className="DeliveryAddressSettingsText">
-                                        {address}
-                                    </span>
+                                <div className="DeliveryAddressSettingsRow" key={address + index}>
+                                    <span className="DeliveryAddressSettingsText">{address}</span>
                                     <button
                                         type="button"
                                         className="DeliveryAddressDelete"
@@ -65,7 +58,6 @@ export default function DeliveryAddress({
                                 </div>
                             );
                         }
-
                         return (
                             <button
                                 type="button"
@@ -74,13 +66,7 @@ export default function DeliveryAddress({
                                 onClick={() => onSelect?.(address)}
                             >
                                 <span className="DeliveryAddressText">{address}</span>
-                                <span
-                                    className={
-                                        isSelected
-                                            ? "DeliveryAddressCheck"
-                                            : "DeliveryAddressRadio"
-                                    }
-                                >
+                                <span className={isSelected ? "DeliveryAddressCheck" : "DeliveryAddressRadio"}>
                                     {isSelected && <CheckIcon />}
                                 </span>
                             </button>
@@ -88,7 +74,6 @@ export default function DeliveryAddress({
                     })}
                 </div>
             )}
-
             {showNewAddress ? (
                 <div className="NewDeliveryAddress">
                     <Input
@@ -103,30 +88,18 @@ export default function DeliveryAddress({
                         }}
                     />
                     <div className="NewAddressActions">
-                        <button
-                            type="button"
-                            className="AddAddressButton"
-                            onClick={handleAdd}
-                        >
+                        <button type="button" className="AddAddressButton" onClick={handleAdd}>
                             + Add Address
                         </button>
                         {addresses.length > 0 && (
-                            <button
-                                type="button"
-                                className="CancelAddressButton"
-                                onClick={handleCancel}
-                            >
+                            <button type="button" className="CancelAddressButton" onClick={handleCancel}>
                                 Cancel
                             </button>
                         )}
                     </div>
                 </div>
             ) : (
-                <button
-                    type="button"
-                    className="AddAddressButton"
-                    onClick={() => setShowNewAddress(true)}
-                >
+                <button type="button" className="AddAddressButton" onClick={() => setShowNewAddress(true)}>
                     + Add Address
                 </button>
             )}

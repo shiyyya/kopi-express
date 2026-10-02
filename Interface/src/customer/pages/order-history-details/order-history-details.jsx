@@ -1,7 +1,14 @@
-import { useLocation, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+
+import { useLocation, useNavigate, useParams } from "react-router";
+
 import "./order-history-details.css";
+
 import Header from "/src/components/blocks/header-wback/header-wback.jsx";
+
 import Badge from "/src/components/elements/badge/badge.jsx";
+
+import { getCustomerOrder } from "/src/api/orders.api.js";
 
 function formatDate(value) {
     if (!value) return "";
@@ -23,30 +30,75 @@ function formatAmount(value) {
 }
 
 function getPaymentMethod(method) {
-    if (method === "QR Payment") return "GCash";
-    if (method === "Cash on Delivery") return "Cash";
+    if (method === "QR Payment" || method === "gcash") return "GCash";
+    if (method === "Cash on Delivery" || method === "cash") return "Cash";
     return method || "Cash";
 }
 
 function getItemName(item) {
-    return item.product?.name || item.name || "Product";
+    return item.product?.name || item.Product?.name || item.name || "Product";
 }
 
 function getItemPrice(item) {
-    return Number(item.product?.price ?? item.price ?? 0);
+    return Number(item.unitPrice ?? item.product?.price ?? item.Product?.price ?? item.price ?? 0);
 }
 
 function getAddOnsTotal(item) {
-    return (item.addOns || []).reduce(
-        (total, addOn) => total + Number(addOn.price || 0),
+    return (item.addOns || item.OrderItemAddOns || []).reduce(
+        (total, addOn) => total + Number(addOn.unitPrice ?? addOn.price ?? 0),
         0
     );
+}
+
+function getHistoryStatus(status, isPickup) {
+    if (status === "completed") return isPickup ? "PICKED UP" : "DELIVERED";
+    if (status === "cancelled") return "CANCELLED";
+    if (status === "declined") return "DECLINED";
+    return String(status || "").replace(/_/g, " ").toUpperCase();
 }
 
 function OrderHistoryDetails() {
     const { state } = useLocation();
     const navigate = useNavigate();
-    const order = state?.order;
+    const { orderId } = useParams();
+    const [order, setOrder] = useState(state?.order || null);
+    const [loading, setLoading] = useState(!state?.order);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const id = orderId || state?.order?.orderId;
+        if (!id) {
+            setLoading(false);
+            return;
+        }
+        let cancelled = false;
+        getCustomerOrder(id)
+            .then((data) => {
+                if (!cancelled) setOrder(data);
+            })
+            .catch((err) => {
+                if (!cancelled) setError(err.message || "Failed to load order details.");
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [orderId, state?.order?.orderId]);
+
+    if (loading) {
+        return (
+            <div className="order-history-details-page">
+                <Header title="Order Details" />
+                <main className="order-history-details-content">
+                    <div className="order-details-empty">
+                        <p>Loading order details...</p>
+                    </div>
+                </main>
+            </div>
+        );
+    }
 
     if (!order) {
         return (
@@ -54,13 +106,11 @@ function OrderHistoryDetails() {
                 <Header title="Order Details" />
                 <main className="order-history-details-content">
                     <div className="order-details-empty">
-                        <p>Order details are unavailable.</p>
+                        <p>{error || "Order details are unavailable."}</p>
                         <button
                             type="button"
                             className="back-to-history-btn"
-                            onClick={() =>
-                                navigate("/order-history", { replace: true })
-                            }
+                            onClick={() => navigate("/order-history", { replace: true })}
                         >
                             Back to Order History
                         </button>
@@ -70,30 +120,22 @@ function OrderHistoryDetails() {
         );
     }
 
-    const isPickup = order.orderType === "Pickup";
-    const items = order.items || [];
-
-    const subtotal =
-        Number(order.subtotal) ||
-        items.reduce((total, item) => {
-            const productPrice = getItemPrice(item);
-            const addOnsTotal = getAddOnsTotal(item);
-            const quantity = Number(item.quantity) || 1;
-
-            return total + (productPrice + addOnsTotal) * quantity;
-        }, 0);
-
-    const deliveryFee = isPickup
-        ? 0
-        : Number(order.deliveryFee) || 0;
-
-    const total =
-        Number(order.total) || subtotal + deliveryFee;
+    const isPickup = order.orderType === "Pickup" || order.fulfillmentType === "self_pick_up";
+    const items = order.items || order.OrderItems || [];
+    const subtotal = Number(order.subtotal) || items.reduce((total, item) => {
+        const productPrice = getItemPrice(item);
+        const addOnsTotal = getAddOnsTotal(item);
+        const quantity = Number(item.quantity) || 1;
+        return total + (productPrice + addOnsTotal) * quantity;
+    }, 0);
+    const deliveryFee = isPickup ? 0 : Number(order.deliveryFee) || 0;
+    const total = Number(order.total) || subtotal + deliveryFee;
+    const status = getHistoryStatus(order.status, isPickup);
+    const orderType = order.orderType || (isPickup ? "Pickup" : "Delivery");
 
     return (
         <div className="order-history-details-page">
             <Header title="Order Details" />
-
             <main className="order-history-details-content">
                 <section className="receipt">
                     <div className="receipt-header">
@@ -106,7 +148,7 @@ function OrderHistoryDetails() {
                     <div className="receipt-order-info">
                         <div>
                             <span>Order Number</span>
-                            <strong>{order.orderId || "Pending"}</strong>
+                            <strong>{order.orderId || order.id || "Pending"}</strong>
                         </div>
                         <div>
                             <span>Date</span>
@@ -114,9 +156,7 @@ function OrderHistoryDetails() {
                         </div>
                         <div>
                             <span>Status</span>
-                            <strong className="receipt-status">
-                                {isPickup ? "PICKED UP" : "DELIVERED"}
-                            </strong>
+                            <strong className="receipt-status">{status}</strong>
                         </div>
                     </div>
 
@@ -124,14 +164,12 @@ function OrderHistoryDetails() {
 
                     <section className="receipt-section">
                         <h2>Ordered Items</h2>
-
                         <div className="receipt-items">
                             {items.map((item, index) => {
                                 const productPrice = getItemPrice(item);
                                 const addOnsTotal = getAddOnsTotal(item);
                                 const quantity = Number(item.quantity) || 1;
-                                const itemTotal =
-                                    (productPrice + addOnsTotal) * quantity;
+                                const itemTotal = (productPrice + addOnsTotal) * quantity;
 
                                 return (
                                     <div
@@ -140,22 +178,15 @@ function OrderHistoryDetails() {
                                     >
                                         <div className="receipt-item-info">
                                             <div className="receipt-item-top">
-                                                <span className="receipt-item-name">
-                                                    {getItemName(item)}
-                                                </span>
-                                                <span className="receipt-item-total">
-                                                    {formatAmount(itemTotal)}
-                                                </span>
+                                                <span className="receipt-item-name">{getItemName(item)}</span>
+                                                <span className="receipt-item-total">{formatAmount(itemTotal)}</span>
                                             </div>
 
                                             <div className="receipt-item-meta">
-                                                <span>
-                                                    {formatAmount(productPrice)} × {quantity}
-                                                </span>
+                                                <span>{formatAmount(productPrice)} × {quantity}</span>
                                             </div>
 
-                                            {(item.temperature ||
-                                                item.addOns?.length > 0) && (
+                                            {(item.temperature || item.addOns?.length > 0) && (
                                                 <div className="receipt-customization">
                                                     {item.temperature && (
                                                         <Badge
@@ -164,19 +195,14 @@ function OrderHistoryDetails() {
                                                         />
                                                     )}
 
-                                                    {item.addOns?.map(
-                                                        (addOn, addOnIndex) => (
-                                                            <span
-                                                                className="receipt-addon-badge"
-                                                                key={
-                                                                    addOn.id ||
-                                                                    addOnIndex
-                                                                }
-                                                            >
-                                                                {addOn.name}
-                                                            </span>
-                                                        )
-                                                    )}
+                                                    {item.addOns?.map((addOn, addOnIndex) => (
+                                                        <span
+                                                            className="receipt-addon-badge"
+                                                            key={addOn.id || addOnIndex}
+                                                        >
+                                                            {addOn.name}
+                                                        </span>
+                                                    ))}
                                                 </div>
                                             )}
                                         </div>
@@ -189,15 +215,11 @@ function OrderHistoryDetails() {
                     <div className="receipt-divider"></div>
 
                     <section className="receipt-section">
-                        <h2>
-                            {isPickup
-                                ? "Pickup Information"
-                                : "Delivery Information"}
-                        </h2>
+                        <h2>{isPickup ? "Pickup Information" : "Delivery Information"}</h2>
 
                         <div className="receipt-info-row">
                             <span>Order Type</span>
-                            <strong>{order.orderType || "Pickup"}</strong>
+                            <strong>{orderType}</strong>
                         </div>
 
                         {isPickup ? (
@@ -205,18 +227,14 @@ function OrderHistoryDetails() {
                                 <div className="receipt-info-row">
                                     <span>Pickup Store</span>
                                     <strong>
-                                        {order.store?.name ||
-                                            order.storeName ||
-                                            "Selected store"}
+                                        {order.store?.name || order.storeName || order.StoreBranch?.name || "Selected store"}
                                     </strong>
                                 </div>
 
                                 <div className="receipt-info-row">
                                     <span>Store Address</span>
                                     <strong>
-                                        {order.store?.address ||
-                                            order.address ||
-                                            "No store address available"}
+                                        {order.store?.address || order.StoreBranch?.address || order.address || "No store address available"}
                                     </strong>
                                 </div>
                             </>
@@ -224,7 +242,7 @@ function OrderHistoryDetails() {
                             <div className="receipt-info-row">
                                 <span>Delivery Address</span>
                                 <strong>
-                                    {order.address || "No address provided"}
+                                    {order.address || order.deliveryAddress || order.CustomerAddress?.address || "No address provided"}
                                 </strong>
                             </div>
                         )}
@@ -238,9 +256,7 @@ function OrderHistoryDetails() {
 
                         <div className="receipt-info-row">
                             <span>Payment Method</span>
-                            <strong>
-                                {getPaymentMethod(order.paymentMethod)}
-                            </strong>
+                            <strong>{getPaymentMethod(order.paymentMethod)}</strong>
                         </div>
                     </section>
 
@@ -276,9 +292,7 @@ function OrderHistoryDetails() {
                 <button
                     type="button"
                     className="back-to-history-btn"
-                    onClick={() =>
-                        navigate("/order-history", { replace: true })
-                    }
+                    onClick={() => navigate("/order-history", { replace: true })}
                 >
                     Back to Order History
                 </button>

@@ -14,28 +14,13 @@ import Footer from "/src/components/blocks/footer/footer.jsx";
 import StoreSelection from "/src/components/cards/store-selection/store-selection.jsx";
 import { getMenuProducts } from "/src/api/product.js";
 import { getCart, removeCartItem } from "/src/api/cart.api.js";
-import { isTokenExpired, getRole, homeForRole } from "/src/components/ProtectedRoute.jsx";
-
-function hasCustomerSession() {
-    const token = localStorage.getItem("token");
-    return !!token && !isTokenExpired(token) && getRole(token) === "customer";
-}
+import { getProfile } from "/src/api/customer.api.js";
 
 export default function Home() {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
-
-    const [orderType, setOrderType] = useState(
-        () => sessionStorage.getItem("orderType") || "delivery"
-    );
-    const [selectedStore, setSelectedStore] = useState(() => {
-        try {
-            return JSON.parse(sessionStorage.getItem("selectedStore") || "null");
-        } catch {
-            return null;
-        }
-    });
-
+    const [orderType, setOrderType] = useState("delivery");
+    const [selectedStore, setSelectedStore] = useState(null);
     const [storeSelectionOpen, setStoreSelectionOpen] = useState(false);
     const [deliveryEligibilityOpen, setDeliveryEligibilityOpen] = useState(false);
     const [loginOpen, setLoginOpen] = useState(false);
@@ -43,28 +28,41 @@ export default function Home() {
     const [cartOpen, setCartOpen] = useState(false);
     const [cartItems, setCartItems] = useState([]);
     const [featuredProducts, setFeaturedProducts] = useState([]);
-
     const [currentUser, setCurrentUser] = useState(() => {
-        if (!hasCustomerSession()) return null;
         const savedUser = localStorage.getItem("currentUser");
         return savedUser ? JSON.parse(savedUser) : null;
     });
     const [pendingProduct, setPendingProduct] = useState(null);
 
-    useEffect(() => {
-        sessionStorage.setItem("orderType", orderType);
-    }, [orderType]);
-
-    useEffect(() => {
-        if (selectedStore) {
-            sessionStorage.setItem("selectedStore", JSON.stringify(selectedStore));
-        } else {
-            sessionStorage.removeItem("selectedStore");
+    const loadCurrentUser = useCallback(async () => {
+        if (!localStorage.getItem("token")) {
+            setCurrentUser(null);
+            localStorage.removeItem("currentUser");
+            return null;
         }
-    }, [selectedStore]);
+
+        try {
+            const response = await getProfile();
+            const profile = {
+                ...response.data.customer,
+                email: response.data.user.email,
+                addresses: response.data.addresses || [],
+            };
+
+            localStorage.setItem("currentUser", JSON.stringify(profile));
+            setCurrentUser(profile);
+            return profile;
+        } catch (error) {
+            console.error("Failed to load customer profile:", error);
+            localStorage.removeItem("currentUser");
+            localStorage.removeItem("token");
+            setCurrentUser(null);
+            return null;
+        }
+    }, []);
 
     const loadCart = useCallback(async () => {
-        if (!hasCustomerSession()) {
+        if (!localStorage.getItem("token")) {
             setCartItems([]);
             return;
         }
@@ -77,8 +75,9 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
+        loadCurrentUser();
         loadCart();
-    }, [loadCart]);
+    }, [loadCurrentUser, loadCart]);
 
     useEffect(() => {
         getMenuProducts()
@@ -90,6 +89,7 @@ export default function Home() {
 
     useEffect(() => {
         document.body.style.overflow = sidebarOpen ? "hidden" : "";
+
         return () => {
             document.body.style.overflow = "";
         };
@@ -109,48 +109,19 @@ export default function Home() {
     useEffect(() => {
         const handlePageShow = (event) => {
             if (event.persisted) {
-                const savedUser = localStorage.getItem("currentUser");
-                setCurrentUser(
-                    hasCustomerSession() && savedUser ? JSON.parse(savedUser) : null
-                );
+                loadCurrentUser();
                 loadCart();
             }
         };
+
         window.addEventListener("pageshow", handlePageShow);
-        return () => window.removeEventListener("pageshow", handlePageShow);
-    }, [loadCart]);
 
-    useEffect(() => {
-        const onStorage = (e) => {
-            if (e.key !== null && e.key !== "token" && e.key !== "currentUser") return;
-
-            const token = localStorage.getItem("token");
-
-            if (!token || isTokenExpired(token)) {
-                setCurrentUser(null); 
-                setCartItems([]);
-                return;
-            }
-
-            const role = getRole(token);
-            if (role && role !== "customer") {
-                navigate(homeForRole(role), { replace: true });
-                return;
-            }
-
-            const savedUser = localStorage.getItem("currentUser");
-            setCurrentUser(savedUser ? JSON.parse(savedUser) : null);
-            loadCart();
+        return () => {
+            window.removeEventListener("pageshow", handlePageShow);
         };
+    }, [loadCurrentUser, loadCart]);
 
-        window.addEventListener("storage", onStorage);
-        return () => window.removeEventListener("storage", onStorage);
-    }, [navigate, loadCart]);
-
-    const cartCount = cartItems.reduce(
-        (total, item) => total + item.quantity,
-        0
-    );
+    const cartCount = cartItems.length;
 
     const handleFeaturedOrder = (product) => {
         if (!currentUser) {
@@ -158,6 +129,7 @@ export default function Home() {
             setLoginOpen(true);
             return;
         }
+
         navigate("/customization", {
             state: {
                 product,
@@ -173,10 +145,6 @@ export default function Home() {
     const handleLogout = () => {
         localStorage.removeItem("currentUser");
         localStorage.removeItem("token");
-        sessionStorage.removeItem("orderType");
-        sessionStorage.removeItem("selectedStore");
-        setOrderType("delivery");
-        setSelectedStore(null);
         setCurrentUser(null);
         setCartItems([]);
         setSidebarOpen(false);
@@ -192,12 +160,14 @@ export default function Home() {
 
     const handleOrderType = (type) => {
         setOrderType(type);
+
         if (type === "delivery") {
             setSelectedStore(null);
             setStoreSelectionOpen(false);
         } else if (type === "pickup") {
             setStoreSelectionOpen(true);
         }
+
         console.log("Order type:", type);
     };
 
@@ -209,6 +179,7 @@ export default function Home() {
     const handleRemoveFromCart = async (itemId) => {
         try {
             await removeCartItem(itemId);
+
             setCartItems((currentItems) =>
                 currentItems.filter((item) => item.id !== itemId)
             );
@@ -227,15 +198,18 @@ export default function Home() {
                 onMenuClick={() => setSidebarOpen(true)}
                 cartCount={cartCount}
             />
+
             <FeaturedCarousel
                 products={featuredProducts}
                 onOrderNow={handleFeaturedOrder}
             />
+
             <OrderType
                 selectedType={orderType}
                 onSelect={handleOrderType}
                 onCheckDelivery={() => setDeliveryEligibilityOpen(true)}
             />
+
             {selectedStore && orderType === "pickup" && (
                 <div className="SelectedStore">
                     <span>Pickup Store</span>
@@ -243,11 +217,11 @@ export default function Home() {
                     <small>{selectedStore.address}</small>
                 </div>
             )}
+
             <div id="menu">
-                <MenuSection
-                    onLoginRequired={handleFeaturedOrder}
-                />
+                <MenuSection onLoginRequired={handleFeaturedOrder} />
             </div>
+
             <Sidebar
                 isOpen={sidebarOpen}
                 user={currentUser}
@@ -255,6 +229,7 @@ export default function Home() {
                 onLogout={handleLogout}
                 onLogin={handleLogin}
             />
+
             {storeSelectionOpen && (
                 <div
                     className="store-selection-overlay"
@@ -271,6 +246,7 @@ export default function Home() {
                     </div>
                 </div>
             )}
+
             {deliveryEligibilityOpen && (
                 <div
                     className="delivery-eligibility-overlay"
@@ -284,6 +260,7 @@ export default function Home() {
                     </div>
                 </div>
             )}
+
             {loginOpen && (
                 <LoginCard
                     onClose={() => setLoginOpen(false)}
@@ -291,12 +268,25 @@ export default function Home() {
                         setLoginOpen(false);
                         setSignUpOpen(true);
                     }}
-                    onLoginSuccess={(user) => {
-                        setCurrentUser(user.data.account);
-                        loadCart();
+                    onLoginSuccess={async () => {
+                        await loadCurrentUser();
+                        await loadCart();
+                        setLoginOpen(false);
+
+                        if (pendingProduct) {
+                            const product = pendingProduct;
+                            setPendingProduct(null);
+
+                            navigate("/customization", {
+                                state: {
+                                    product,
+                                },
+                            });
+                        }
                     }}
                 />
             )}
+
             {signUpOpen && (
                 <SignUpCard
                     onClose={() => setSignUpOpen(false)}
@@ -304,12 +294,25 @@ export default function Home() {
                         setSignUpOpen(false);
                         setLoginOpen(true);
                     }}
-                    onSignUpSuccess={(user) => {
-                        setCurrentUser(user.data.customer);
-                        loadCart();
+                    onSignUpSuccess={async () => {
+                        await loadCurrentUser();
+                        await loadCart();
+                        setSignUpOpen(false);
+
+                        if (pendingProduct) {
+                            const product = pendingProduct;
+                            setPendingProduct(null);
+
+                            navigate("/customization", {
+                                state: {
+                                    product,
+                                },
+                            });
+                        }
                     }}
                 />
             )}
+
             {cartOpen && (
                 <Cart
                     cartItems={cartItems}
@@ -321,17 +324,23 @@ export default function Home() {
                             setCartOpen(false);
                             return;
                         }
+
                         navigate("/place-order", {
                             state: {
                                 items: cartItems,
-                                orderType: orderType === "delivery" ? "Delivery" : "Pickup",
+                                orderType:
+                                    orderType === "delivery"
+                                        ? "Delivery"
+                                        : "Pickup",
                                 store: selectedStore,
                             },
                         });
+
                         setCartOpen(false);
                     }}
                 />
             )}
+
             <Footer />
         </div>
     );

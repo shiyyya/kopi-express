@@ -1,7 +1,6 @@
 import './payment-confirmation.css';
 import { useLocation, useNavigate } from "react-router";
 import CheckIcon from '/src/assets/icons/check-circle.svg?react';
-import ClockIcon from '/src/assets/icons/time.svg?react';
 import PinIcon from '/src/assets/icons/location.svg?react';
 import CashIcon from '/src/assets/icons/time.svg?react';
 
@@ -13,6 +12,7 @@ function formatAmount(value) {
 export default function PaymentConfirmed() {
     const navigate = useNavigate();
     const location = useLocation();
+
     const {
         method,
         orderId,
@@ -24,8 +24,8 @@ export default function PaymentConfirmed() {
         isPickup = false,
         paymentNote = 'Pay cash upon delivery',
         confirmationSentTo,
-        etaText = 'Ready in approximately 20-35 minutes',
     } = location.state || {};
+
     const isCash = method === 'cash';
 
     return (
@@ -62,10 +62,6 @@ export default function PaymentConfirmed() {
                         <p className="confirmedInfoAddress">{deliveryAddress}</p>
                         <hr className="confirmedInfoDivider" />
                         <div className="confirmedInfoRow">
-                            <ClockIcon className="confirmedInfoIcon" />
-                            <span>{etaText}</span>
-                        </div>
-                        <div className="confirmedInfoRow">
                             <CashIcon className="confirmedInfoIcon" />
                             <span>{paymentNote}</span>
                         </div>
@@ -84,17 +80,10 @@ export default function PaymentConfirmed() {
                         <p className="receiptAmount">{formatAmount(amountPaid)}</p>
                     </div>
                 )}
-                {isCash ? (
-                    confirmationSentTo && (
-                        <p className="confirmationSentText">
-                            Confirmation sent to {confirmationSentTo}
-                        </p>
-                    )
-                ) : (
-                    <div className="etaBadge">
-                        <ClockIcon className="etaIcon" />
-                        <span>{etaText}</span>
-                    </div>
+                {isCash && confirmationSentTo && (
+                    <p className="confirmationSentText">
+                        Confirmation sent to {confirmationSentTo}
+                    </p>
                 )}
                 <button
                     type="button"
