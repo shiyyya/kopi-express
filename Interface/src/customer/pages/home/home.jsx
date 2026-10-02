@@ -19,8 +19,15 @@ import { getProfile } from "/src/api/customer.api.js";
 export default function Home() {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [orderType, setOrderType] = useState("delivery");
-    const [selectedStore, setSelectedStore] = useState(null);
+
+    const [orderType, setOrderType] = useState(
+        () => localStorage.getItem("orderType") || "delivery"
+    );
+    const [selectedStore, setSelectedStore] = useState(() => {
+        const savedStore = localStorage.getItem("selectedStore");
+        return savedStore ? JSON.parse(savedStore) : null;
+    });
+
     const [storeSelectionOpen, setStoreSelectionOpen] = useState(false);
     const [deliveryEligibilityOpen, setDeliveryEligibilityOpen] = useState(false);
     const [loginOpen, setLoginOpen] = useState(false);
@@ -33,6 +40,18 @@ export default function Home() {
         return savedUser ? JSON.parse(savedUser) : null;
     });
     const [pendingProduct, setPendingProduct] = useState(null);
+
+    useEffect(() => {
+        localStorage.setItem("orderType", orderType);
+    }, [orderType]);
+
+    useEffect(() => {
+        if (selectedStore) {
+            localStorage.setItem("selectedStore", JSON.stringify(selectedStore));
+        } else {
+            localStorage.removeItem("selectedStore");
+        }
+    }, [selectedStore]);
 
     const loadCurrentUser = useCallback(async () => {
         if (!localStorage.getItem("token")) {
@@ -145,6 +164,10 @@ export default function Home() {
     const handleLogout = () => {
         localStorage.removeItem("currentUser");
         localStorage.removeItem("token");
+        localStorage.removeItem("orderType");
+        localStorage.removeItem("selectedStore");
+        setOrderType("delivery");
+        setSelectedStore(null);
         setCurrentUser(null);
         setCartItems([]);
         setSidebarOpen(false);

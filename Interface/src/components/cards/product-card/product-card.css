@@ -112,3 +112,6 @@
 .product-card.sold-out .add-to-order-button {
     cursor: not-allowed;
 }
+.product-card .product-image {
+    filter: brightness(0.75);
+}
