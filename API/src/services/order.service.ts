@@ -1,4 +1,5 @@
 import { ApiError } from "../utils/ApiError.js";
+
 import {
     sequelize,
     CustomerAddress as CustomerAddressModel,
@@ -478,7 +479,7 @@ export async function getCustomerActiveOrders(customerId: string) {
             }
         ]
     });
-    return orders.map((order) => {
+    return Promise.all(orders.map(async (order) => {
         const data = order.toJSON() as any;
         let total = Number(data.deliveryFee ?? 0);
         const items = data.OrderItems.map((item: any) => {
@@ -498,16 +499,22 @@ export async function getCustomerActiveOrders(customerId: string) {
                 addons
             };
         });
+        const address = data.customerAddressId
+            ? await CustomerAddressModel.findByPk(data.customerAddressId, {
+                attributes: ["address"]
+            })
+            : null;
         return {
             id: data.id,
             status: data.status,
             fulfillmentType: data.fulfillmentType,
             createdAt: data.createdAt,
+            address: address?.address ?? null,
             items,
             deliveryFee: Number(data.deliveryFee ?? 0),
             total
         };
-    });
+    }));
 }
 
 export async function getCustomerOrder(customerId: string, orderId: string) {
@@ -520,7 +527,6 @@ export async function getCustomerOrder(customerId: string, orderId: string) {
     if (!order) {
         throw new ApiError(404, "Order not found", "ORDER_NOT_FOUND");
     }
-
     const [customer, storeBranch, address, orderItems] = await Promise.all([
         CustomerModel.findByPk(order.customerId, {
             attributes: ["fullName"]
@@ -544,10 +550,8 @@ export async function getCustomerOrder(customerId: string, orderId: string) {
             ]
         })
     ]);
-
     const data = order.toJSON() as any;
     let subtotal = 0;
-
     const items = orderItems.map((item: any) => {
         const addons = item.OrderItemAddOns.map((addon: any) => {
             subtotal += Number(addon.unitPrice) * item.quantity;
@@ -565,9 +569,7 @@ export async function getCustomerOrder(customerId: string, orderId: string) {
             addons
         };
     });
-
     const deliveryFee = Number(data.deliveryFee ?? 0);
-
     return {
         id: data.id,
         customerName: customer?.fullName ?? null,
