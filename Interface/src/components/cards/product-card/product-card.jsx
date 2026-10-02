@@ -9,6 +9,7 @@ function ProductCard({
     price,
     image,
     badge,
+    isNew,
     temperature = [],
     available = true,
     onAddToOrder,
@@ -53,7 +54,12 @@ function ProductCard({
             <div className="product-overlay">
                 <div className="product-info">
                     <h3 className="product-name">{name}</h3>
-                    {!isExpanded && badge && <Badge type={badge} />}
+                    {!isExpanded && (
+                        <>
+                            {badge && <Badge type={badge} />}
+                            {isNew && <Badge type="new" />}
+                        </>
+                    )}
                     {isExpanded && (
                         <>
                             <p className="product-description">{description}</p>
