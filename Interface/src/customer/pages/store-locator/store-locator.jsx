@@ -13,7 +13,7 @@ const STORES = [
         address: "Poblacion, Pandi, Bulacan",
         location: "Poblacion, Pandi, Bulacan",
         hours: "Mon–Sun · 7:00 AM – 9:00 PM",
-        phone: "0917-123-4567",
+        phone: "0917-341-5414",
         deliveryZones: [
             "Poblacion",
             "San Roque",
@@ -29,7 +29,7 @@ const STORES = [
         address: "Bunsuran II, Pandi, Bulacan",
         location: "Bunsuran II, Pandi, Bulacan",
         hours: "Mon–Sun · 7:00 AM – 9:00 PM",
-        phone: "0917-123-4567",
+        phone: "0917-523-4321",
         deliveryZones: [
             "Bunsuran II",
             "Bunsuran III",
@@ -46,7 +46,7 @@ const STORES = [
         address: "Cacarong Bata, Pandi, Bulacan",
         location: "Cacarong Bata, Pandi, Bulacan",
         hours: "Mon–Sun · 7:00 AM – 9:00 PM",
-        phone: "0917-123-4567",
+        phone: "0981-328-3228",
         deliveryZones: [
             "Cacarong Bata",
             "Bagong Barrio",

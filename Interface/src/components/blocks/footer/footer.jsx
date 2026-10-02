@@ -6,15 +6,12 @@ import PhoneIcon from '/src/assets/icons/contact.svg?react';
 import MailIcon from '/src/assets/icons/email.svg?react'; 
 import ClockIcon from '/src/assets/icons/schedule.svg?react';
 import LeafIcon from '/src/assets/icons/leaf.svg?react'; 
-const DELIVERY_ZONES = [
-  'Siling Bata',
-  'Poblacion',
-  'Bunsuran',
-  'San Roque',
-];
+
+const DELIVERY_ZONES =['All barangays in Pandi, Bulacan'];
+
 const CONTACT_INFO = [
   { icon: PinIcon, text: 'Siling Bata, Pandi, Bulacan' },
-  { icon: PhoneIcon, text: '0917-123-4567' },
+  { icon: PhoneIcon, text: '0917-341-5414' },
   { icon: MailIcon, text: 'hello@kopiexpress.ph' },
   { icon: ClockIcon, text: '7:00 AM – 9:00 PM daily' },
 ];
@@ -52,7 +49,9 @@ export default function Footer() {
         <h3 className="footerColumnTitle">Delivery Zones</h3>
         <div className="footerZonesList">
           {DELIVERY_ZONES.map((zone) => (
-            <span className="footerZoneTag" key={zone}>{zone}</span>
+            <span className="footerZoneTag" key={zone}>
+              {zone}
+            </span>
           ))}
         </div>
       </div>
