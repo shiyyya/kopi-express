@@ -3,15 +3,28 @@ import { CartItem as CartItemModel, Ingredient as IngredientModel, ProductIngred
 import { addProductIngredientInput, newProductInput, updateProductInput } from "../validators/product.validator.js";
 import { Category } from "../constants/product.js";
 
+const isNewProduct = (createdAt: Date) => {
+  return Date.now() - new Date(createdAt).getTime() < 30 * 24 * 60 * 60 * 1000;
+};
+
 export async function getProducts(category?: Category) {
-  const products = await ProductModel.findAll({...(category !== undefined && { where: { category } })});
-  return products;
+  const products = await ProductModel.findAll({
+    ...(category !== undefined && { where: { category } }),
+  });
+
+  return products.map((product) => ({
+    ...product.toJSON(),
+    isNew: isNewProduct(product.createdAt),
+  }));
 }
 
 export async function getProduct(id: string) {
   const product = await ProductModel.findByPk(id);
   if (!product) throw new ApiError(404, 'Product not found', 'PRODUCT_NOT_FOUND');
-  return product;
+  return {
+    ...product.toJSON(), 
+    isNew: isNewProduct(product.createdAt),
+  };
 }
 
 export async function newProduct(input: newProductInput, imageUrl: string) { return sequelize.transaction(async (transaction) => {
