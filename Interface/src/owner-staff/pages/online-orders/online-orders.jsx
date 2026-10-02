@@ -1,19 +1,34 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './online-orders.css';
 import Header from '/src/components/largeheader-wback/largeheader-wback.jsx';
 import OrderRequestCard from '/src/owner-staff/online-orders-card/online-orders-card.jsx';
 import OrderDetailsPanel from '/src/owner-staff/order-details-panel/order-details-panel.jsx';
 import { useOrders } from '/src/owner-staff/orders-context/orders-context.jsx';
 
+const POLL_INTERVAL_MS = 2000;
+
 function OnlineOrders() {
   const {
     onlineRequests,
     selectedOrder,
+    fetchOrders,
     fetchOrderDetails,
     acceptOnlineOrder,
     declineOnlineOrder,
   } = useOrders();
   const [selectedId, setSelectedId] = useState(null);
+
+  useEffect(() => {
+    fetchOrders(); 
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchOrders({ silent: true });
+      }
+    }, POLL_INTERVAL_MS);
+
+    return () => clearInterval(interval);
+  }, [fetchOrders]);
 
   const handleSelectOrder = async (id) => {
     setSelectedId(id);

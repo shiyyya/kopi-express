@@ -1,14 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './orders-queue.css';
 import Header from '/src/components/largeheader-wback/largeheader-wback.jsx';
 import OrdersQueueCard from '/src/owner-staff/orders-queue-card/orders-queue-card.jsx';
 import OrdersQueueDetailsPanel from '/src/owner-staff/orders-queue-details/orders-queue-details.jsx';
 import { useOrders } from '/src/owner-staff/orders-context/orders-context.jsx';
 
+const POLL_INTERVAL_MS = 2000;
+
 function OrdersQueuePage() {
-  const { queueOrders, updateQueueStatus, cancelQueueOrder } = useOrders();
+  const { queueOrders, fetchQueueOrders, updateQueueStatus, cancelQueueOrder } = useOrders();
   const [selectedId, setSelectedId] = useState(null);
   const selectedOrder = queueOrders.find((o) => o.id === selectedId) ?? null;
+
+  useEffect(() => {
+    fetchQueueOrders();
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchQueueOrders();
+      }
+    }, POLL_INTERVAL_MS);
+
+    return () => clearInterval(interval);
+  }, [fetchQueueOrders]);
 
   return (
     <div className="ordersQueuePage">
