@@ -1,30 +1,25 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 import "./order-status.css";
 import Header from "/src/components/blocks/header-wback/header-wback.jsx";
 import CheckIcon from "/src/assets/icons/check.svg?react";
 import OrderedItem from "/src/assets/images/cafe.png";
 import Address from "/src/assets/icons/location.svg?react";
-import Time from "/src/assets/icons/time.svg?react";
+import { apiFetch, API_ORIGIN } from "/src/api/client.js";
 
-const deliveryStatuses = [
-    "Order Received",
-    "Preparing",
-    "Done Preparing",
-    "Completed",
-];
-
-const pickupStatuses = [
-    "Order Received",
-    "Preparing",
-    "Done Preparing",
-    "Completed",
-];
-
+const statuses = ["Order Received", "Preparing", "Done Preparing", "Completed"];
+const statusMap = {
+    pending: "Order Received",
+    queued: "Order Received",
+    preparing: "Preparing",
+    ready: "Done Preparing",
+    completed: "Completed"
+};
 const statusMessages = {
     "Order Received": "We got your order!",
-    "Preparing": "Our team is brewing and cooking.",
+    Preparing: "Our team is brewing and cooking.",
     "Done Preparing": "Your order is ready for pickup/delivery!",
-    "Delivered": "Enjoy your order!",
+    Completed: "Enjoy your order!"
 };
 
 function formatAmount(value) {
@@ -35,46 +30,182 @@ function formatAmount(value) {
     })}`;
 }
 
-function getStatusIndex(status, statuses) {
-    const index = statuses.indexOf(status);
+function getStatusIndex(status) {
+    const index = statuses.indexOf(statusMap[status] || status);
     return index === -1 ? 0 : index;
 }
 
+function getImageUrl(image) {
+    if (!image) return OrderedItem;
+    if (image.startsWith("http://") || image.startsWith("https://")) return image;
+    return `${API_ORIGIN}${image.startsWith("/") ? "" : "/"}${image}`;
+}
+
+function formatOrderDate(date) {
+    if (!date) return "";
+    return new Date(date).toLocaleString("en-PH", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+    });
+}
+
+function isActiveOrder(order) {
+    return !["completed", "declined", "cancelled"].includes(order.status);
+}
+
 export default function OrderStatus() {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const selectedOrderId = location.state?.orderId;
+    const [orders, setOrders] = useState([]);
     const [order, setOrder] = useState(null);
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const savedOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-        setOrder(savedOrders[savedOrders.length - 1] || null);
-    }, []);
+        let cancelled = false;
 
-    if (!order) {
+        const fetchOrders = async () => {
+            try {
+                const response = await apiFetch("/orders/customer");
+                const fetchedOrders = response.data?.orders || [];
+                if (cancelled) return;
+
+                setOrders(fetchedOrders.filter(isActiveOrder));
+
+                if (!selectedOrderId) {
+                    setOrder(null);
+                    setError("");
+                    setLoading(false);
+                    return;
+                }
+
+                const detailResponse = await apiFetch(
+                    `/orders/customer/${selectedOrderId}`
+                );
+                const selectedOrder = detailResponse.data?.order;
+
+                if (cancelled) return;
+
+                if (!selectedOrder) {
+                    setOrder(null);
+                    setError("Order not found.");
+                } else {
+                    setOrder(selectedOrder);
+                    setError("");
+                }
+
+                setLoading(false);
+            } catch (error) {
+                console.error("Failed to fetch order status:", error);
+                if (!cancelled) {
+                    setError(error.message || "Failed to load order status.");
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchOrders();
+        const interval = setInterval(fetchOrders, 3000);
+
+        return () => {
+            cancelled = true;
+            clearInterval(interval);
+        };
+    }, [selectedOrderId]);
+
+    if (loading) {
         return (
             <div className="order-status-page">
                 <Header title="Order Status" />
                 <div className="order-status-content">
                     <div className="order-info-card">
-                        <p>No active order found.</p>
+                        <p>Loading order status...</p>
                     </div>
                 </div>
             </div>
         );
     }
 
-    const isPickup = order.orderType === "Pickup";
-    const statuses = isPickup ? pickupStatuses : deliveryStatuses;
-    const currentStatusIndex = getStatusIndex(order.status, statuses);
+    if (error) {
+        return (
+            <div className="order-status-page">
+                <Header title="Order Status" />
+                <div className="order-status-content">
+                    <div className="order-info-card">
+                        <p>{error}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!selectedOrderId) {
+        return (
+            <div className="order-status-page">
+                <Header title="Order Status" />
+                <div className="order-status-content">
+                    {orders.length ? (
+                        orders.map((activeOrder) => {
+                            const currentStatus =
+                                statusMap[activeOrder.status] || activeOrder.status;
+                            const isPickup =
+                                activeOrder.fulfillmentType === "self_pick_up";
+
+                            return (
+                                <button
+                                    type="button"
+                                    className="order-info-card"
+                                    key={activeOrder.id}
+                                    onClick={() =>
+                                        navigate("/order-status", {
+                                            state: { orderId: activeOrder.id }
+                                        })
+                                    }
+                                >
+                                    <div className="order-info-details">
+                                        <h2 className="order-number">
+                                            {activeOrder.id || "Pending"}
+                                        </h2>
+                                        <div className="status-badge">
+                                            <span className="order-status">
+                                                {currentStatus}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p className="order-date">
+                                        {formatOrderDate(activeOrder.createdAt)}
+                                    </p>
+                                    <div className="order-card-summary">
+                                        <span>
+                                            {isPickup ? "Pickup" : "Delivery"}
+                                        </span>
+                                        <span>{formatAmount(activeOrder.total)}</span>
+                                    </div>
+                                </button>
+                            );
+                        })
+                    ) : (
+                        <div className="order-info-card">
+                            <p>No active orders.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    if (!order) return null;
+
+    const isPickup = order.fulfillmentType === "self_pick_up";
+    const isCancelled = ["declined", "cancelled"].includes(order.status);
+    const currentStatus = statusMap[order.status] || order.status;
+    const currentStatusIndex = getStatusIndex(order.status);
     const items = order.items || [];
     const total = Number(order.total || 0);
-    const orderDate = order.createdAt
-        ? new Date(order.createdAt).toLocaleString("en-PH", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-            hour: "numeric",
-            minute: "2-digit"
-        })
-        : "";
 
     return (
         <div className="order-status-page">
@@ -82,84 +213,103 @@ export default function OrderStatus() {
             <div className="order-status-content">
                 <div className="order-info-card">
                     <div className="order-info-details">
-                        <h2 className="order-number">
-                            {order.orderId || "Pending"}
-                        </h2>
+                        <h2 className="order-number">{order.id || "Pending"}</h2>
                         <div className="status-badge">
                             <span className="order-status">
-                                {order.status}
+                                {isCancelled ? order.status : currentStatus}
                             </span>
                         </div>
                     </div>
-                    <p className="order-date">{orderDate}</p>
+                    <p className="order-date">{formatOrderDate(order.createdAt)}</p>
                 </div>
 
                 <div className="order-progress-card">
-                    <h2 className="progress-title">Order Progress</h2>
+                    <h2 className="progress-title">
+                        {isCancelled ? "Order Status" : "Order Progress"}
+                    </h2>
                     <div className="progress-list">
-                        {statuses.map((status, index) => {
-                            const isCompleted = index <= currentStatusIndex;
-                            const isCurrent = index === currentStatusIndex;
-                            const hasLine = index < currentStatusIndex;
-
-                            return (
-                                <div
-                                    className={`progress-item ${isCompleted ? "completed" : ""} ${hasLine ? "has-line" : ""}`}
-                                    key={status}
-                                >
-                                    <div className="progress-icon-wrap">
-                                        {isCompleted ? (
-                                            <span className={`progress-check ${isCurrent ? "current" : ""}`}>
-                                                <CheckIcon />
-                                            </span>
-                                        ) : (
-                                            <span className="progress-circle"></span>
-                                        )}
-                                    </div>
-
-                                    <div className="progress-details">
-                                        <h2 className="progress-status">
-                                            {status}
-                                        </h2>
-                                        <p className="progress-message">
-                                            {statusMessages[status]}
-                                        </p>
-                                    </div>
+                        {isCancelled ? (
+                            <div className="progress-item completed">
+                                <div className="progress-icon-wrap">
+                                    <span className="progress-check current">
+                                        <CheckIcon />
+                                    </span>
                                 </div>
-                            );
-                        })}
+                                <div className="progress-details">
+                                    <h2 className="progress-status">
+                                        {order.status === "declined"
+                                            ? "Order Declined"
+                                            : "Order Cancelled"}
+                                    </h2>
+                                    <p className="progress-message">
+                                        {order.status === "declined"
+                                            ? "Your order was declined."
+                                            : "Your order was cancelled."}
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            statuses.map((status, index) => {
+                                const isCompleted = index <= currentStatusIndex;
+                                const isCurrent = index === currentStatusIndex;
+                                const hasLine = index < currentStatusIndex;
+
+                                return (
+                                    <div
+                                        className={`progress-item ${isCompleted ? "completed" : ""} ${hasLine ? "has-line" : ""}`}
+                                        key={status}
+                                    >
+                                        <div className="progress-icon-wrap">
+                                            {isCompleted ? (
+                                                <span
+                                                    className={`progress-check ${isCurrent ? "current" : ""}`}
+                                                >
+                                                    <CheckIcon />
+                                                </span>
+                                            ) : (
+                                                <span className="progress-circle" />
+                                            )}
+                                        </div>
+                                        <div className="progress-details">
+                                            <h2 className="progress-status">{status}</h2>
+                                            <p className="progress-message">
+                                                {statusMessages[status]}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
                     </div>
                 </div>
 
                 <div className="items-ordered-card">
                     <h2 className="ordered-title">Items Ordered</h2>
                     {items.map((item, index) => {
-                        const product = item.product;
-                        if (!product) return null;
-
-                        const addOnsTotal = (item.addOns || []).reduce(
-                            (sum, addOn) => sum + Number(addOn.price || 0),
+                        const addOnsTotal = (item.addons || []).reduce(
+                            (sum, addOn) => sum + Number(addOn.unitPrice || 0),
                             0
                         );
-
                         const itemTotal =
-                            (Number(product.price || 0) + addOnsTotal) *
+                            (Number(item.unitPrice || 0) + addOnsTotal) *
                             Number(item.quantity || 1);
 
                         return (
-                            <div className="ordered-item" key={item.id || index}>
+                            <div
+                                className="ordered-item"
+                                key={item.id || index}
+                            >
                                 <img
                                     className="ordered-image"
-                                    src={product.image || OrderedItem}
-                                    alt={product.name}
+                                    src={getImageUrl(item.image)}
+                                    alt={item.name}
                                 />
                                 <div className="ordered-details">
-                                    <h3 className="ordered-name">
-                                        {product.name}
-                                    </h3>
+                                    <h3 className="ordered-name">{item.name}</h3>
                                     <p className="quantity-temp">
                                         × {item.quantity || 1}
-                                        {item.temperature && ` · ${item.temperature}`}
+                                        {item.temperature &&
+                                            ` · ${item.temperature}`}
                                     </p>
                                 </div>
                                 <div className="ordered-price">
@@ -168,12 +318,9 @@ export default function OrderStatus() {
                             </div>
                         );
                     })}
-
                     <div className="total-section">
                         <span className="total-font">Total</span>
-                        <span className="total-price">
-                            {formatAmount(total)}
-                        </span>
+                        <span className="total-price">{formatAmount(total)}</span>
                     </div>
                 </div>
 
@@ -184,7 +331,6 @@ export default function OrderStatus() {
                             {isPickup ? "Pickup Store" : "Delivery Address"}
                         </p>
                     </div>
-
                     {isPickup ? (
                         <>
                             <p className="address-location">
@@ -199,17 +345,6 @@ export default function OrderStatus() {
                             {order.address || "Address pending"}
                         </p>
                     )}
-
-                    <div className="address-time-row">
-                        <Time className="time-icon" />
-                        <p className="arrival-time">
-                            {isPickup
-                                ? "Ready when your order is completed"
-                                : order.status === "Out for Delivery"
-                                    ? "Your order is on the way"
-                                    : "Estimated: 20–35 minutes"}
-                        </p>
-                    </div>
                 </div>
             </div>
         </div>

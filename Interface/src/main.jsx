@@ -1,6 +1,9 @@
 import { StrictMode } from "react";
+
 import { createRoot } from "react-dom/client";
+
 import { BrowserRouter, Routes, Route } from "react-router";
+
 import "./index.css";
 
 import App from "./App.jsx";
@@ -31,7 +34,7 @@ import OwnerSalesReport from "./owner-staff/owner-pages/owner-sales-report/owner
 import OwnerInventory from "./owner-staff/owner-pages/owner-inventory/owner-inventory.jsx";
 import OwnerMenu from "./owner-staff/owner-pages/owner-menu/owner-menu.jsx";
 
-import StaffOwnerLogin from "./owner-staff/staff-owner-login/staff-owner-login.jsx";
+import StaffownerLogin from "./owner-staff/staff-owner-login/staff-owner-login.jsx";
 import OrderHistoryDetails from "./customer/pages/order-history-details/order-history-details.jsx";
 
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
@@ -46,13 +49,13 @@ createRoot(document.getElementById("root")).render(
                         <Route index element={<Home />} />
                         <Route path="login" element={<Login />} />
                         <Route path="signup" element={<Signup />} />
-                        <Route path="portal" element={<StaffOwnerLogin />} />
+                        <Route path="portal" element={<StaffownerLogin />} />
                         <Route path="store-locator" element={<StoreLocator />} />
 
                         {/* CUSTOMER ONLY */}
                         <Route path="order-status" element={<ProtectedRoute allowedRoles={["customer"]}><OrderStatus /></ProtectedRoute>} />
                         <Route path="order-history" element={<ProtectedRoute allowedRoles={["customer"]}><OrderHistory /></ProtectedRoute>} />
-                        <Route path="order-history/details" element={<ProtectedRoute allowedRoles={["customer"]}><OrderHistoryDetails /></ProtectedRoute>} />
+                        <Route path="order-history/details/:orderId" element={<ProtectedRoute allowedRoles={["customer"]}><OrderHistoryDetails /></ProtectedRoute>} />
                         <Route path="settings" element={<ProtectedRoute allowedRoles={["customer"]}><Settings /></ProtectedRoute>} />
                         <Route path="place-order" element={<ProtectedRoute allowedRoles={["customer"]}><PlaceOrder /></ProtectedRoute>} />
                         <Route path="delivery-eligibility" element={<ProtectedRoute allowedRoles={["customer"]}><DeliveryEligibility /></ProtectedRoute>} />

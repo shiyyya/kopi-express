@@ -49,6 +49,135 @@
     font-size: 13px;
     font-weight: 500;
 }
+.DeliveryAddressSection {
+    width: 100%;
+}
+.DeliveryAddressHeader {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 6px;
+}
+.DeliveryAddressHeader h3 {
+    margin: 0;
+    color: var(--text-3);
+    font-family: var(--heading);
+    font-size: 15px;
+    font-weight: 700;
+}
+.DeliveryAddressList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+.DeliveryAddressOption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 42px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    box-sizing: border-box;
+}
+.DeliveryAddressOption.selected {
+    border-color: var(--btn-primary);
+    background: rgba(74, 103, 65, 0.08);
+}
+.DeliveryAddressDetails {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+.DeliveryAddressDetails strong {
+    color: var(--text-3);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+.DeliveryAddressCheck,
+.DeliveryAddressRadio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    border-radius: 50%;
+}
+.DeliveryAddressRadio {
+    border: 1px solid var(--border);
+}
+.DeliveryAddressCheck {
+    border: 1px solid var(--btn-primary);
+    background: var(--btn-primary);
+    color: var(--btn-label);
+    font-size: 11px;
+    font-weight: 700;
+}
+.DeliveryAddressCheck svg {
+    width: 10px;
+    height: 10px;
+}
+.NewAddressForm {
+    width: 100%;
+    margin-top: 8px;
+}
+.NewAddressInput {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    box-sizing: border-box;
+}
+.NewAddressInput::placeholder {
+    color: var(--text-muted);
+}
+.NewAddressInput:focus {
+    outline: none;
+    border-color: var(--btn-primary);
+}
+.NewAddressActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+.AddAddressButton,
+.CancelAddressButton {
+    min-height: 36px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    box-sizing: border-box;
+}
+.AddAddressButton {
+    border: 1px solid var(--btn-primary);
+    background: var(--btn-primary);
+    color: var(--btn-label);
+}
+.AddAddressButton:disabled {
+    opacity: 0.6;
+}
+.CancelAddressButton {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+}
 .PickupSection {
     text-align: left;
     font-family: var(--sans);
@@ -225,13 +354,17 @@
     .PlaceOrderContent {
         padding: 14px 16px 90px;
     }
-    .PickupStoreHeader h3 {
+    .PickupStoreHeader h3,
+    .DeliveryAddressHeader h3 {
         font-size: 14px;
     }
     .PickupStoreDetails strong {
         font-size: 13px;
     }
     .PickupStoreDetails span {
+        font-size: 12px;
+    }
+    .DeliveryAddressDetails strong {
         font-size: 12px;
     }
     .PaymentDetails strong {
@@ -241,14 +374,12 @@
         font-size: 10px;
     }
 }
-
 .NotesSection {
     display: flex;
     flex-direction: column;
     gap: 6px;
     margin-bottom: 12px;
 }
-
 .NotesSection .NotesInput {
     width: 100%;
     box-sizing: border-box;
@@ -262,23 +393,19 @@
     font-size: 13px;
     resize: none;
 }
-
 .NotesSection .NotesInput::placeholder {
     color: var(--text-muted);
     font-size: 13px;
 }
-
 .NotesSection .NotesInput:focus {
     outline: none;
     border-color: var(--btn-primary);
 }
-
 .NotesCount {
     align-self: flex-end;
     color: var(--text-muted);
     font-size: 11px;
 }
-
 .DeliveryNote {
     margin: 0;
     color: var(--text-muted);

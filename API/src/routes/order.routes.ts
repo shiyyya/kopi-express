@@ -7,6 +7,7 @@ export const orderRouter = Router();
 // ccustomer
 orderRouter.post( "/", authenticate, requireRole('customer'), controller.newOrder);
 orderRouter.get( "/customer", authenticate, requireRole('customer'), controller.getCustomerOrders);
+orderRouter.get("/customer/eligibility", authenticate, requireRole("customer"), controller.checkDeliveryEligibility);
 orderRouter.get( "/customer/:orderId", authenticate, requireRole('customer'), controller.getCustomerOrder);
 
 // staff

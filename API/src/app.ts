@@ -7,7 +7,7 @@ export const app = express();
 app.disable('x-powered-by');
 // Express 5's overloaded middleware factory is safe here but confuses typed ESLint.
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(`${process.cwd()}/uploads`));
 app.use(cors());
 app.use(express.json({ limit: '32kb' }));
 app.get('/health', (_request, response) => {

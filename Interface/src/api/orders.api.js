@@ -5,5 +5,15 @@ export async function createOrder(payload) {
         method: "POST",
         body: JSON.stringify(payload),
     });
-    return data; 
+    return data;
+}
+
+export async function getCustomerOrders() {
+    const { data } = await apiFetch("/orders/customer");
+    return data.orders || [];
+}
+
+export async function getCustomerOrder(orderId) {
+    const { data } = await apiFetch(`/orders/customer/${orderId}`);
+    return data.order;
 }

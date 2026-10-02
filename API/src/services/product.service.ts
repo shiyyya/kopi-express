@@ -5,7 +5,6 @@ import { Category } from "../constants/product.js";
 
 export async function getProducts(category?: Category) {
   const products = await ProductModel.findAll({...(category !== undefined && { where: { category } })});
-  if (products.length === 0) throw new ApiError(404, 'No product found', 'NO_PRODUCT_FOUND');
   return products;
 }
 

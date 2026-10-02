@@ -1,6 +1,7 @@
 .DeliveryAddress {
     width: 100%;
     padding: 0;
+    box-sizing: border-box;
 }
 .DeliveryAddressHeader {
     display: flex;
@@ -42,9 +43,6 @@
     cursor: pointer;
     box-sizing: border-box;
 }
-.DeliveryAddressOption:first-child {
-    border-top: 1px solid transparent;
-}
 .DeliveryAddressOption:hover {
     color: var(--btn-primary);
 }
@@ -57,6 +55,9 @@
     min-width: 0;
     padding-right: 10px;
     overflow-wrap: anywhere;
+    color: var(--text-3);
+    font-size: 13px;
+    line-height: 1.35;
 }
 .DeliveryAddressCheck,
 .DeliveryAddressRadio {
@@ -75,6 +76,7 @@
 .DeliveryAddressCheck {
     border: 1px solid var(--btn-primary);
     background: var(--btn-primary);
+    color: var(--btn-label);
 }
 .DeliveryAddressCheck svg {
     width: 9px;
@@ -87,6 +89,7 @@
     border: none;
     background: none;
     color: var(--btn-primary);
+    font-family: var(--sans);
     font-size: 13px;
     font-weight: 500;
     text-align: left;
@@ -98,6 +101,7 @@
 .NewDeliveryAddress {
     width: 100%;
     padding-top: 5px;
+    box-sizing: border-box;
 }
 .DeliveryAddressInput {
     width: 100%;
@@ -107,6 +111,7 @@
     border-radius: 8px;
     padding: 8px 11px;
     color: var(--text);
+    font-family: var(--sans);
     font-size: 13px;
     outline: none;
 }
@@ -127,11 +132,43 @@
     border: none;
     background: none;
     color: var(--text);
+    font-family: var(--sans);
     font-size: 13px;
     text-align: left;
     cursor: pointer;
 }
 .CancelAddressButton:hover {
+    color: var(--btn-primary);
+}
+.DeliveryAddressSettingsRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 42px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+.DeliveryAddressSettingsText {
+    flex: 1;
+    min-width: 0;
+    padding-right: 10px;
+    color: var(--text);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+.DeliveryAddressDelete {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+.DeliveryAddressDelete:hover {
     color: var(--btn-primary);
 }
 @media (max-width: 480px) {
@@ -142,6 +179,10 @@
     .DeliveryAddressInput,
     .AddAddressButton,
     .CancelAddressButton {
+        font-size: 12px;
+    }
+    .DeliveryAddressText,
+    .DeliveryAddressSettingsText {
         font-size: 12px;
     }
 }
