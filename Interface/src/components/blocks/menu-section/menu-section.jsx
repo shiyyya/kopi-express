@@ -105,6 +105,7 @@ export default function MenuSection({ onLoginRequired }) {
                         price={product.price}
                         image={product.image_url}
                         temperature={product.temperature}
+                        isNew={product.isNew}
                         onAddToOrder={() =>
                             handleAddToOrder(product)
                         }
