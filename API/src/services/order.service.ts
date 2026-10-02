@@ -272,7 +272,7 @@ export async function newOrder( userId: string, input: newOrderInput ): Promise<
         const endOfDay = new Date();
         endOfDay.setHours(23, 59, 59, 999);
 
-        const todayOrderCount = await OrderModel.count({ where: { createdAt: { [Op.between]: [startOfDay, endOfDay] }}, transaction});
+        const todayOrderCount = await OrderModel.count({ where: { storeBranchId, createdAt: { [Op.between]: [startOfDay, endOfDay] }}, transaction});
         const orderNo = todayOrderCount + 1;
 
         const order = await OrderModel.create({
