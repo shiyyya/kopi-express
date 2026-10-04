@@ -232,9 +232,9 @@ function OwnerSalesReport() {
                                             setShowBranch(false);
                                         }}>Bunsuran II</button>
                                         <button onClick={() => {
-                                            setBranch("Cacarong Bata");
+                                            setBranch("Siling Bata");
                                             setShowBranch(false);
-                                        }}>Cacarong Bata</button>
+                                        }}>Siling Bata</button>
                                     </div>
                                 )}
                             </div>

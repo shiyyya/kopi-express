@@ -53,7 +53,7 @@ export default function DeliveryEligibility() {
                     value={barangay}
                     onChange={handleChange}
                     onKeyDown={(e) => e.key === "Enter" && handleCheck()}
-                    placeholder="e.g. Cacarong Bata, Pandi, Bulacan"
+                    placeholder="e.g. Siling Bata, Pandi, Bulacan"
                     className="eligibilityInput"
                 />
                 <Button

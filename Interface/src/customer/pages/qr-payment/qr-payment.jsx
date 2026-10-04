@@ -4,7 +4,7 @@ import "./qr-payment.css";
 import Header from "/src/components/blocks/header-wback/header-wback.jsx";
 import Input from "/src/components/elements/input/input.jsx";
 import Button from "/src/components/elements/button/button.jsx";
-import qrImage from "/src/assets/images/qr.png";
+import qrImage from "/src/assets/images/gcashqr.png";
 import { createOrder } from "/src/api/orders.api.js";
 
 function formatAmount(value) {

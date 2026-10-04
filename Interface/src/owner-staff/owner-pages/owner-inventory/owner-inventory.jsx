@@ -26,7 +26,7 @@ const OWNER_TABS = [
 const BRANCHES = [
     { name: "Poblacion", id: "01M34B40SEJKXD58FB337RY1RD" },
     { name: "Bunsuran II", id: "01M34B3AZHBT272V4H49CWZZ4E" },
-    { name: "Cacarong Bata", id: "01M34B2F2M5GH5EHJA2PARV0TK" },
+    { name: "Siling Bata", id: "01M34B2F2M5GH5EHJA2PARV0TK" },
 ];
 
 const UNITS = ["g", "ml", "pcs"];
