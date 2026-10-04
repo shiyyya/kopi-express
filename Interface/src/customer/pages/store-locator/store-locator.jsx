@@ -41,10 +41,10 @@ const STORES = [
         ],
     },
     {
-        id: "cacarongbata",
-        name: "Kopi-Express Cacarong Bata Branch",
-        address: "Cacarong Bata, Pandi, Bulacan",
-        location: "Cacarong Bata, Pandi, Bulacan",
+        id: "silingbata",
+        name: "Kopi-Express Siling Bata Branch",
+        address: "Siling Bata, Pandi, Bulacan",
+        location: "Siling Bata, Pandi, Bulacan",
         hours: "Mon–Sun · 7:00 AM – 9:00 PM",
         phone: "0981-328-3228",
         deliveryZones: [

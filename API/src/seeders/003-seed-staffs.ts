@@ -11,10 +11,10 @@ const userIds = [
 export async function up({ context }: { context: QueryInterface }) {
   const now = new Date();
 
-  const [poblacionHash, bunsuranHash, cacarongHash] = await Promise.all([
+  const [poblacionHash, bunsuranHash, silingbataHash] = await Promise.all([
     bcrypt.hash('temppasswordpoblacion', env.bcryptRounds),
     bcrypt.hash('temppasswordbunsuran', env.bcryptRounds),
-    bcrypt.hash('temppasswordcacarong', env.bcryptRounds),
+    bcrypt.hash('temppasswordsilingbata', env.bcryptRounds),
   ]);
 
   await context.bulkInsert('users', [
@@ -38,8 +38,8 @@ export async function up({ context }: { context: QueryInterface }) {
     },
     {
       id: userIds[2],
-      email: 'tempaccountcacarong@gmail.com',
-      password_hash: cacarongHash,
+      email: 'tempaccountsilingbata@gmail.com',
+      password_hash: silingbataHash,
       role: 'staff',
       status: 'active',
       created_at: now,

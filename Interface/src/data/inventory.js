@@ -7,7 +7,7 @@ const inventory = [
         "quantity": 10,
         "unit": "kg",
         "expirationDate": "2026-12-01",
-        "branches": ["Poblacion", "Bunsuran II", "Cacarong Bata"]
+        "branches": ["Poblacion", "Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -27,7 +27,7 @@ const inventory = [
         "quantity": 5,
         "unit": "L",
         "expirationDate": "2027-01-02",
-        "branches": ["Poblacion", "Cacarong Bata"]
+        "branches": ["Poblacion", "Siling Bata"]
     },
 
     {
@@ -37,7 +37,7 @@ const inventory = [
         "quantity": 3,
         "unit": "kg",
         "expirationDate": "2027-01-02",
-        "branches": ["Bunsuran II", "Cacarong Bata"]
+        "branches": ["Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -47,7 +47,7 @@ const inventory = [
         "quantity": 10,
         "unit": "kg",
         "expirationDate": "2027-03-01",
-        "branches": ["Poblacion", "Bunsuran II", "Cacarong Bata"]
+        "branches": ["Poblacion", "Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -57,7 +57,7 @@ const inventory = [
         "quantity": 10,
         "unit": "kg",
         "expirationDate": "2027-03-01",
-        "branches": ["Poblacion", "Bunsuran II", "Cacarong Bata"]
+        "branches": ["Poblacion", "Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -67,7 +67,7 @@ const inventory = [
         "quantity": 120,
         "unit": "pcs",
         "expirationDate": "2026-09-20",
-        "branches": ["Poblacion", "Bunsuran II"]
+        "branches": ["Poblacion", "Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -77,7 +77,7 @@ const inventory = [
         "quantity": 5,
         "unit": "kg",
         "expirationDate": "2026-10-01",
-        "branches": ["Poblacion", "Cacarong Bata"]
+        "branches": ["Poblacion", "Siling Bata"]
     },
 
     {
@@ -87,7 +87,7 @@ const inventory = [
         "quantity": 5,
         "unit": "kg",
         "expirationDate": "2027-01-01",
-        "branches": ["Poblacion", "Bunsuran II", "Cacarong Bata"]
+        "branches": ["Poblacion", "Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -97,7 +97,7 @@ const inventory = [
         "quantity": 3,
         "unit": "kg",
         "expirationDate": "2027-01-01",
-        "branches": ["Bunsuran II", "Cacarong Bata"]
+        "branches": ["Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -127,7 +127,7 @@ const inventory = [
         "quantity": 5,
         "unit": "kg",
         "expirationDate": "2026-12-01",
-        "branches": ["Cacarong Bata"]
+        "branches": ["Siling Bata"]
     },
 
     {
@@ -137,7 +137,7 @@ const inventory = [
         "quantity": 10,
         "unit": "kg",
         "expirationDate": "2027-03-01",
-        "branches": ["Poblacion", "Bunsuran II", "Cacarong Bata"]
+        "branches": ["Poblacion", "Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -147,7 +147,7 @@ const inventory = [
         "quantity": 10,
         "unit": "kg",
         "expirationDate": "2026-09-15",
-        "branches": ["Poblacion", "Bunsuran II"]
+        "branches": ["Poblacion", "Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -157,7 +157,7 @@ const inventory = [
         "quantity": 10,
         "unit": "L",
         "expirationDate": "2027-01-01",
-        "branches": ["Bunsuran II", "Cacarong Bata"]
+        "branches": ["Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -167,7 +167,7 @@ const inventory = [
         "quantity": 5,
         "unit": "kg",
         "expirationDate": "2026-10-01",
-        "branches": ["Poblacion", "Bunsuran II", "Cacarong Bata"]
+        "branches": ["Poblacion", "Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -177,7 +177,7 @@ const inventory = [
         "quantity": 3,
         "unit": "kg",
         "expirationDate": "2026-12-01",
-        "branches": ["Poblacion", "Cacarong Bata"]
+        "branches": ["Poblacion", "Siling Bata"]
     },
 
     {
@@ -187,7 +187,7 @@ const inventory = [
         "quantity": 2,
         "unit": "kg",
         "expirationDate": "2026-10-01",
-        "branches": ["Bunsuran II"]
+        "branches": ["Bunsuran II", "Siling Bata"]
     },
 
     {
@@ -197,7 +197,7 @@ const inventory = [
         "quantity": 10,
         "unit": "L",
         "expirationDate": "2027-01-01",
-        "branches": ["Poblacion", "Bunsuran II", "Cacarong Bata"]
+        "branches": ["Poblacion", "Bunsuran II", "Siling Bata"]
     }
 
 ];

@@ -44,8 +44,8 @@ export async function up({ context }: { context: QueryInterface }) {
     },
     {
       id: '01M34B2F2M5GH5EHJA2PARV0TK',
-      name: 'Kopi-Express Cacarong Bata Branch',
-      address: 'Cacarong Bata, Pandi, Bulacan',
+      name: 'Kopi-Express Siling Bata Branch',
+      address: 'Siling Bata, Pandi, Bulacan',
       phone_number: '+639123456789',
       status: 'open',
       latitude: 14.8958,
