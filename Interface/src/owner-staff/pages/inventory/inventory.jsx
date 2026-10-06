@@ -147,7 +147,7 @@ function Inventory() {
 
     return (
         <div className="InventoryPage">
-            <LargeHeader title="Kopi Express/Staff" />
+            <LargeHeader title="Kopi Express / Staff" />
             <div className="Inventory">
                 <div className="InventoryControls">
                     <div className="InventorySearch">

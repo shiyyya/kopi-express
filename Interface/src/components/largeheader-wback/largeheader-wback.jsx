@@ -12,7 +12,7 @@ const TABS = [
 ];
 
 function LargeHeader({
-    title = "Kopi Express/Staff",
+    title = "Kopi Express / Staff",
     tabs = TABS,
     onLogout,
 }) {

@@ -188,7 +188,7 @@ function SalesReport() {
 
     return (
         <div className="sales-report-page">
-            <LargeHeader title="Kopi Express/Staff" />
+            <LargeHeader title="Kopi Express / Staff" />
             <div className="sales-report-content">
                 <div className="content-frame">
                     <div className="sales-report-controls">
